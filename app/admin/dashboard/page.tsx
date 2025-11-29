@@ -36,7 +36,7 @@ export default function AdminDashboard() {
 
   const fetchStudents = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/admin/students');
+      const res = await axios.get('https://brandmonk-backend.onrender.com/api/admin/students');
       setStudents(res.data);
     } catch (error) {
       console.error('Error fetching students', error);
@@ -50,9 +50,9 @@ export default function AdminDashboard() {
     setIsSubmitting(true);
     try {
       if (editingId) {
-        await axios.put(`http://localhost:5000/api/admin/students/${editingId}`, formData);
+        await axios.put(`https://brandmonk-backend.onrender.com/api/admin/students/${editingId}`, formData);
       } else {
-        await axios.post('http://localhost:5000/api/admin/students', formData);
+        await axios.post('https://brandmonk-backend.onrender.com/api/admin/students', formData);
       }
       setShowModal(false);
       setFormData({ name: '', email: '', course: '' });
@@ -70,7 +70,7 @@ export default function AdminDashboard() {
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this student?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/admin/students/${id}`);
+        await axios.delete(`https://brandmonk-backend.onrender.com/api/admin/students/${id}`);
         fetchStudents();
       } catch (error) {
         console.error('Error deleting student', error);

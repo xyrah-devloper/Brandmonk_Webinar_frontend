@@ -15,7 +15,7 @@ export default function VerifyCertificate() {
   useEffect(() => {
     const fetchStudent = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/students/${params.id}`);
+        const res = await axios.get(`https://brandmonk-backend.onrender.com/api/students/${params.id}`);
         if (res.data.success) {
           setStudent(res.data.student);
         }

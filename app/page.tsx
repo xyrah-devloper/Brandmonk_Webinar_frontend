@@ -19,7 +19,7 @@ export default function Home() {
     setStudent(null);
 
     try {
-      const res = await axios.post('http://localhost:5000/api/students/verify', { email });
+      const res = await axios.post('https://brandmonk-backend.onrender.com/api/students/verify', { email });
       if (res.data.success) {
         setStudent(res.data.student);
       }
