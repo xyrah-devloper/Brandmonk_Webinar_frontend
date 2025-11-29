@@ -19,7 +19,7 @@ export default function Home() {
     setStudent(null);
 
     try {
-      const res = await axios.post('https://brandmonk-backend.onrender.com/api/students/verify', { email });
+      const res = await axios.post('https://brandmonk-backend-1.onrender.com/api/students/verify', { email });
       if (res.data.success) {
         setStudent(res.data.student);
       }
@@ -106,7 +106,7 @@ export default function Home() {
     doc.line(450, 510, 650, 510);
 
     // Verification Link
-    const verifyUrl = `http://localhost:3000/verify/${student._id}`;
+    const verifyUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/verify/${student._id}`;
     doc.setFontSize(10);
     doc.setTextColor(55, 65, 81);
     doc.textWithLink('Click here to verify this certificate', 400, 570, { url: verifyUrl, align: 'center' });

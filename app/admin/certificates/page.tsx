@@ -24,7 +24,7 @@ export default function CertificatesPage() {
 
   const fetchStudents = async () => {
     try {
-      const res = await axios.get('https://brandmonk-backend.onrender.com/api/admin/students');
+      const res = await axios.get('https://brandmonk-backend-1.onrender.com/api/admin/students');
       setStudents(res.data);
     } catch (error) {
       console.error('Error fetching students', error);
@@ -94,7 +94,7 @@ export default function CertificatesPage() {
     doc.text('Brand Monk Academy', 400, 540, { align: 'center' });
 
     // Verification Link
-    const verifyUrl = `http://localhost:3000/verify/${student._id}`;
+    const verifyUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/verify/${student._id}`;
     doc.setFontSize(10);
     doc.setTextColor(17, 24, 39);
     doc.textWithLink('Click here to verify this certificate', 400, 570, { url: verifyUrl, align: 'center' });
