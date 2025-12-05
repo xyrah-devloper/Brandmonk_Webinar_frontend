@@ -13,6 +13,7 @@ const Navbar = () => {
                 src="/image.png" 
                 alt="Brand Monk Logo" 
                 fill
+                sizes="40px"
                 className="object-contain"
                 priority
               />

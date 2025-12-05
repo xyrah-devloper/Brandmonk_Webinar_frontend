@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import axios from 'axios';
 import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 import Navbar from './components/Navbar';
+import CertificateTemplate from './components/CertificateTemplate';
 import { CheckCircle, Download, Loader2, Mail, ArrowRight, RefreshCw } from 'lucide-react';
 
 export default function Home() {
@@ -30,8 +32,10 @@ export default function Home() {
     }
   };
 
-  const generateCertificate = () => {
-    if (!student) return;
+  const certificateRef = useRef<HTMLDivElement>(null);
+
+  const generateCertificate = async () => {
+    if (!student || !certificateRef.current) return;
     
     // Ensure we have an ID for verification
     if (!student._id) {
@@ -39,81 +43,27 @@ export default function Home() {
       return;
     }
 
-    const doc = new jsPDF({
-      orientation: 'landscape',
-      unit: 'px',
-      format: [800, 600]
-    });
+    try {
+      const canvas = await html2canvas(certificateRef.current, {
+        scale: 2, // Higher quality
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
 
-    // Background
-    doc.setFillColor(255, 255, 255);
-    doc.rect(0, 0, 800, 600, 'F');
-    
-    // Border
-    doc.setLineWidth(10);
-    doc.setDrawColor(55, 65, 81); // Dark Gray (Professional)
-    doc.rect(20, 20, 760, 560);
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'px',
+        format: [1000, 700] // Match the component dimensions
+      });
 
-    // Header
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(40);
-    doc.setTextColor(55, 65, 81);
-    doc.text('CERTIFICATE OF COMPLETION', 400, 120, { align: 'center' });
-
-    // Subheader
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(18);
-    doc.setTextColor(100, 100, 100);
-    doc.text('This certificate is proudly presented to', 400, 180, { align: 'center' });
-
-    // Student Name
-    doc.setFont('times', 'bolditalic');
-    doc.setFontSize(50);
-    doc.setTextColor(30, 30, 30);
-    doc.text(student.name, 400, 260, { align: 'center' });
-    
-    // Line under name
-    doc.setLineWidth(1);
-    doc.setDrawColor(200, 200, 200);
-    doc.line(200, 270, 600, 270);
-
-    // Body Text
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(18);
-    doc.setTextColor(50, 50, 50);
-    doc.text('For successfully completing the comprehensive course on', 400, 330, { align: 'center' });
-
-    // Course Name
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(32);
-    doc.setTextColor(55, 65, 81);
-    doc.text(student.course, 400, 390, { align: 'center' });
-
-    // Date
-    const date = new Date(student.dateOfCompletion).toLocaleDateString();
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(14);
-    doc.setTextColor(120, 120, 120);
-    doc.text(`Awarded on ${date}`, 400, 460, { align: 'center' });
-
-    // Signature Area
-    doc.setFontSize(12);
-    doc.text('Authorized Signature', 250, 530, { align: 'center' });
-    doc.text('Brand Monk Academy', 550, 530, { align: 'center' });
-    
-    doc.setLineWidth(1);
-    doc.line(150, 510, 350, 510);
-    doc.line(450, 510, 650, 510);
-
-    // Verification Link
-    const verifyUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/verify/${student._id}`;
-    doc.setFontSize(10);
-    doc.setTextColor(55, 65, 81);
-    doc.textWithLink('Click here to verify this certificate', 400, 570, { url: verifyUrl, align: 'center' });
-    doc.setTextColor(150, 150, 150);
-    doc.text(verifyUrl, 400, 585, { align: 'center' });
-
-    doc.save(`${student.name}_Certificate.pdf`);
+      pdf.addImage(imgData, 'PNG', 0, 0, 1000, 700);
+      pdf.save(`${student.name}_Certificate.pdf`);
+    } catch (err) {
+      console.error("Certificate generation failed:", err);
+      alert("Failed to generate certificate. Please try again.");
+    }
   };
 
   return (
@@ -223,6 +173,23 @@ export default function Home() {
           </div>
         </div>
       </main>
+
+      {/* Hidden Certificate Template for PDF Generation */}
+      <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+        {student && (
+          <CertificateTemplate
+            ref={certificateRef}
+            studentName={student.name}
+            courseName={student.course}
+            date={new Date(student.dateOfCompletion).toLocaleDateString(undefined, {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            })}
+            verifyUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/verify/${student._id}`}
+          />
+        )}
+      </div>
     </div>
   );
 }
