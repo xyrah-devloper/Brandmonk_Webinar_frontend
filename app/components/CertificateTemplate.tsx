@@ -1,99 +1,152 @@
 import React, { forwardRef } from 'react';
-import { Playfair_Display, Inter } from 'next/font/google';
-
-const playfair = Playfair_Display({ subsets: ['latin'] });
-const inter = Inter({ subsets: ['latin'] });
 
 interface CertificateTemplateProps {
   studentName: string;
   courseName: string;
   date: string;
   verifyUrl: string;
+  certificateId: string;
 }
 
 const CertificateTemplate = forwardRef<HTMLDivElement, CertificateTemplateProps>(
-  ({ studentName, courseName, date, verifyUrl }, ref) => {
+  ({ studentName, courseName, date, verifyUrl, certificateId }, ref) => {
+    // Generate QR code URL using public API
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(verifyUrl)}`;
+
     return (
       <div 
         ref={ref} 
-        className="relative w-[1000px] h-[700px] flex-shrink-0 overflow-hidden" 
+        className="relative flex-shrink-0 overflow-hidden" 
         style={{ 
-            backgroundColor: '#ffffff', 
-            color: '#000000',
-            borderColor: 'transparent',
-            borderWidth: 0,
-            borderStyle: 'none'
+          width: '1000px',
+          height: '700px',
+          backgroundColor: '#ffffff', 
+          color: '#000000',
+          fontFamily: 'Georgia, serif'
         }}
       >
         {/* Certificate Background Image */}
         <img 
-            src="/certificate.png" 
-            alt="Certificate Background" 
-            className="absolute inset-0 w-full h-full object-cover z-0"
+          src="/certificate.png" 
+          alt="Certificate Background" 
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover'
+          }}
         />
 
-        {/* Content Overlays */}
-        <div className="relative z-10 w-full h-full">
-            
-            {/* Student Name */}
-            <div 
-                className="absolute w-full text-center" 
-                style={{ 
-                    top: '50%', 
-                    left: '33%', 
-                    transform: 'translate(-50%, -48%)',
-                }}
+        {/* Content Overlays - Positioned based on actual certificate layout */}
+        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+          
+          {/* Student Name - Centered below "THIS CERTIFICATE IS PROUDLY AWARDED TO" */}
+          <div 
+            style={{ 
+              position: 'absolute',
+              width: '55%',
+              textAlign: 'center',
+              top: '325px', 
+              left: '25px',
+            }}
+          >
+            <h2 
+              style={{ 
+                fontSize: '44px',
+                fontWeight: 'bold',
+                color: '#1a1a1a',
+                fontFamily: '"Playfair Display", Georgia, serif',
+                margin: 0,
+                letterSpacing: '2px'
+              }}
             >
-                <h2 
-                    className={`${playfair.className} text-5xl font-bold tracking-wide`} 
-                    style={{ color: '#000000' }}
-                >
-                    {studentName}
-                </h2>
-            </div>
+              {studentName}
+            </h2>
+          </div>
 
-            {/* Course Name */}
-            <div 
-                className="absolute" 
-                style={{ 
-                    top: '61.2%', 
-                    left: '33%', 
-                    transform: 'translateY(-60%)',
-                }}
+          {/* Course/Webinar Name - After "WEBINAR WHICH WAS HELD ON" text */}
+          <div 
+            style={{ 
+              position: 'absolute',
+              top: '412px', 
+              left: '333px',
+            }}
+          >
+            <p 
+              style={{ 
+                fontSize: '18px',
+                fontWeight: 'bold',
+                color: '#8B4513',
+                textTransform: 'uppercase',
+                letterSpacing: '3px',
+                fontFamily: 'Arial, sans-serif',
+                margin: 0
+              }}
             >
-                <p 
-                    className={`${inter.className} text-xl font-bold uppercase tracking-wider`} 
-                    style={{ color: '#000000' }}
-                >
-                    {courseName}
-                </p>
-            </div>
+              {courseName}
+            </p>
+          </div>
 
-            {/* Date */}
-            <div 
-                className="absolute" 
-                style={{ 
-                    top: '64.5%', 
-                    left: '37%', 
-                    transform: 'translateY(-50%)',
-                }}
+          {/* Date - Centered below webinar info */}
+          <div 
+            style={{ 
+              position: 'absolute',
+              width: '55%',
+              textAlign: 'center',
+              top: '440px', 
+              left: '160px',
+            }}
+          >
+            <p 
+              style={{ 
+                fontSize: '16px',
+                fontWeight: '600',
+                color: '#333333',
+                fontFamily: 'Arial, sans-serif',
+                margin: 0
+              }}
             >
-                <p 
-                    className={`${inter.className} text-lg font-medium`} 
-                    style={{ color: '#000000' }}
-                >
-                    {date}
-                </p>
-            </div>
+              {date}
+            </p>
+          </div>
 
-            {/* Verification Link (Optional - keep it small at bottom) */}
-            <div 
-                className="absolute bottom-4 left-16 text-[10px] font-medium" 
-                style={{ color: '#000000' }}
+          {/* QR Code & ID - Near NSDC Logo (Stacked) */}
+          <div 
+            style={{ 
+              position: 'absolute',
+              bottom: '15px', 
+              left: '520px', 
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '2px'
+            }}
+          >
+            <img 
+              src={qrCodeUrl}
+              alt="Verification QR Code"
+              style={{
+                width: '50px',
+                height: '50px',
+                border: '2px solid #333',
+                borderRadius: '4px',
+                backgroundColor: 'white'
+              }}
+            />
+            <p 
+              style={{ 
+                fontSize: '10px',
+                fontWeight: '700',
+                color: '#555555',
+                letterSpacing: '1px',
+                fontFamily: 'Consolas, "Courier New", monospace',
+                margin: 0
+              }}
             >
-                <span style={{ opacity: 0.7 }}>{verifyUrl}</span>
-            </div>
-
+              ID: {certificateId}
+            </p>
+          </div>
         </div>
       </div>
     );

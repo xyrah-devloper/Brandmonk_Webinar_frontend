@@ -1,47 +1,52 @@
+'use client';
+
 import Link from 'next/link';
-import Image from 'next/image';
 
-const Navbar = () => {
+export default function Navbar() {
   return (
-    <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-20 items-center">
-          {/* Logo Section */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-10 h-10 transition-transform duration-300 group-hover:scale-105">
-              <Image 
-                src="/image.png" 
-                alt="Brand Monk Logo" 
-                fill
-                sizes="40px"
-                className="object-contain"
-                priority
-              />
-            </div>
-            <span className="text-xl font-bold text-gray-900 tracking-tight group-hover:text-gray-700 transition-colors">
-              Brand Monk
-            </span>
-          </Link>
-
-          {/* Navigation Links */}
-          <div className="flex items-center gap-6">
-            <Link 
-              href="/" 
-              className="text-gray-500 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors"
-            >
-              Student Portal
-            </Link>
-            <Link 
-              href="/admin/login" 
-              className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-gray-900 hover:bg-gray-800 transition-all shadow-sm hover:shadow-md"
-            >
-              Admin Login
-            </Link>
-          </div>
-        </div>
+    <nav className="w-full py-3 px-6" style={{
+      background: 'rgba(255, 255, 255, 0.98)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      borderBottom: '1px solid rgba(16, 185, 129, 0.08)',
+      position: 'sticky',
+      top: 0,
+      zIndex: 100
+    }}>
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
+        {/* Logo */}
+        <Link href="/" className="flex items-center">
+          <img
+            src="https://brandmonkacademy.com/wp-content/uploads/2023/09/cropped-BMA-Logo-01-01-768x228-1.png"
+            alt="Brand Monk Academy"
+            style={{ 
+              height: '50px', 
+              width: 'auto'
+            }}
+          />
+        </Link>
+        
+        {/* Admin Button */}
+        <Link 
+          href="/admin/login" 
+          className="btn-premium btn-premium-dark"
+          style={{ padding: '12px 28px', fontSize: '14px' }}
+        >
+          <span>Admin Portal</span>
+          <svg 
+            width="16" 
+            height="16" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+          >
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </Link>
       </div>
     </nav>
   );
-};
-
-export default Navbar;
+}

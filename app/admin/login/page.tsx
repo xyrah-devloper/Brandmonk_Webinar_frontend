@@ -3,135 +3,167 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import Navbar from '../../components/Navbar';
-import { Lock, Mail, ArrowRight, Loader2 } from 'lucide-react';
+import { 
+  Lock, 
+  User, 
+  Loader2, 
+  Shield,
+  AlertCircle
+} from 'lucide-react';
+import Link from 'next/link';
 
-export default function AdminLogin() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
+export default function AdminLoginPage() {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [formData, setFormData] = useState({
+    username: '',
+    password: ''
+  });
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
     setError('');
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLoading(true);
+    setError('');
 
     try {
-      const res = await axios.post('https://brandmonk-backend-1.onrender.com/api/admin/login', { email, password });
+      const res = await axios.post(`${API_URL}/api/admin/login`, formData);
+      
       if (res.data.success) {
-        localStorage.setItem('adminToken', res.data.token);
+        // Store admin data in sessionStorage
+        sessionStorage.setItem('adminData', JSON.stringify(res.data.admin));
         router.push('/admin/dashboard');
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Invalid credentials');
+      console.error('Login error:', err);
+      setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#F3F4F6] flex flex-col font-sans">
-      <Navbar />
-      
-      <main className="flex-grow flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden border border-gray-100">
-          {/* Top Accent Bar */}
-          <div className="h-2 bg-gray-900 w-full"></div>
-          
-          <div className="p-8">
+    <div className="desk-bg no-scroll">
+       <div className="certificate-container" style={{ width: '600px', margin: '0 auto', maxWidth: '95vw', minHeight: 'auto', padding: '40px' }}>
+        <div className="certificate-border">
+          <div className="certificate-inner-border bg-[#fff9f0] relative">
+            
+            {/* Corner decorations */}
+            <div className="corner-decoration corner-tl"></div>
+            <div className="corner-decoration corner-tr"></div>
+            <div className="corner-decoration corner-bl"></div>
+            <div className="corner-decoration corner-br"></div>
+
             <div className="text-center mb-8">
-              <div className="mx-auto h-12 w-12 bg-gray-100 rounded-xl flex items-center justify-center mb-4">
-                <Lock className="h-6 w-6 text-gray-700" />
+              <div className="mb-6">
+                 <img 
+                    src="https://brandmonkacademy.com/wp-content/uploads/2023/09/cropped-BMA-Logo-01-01-768x228-1.png" 
+                    alt="Brand Monk Academy" 
+                    className="h-12 w-auto mx-auto object-contain mix-blend-multiply opacity-90"
+                 />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h1 className="font-serif text-2xl font-bold text-[#1a237e] uppercase tracking-[0.2em] border-b border-[#DAA520] pb-2 inline-block">
                 Admin Portal
-              </h2>
-              <p className="text-gray-500 text-sm mt-2">
-                Secure access for Brand Monk administrators
+              </h1>
+              <p className="font-sans text-xs text-[#666] uppercase tracking-widest mt-3 font-medium">
+                Authorized Personnel Access
               </p>
             </div>
 
-            <form className="space-y-5" onSubmit={handleLogin}>
-              <div>
-                <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-gray-400" />
+            <form onSubmit={handleSubmit} className="max-w-xs mx-auto space-y-6">
+               <div className="space-y-5">
+                  {/* Username Field */}
+                  <div className="relative group">
+                    <label htmlFor="username" className="block text-[10px] font-bold text-[#555] uppercase tracking-widest mb-1.5 ml-1">
+                      Admin Username
+                    </label>
+                    <div className="relative flex items-center bg-white border border-[#ccc] group-focus-within:border-[#1a237e] group-focus-within:ring-1 group-focus-within:ring-[#1a237e] transition-all rounded-sm px-3 shadow-sm">
+                      <User className="w-4 h-4 text-[#888]" />
+                      <input 
+                        id="username"
+                        name="username"
+                        type="text"
+                        required
+                        className="w-full bg-transparent border-none focus:ring-0 text-[#333] font-serif placeholder-gray-300 py-2.5 px-3 text-sm focus:outline-none"
+                        placeholder="Enter Username"
+                        value={formData.username}
+                        onChange={handleChange}
+                      />
+                    </div>
                   </div>
-                  <input
-                    id="email"
-                    type="email"
-                    required
-                    className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all sm:text-sm bg-gray-50"
-                    placeholder="admin@brandmonk.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-              </div>
 
-              <div>
-                <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Password
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-gray-400" />
+                  {/* Password Field */}
+                  <div className="relative group">
+                    <label htmlFor="password" className="block text-[10px] font-bold text-[#555] uppercase tracking-widest mb-1.5 ml-1">
+                      Password
+                    </label>
+                    <div className="relative flex items-center bg-white border border-[#ccc] group-focus-within:border-[#1a237e] group-focus-within:ring-1 group-focus-within:ring-[#1a237e] transition-all rounded-sm px-3 shadow-sm h-[44px]">
+                      <Lock className="w-4 h-4 text-[#888]" />
+                      <input 
+                        id="password"
+                        name="password"
+                        type="password"
+                        required
+                        className="w-full bg-transparent border-none focus:ring-0 text-[#333] font-serif placeholder-gray-300 py-2.5 px-3 text-sm focus:outline-none"
+                        placeholder="Enter Password"
+                        value={formData.password}
+                        onChange={handleChange}
+                      />
+                    </div>
                   </div>
-                  <input
-                    id="password"
-                    type="password"
-                    required
-                    className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all sm:text-sm bg-gray-50"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
-              </div>
+               </div>
 
-              {error && (
-                <div className="p-3 rounded-lg bg-red-50 border border-red-100 text-red-600 text-sm flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-red-500 flex-shrink-0"></span>
-                  {error}
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 disabled:opacity-70 transition-all hover:scale-[1.02]"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4" />
-                    Signing in...
-                  </>
-                ) : (
-                  <>
-                    Sign In
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </>
+                {/* Error Message */}
+                {error && (
+                  <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 text-red-700 text-xs font-medium rounded-sm">
+                    <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                    {error}
+                  </div>
                 )}
-              </button>
-            </form>
 
-            <div className="mt-8 pt-6 border-t border-gray-100 text-center">
-              <p className="text-xs text-gray-400 uppercase tracking-wider font-medium mb-3">
-                Demo Credentials
-              </p>
-              <div className="inline-block text-left bg-gray-50 rounded-lg p-3 border border-gray-100">
-                <p className="text-xs text-gray-600 font-mono">User: admin@brandmonk.com</p>
-                <p className="text-xs text-gray-600 font-mono mt-1">Pass: admin123</p>
-              </div>
+                {/* Submit Button */}
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3 bg-[#1a237e] text-white font-bold text-xs uppercase tracking-[0.25em] shadow-md hover:shadow-xl transition-all hover:bg-[#283593] rounded-sm flex items-center justify-center gap-2"
+                  >
+                    {loading ? (
+                       <>
+                         <Loader2 className="w-3.5 h-3.5 animate-spin" /> Verifying...
+                       </>
+                    ) : (
+                       <span>Login to Dashboard</span>
+                    )}
+                  </button>
+                </div>
+            </form>
+            
+            <div className="mt-8 pt-4 border-t border-[#d4c5b0] text-center">
+               <p className="text-[10px] uppercase font-bold text-[#1a237e] mb-2 opacity-70">Authorized Credentials Only</p>
+               <div className="text-[10px] text-[#666] font-mono leading-tight opacity-60">
+                  <p>Chennai: chennai_admin / chennai@123</p>
+                  <p>Coimbatore: coimbatore_admin / coimbatore@123</p>
+               </div>
+               
+               <Link href="/" className="inline-block mt-4 text-xs font-serif italic text-[#1a237e] hover:underline">
+                  ← Return to Public Registry
+               </Link>
             </div>
+
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
