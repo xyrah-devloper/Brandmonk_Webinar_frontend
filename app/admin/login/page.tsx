@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://brandmonk-backend-1.onrender.com';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 export default function AdminLoginPage() {
   const router = useRouter();
