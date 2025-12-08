@@ -150,12 +150,12 @@ export default function SuccessPage() {
             {/* Right Side */}
             <div className="flex items-center gap-6">
               
-              <button 
+              {/* <button 
                 onClick={() => router.push('/')}
                 className="px-5 py-2.5 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors"
               >
                 Back to Home
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
@@ -410,12 +410,12 @@ export default function SuccessPage() {
                     )}
                   </button>
 
-                  <button
+                  {/* <button
                     onClick={() => router.push('/')}
                     className="w-full mt-3 py-3 text-slate-500 hover:text-slate-700 font-medium text-sm"
                   >
                     Back to Home
-                  </button>
+                  </button> */}
                 </div>
               </div>
             )}
