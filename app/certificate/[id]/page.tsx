@@ -208,7 +208,7 @@ export default function CertificatePage({ params }: PageProps) {
             <div className="bg-gray-50 rounded-2xl p-6 mb-6 border border-gray-100">
               <div className="space-y-4">
                 <div className="flex items-center justify-between pb-4 border-b border-gray-200">
-                  <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Webinar</span>
+                  <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Course</span>
                   <span className="font-bold text-gray-900 text-lg">{student.webinarName}</span>
                 </div>
                 <div className="flex items-center justify-between pb-4 border-b border-gray-200">
