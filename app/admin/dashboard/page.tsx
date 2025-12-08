@@ -1007,9 +1007,18 @@ export default function AdminDashboard() {
                           <MapPin className="w-4 h-4 text-slate-400" />
                           {webinar.location || 'Online'}
                         </div>
-                        <div className="flex items-center text-sm text-slate-600 gap-2">
-                          <Users className="w-4 h-4 text-slate-400" />
-                          <span className="font-semibold text-slate-900">{webinar.totalRegistrations}</span> Registrations
+                        <div 
+                          className="flex items-center text-sm text-slate-600 gap-2 cursor-pointer hover:bg-purple-50 -mx-2 px-2 py-1 rounded-lg transition-colors group"
+                          onClick={() => {
+                            setStudentCourseFilter(webinar.name);
+                            setActiveTab('students');
+                          }}
+                          title="Click to view registered students"
+                        >
+                          <Users className="w-4 h-4 text-slate-400 group-hover:text-purple-500" />
+                          <span className="font-semibold text-slate-900 group-hover:text-purple-600">{webinar.totalRegistrations}</span>
+                          <span className="group-hover:text-purple-600">Registrations</span>
+                          <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 text-purple-500 transition-opacity" />
                         </div>
                       </div>
 
