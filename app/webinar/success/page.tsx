@@ -9,16 +9,10 @@ import {
   CheckCircle, 
   Download, 
   Instagram, 
-  Lock,
-  ArrowRight,
   Loader2,
   ExternalLink,
-  RefreshCw,
-  Award,
-  Shield,
-  Home as HomeIcon
+  ArrowRight
 } from 'lucide-react';
-// Navbar removed to fit the retro desk theme
 import CertificateTemplate from '../../components/CertificateTemplate';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
@@ -27,7 +21,7 @@ const INSTAGRAM_URL = 'https://www.instagram.com/brandmonkacademy';
 export default function SuccessPage() {
   const router = useRouter();
   const [student, setStudent] = useState<any>(null);
-  const [step, setStep] = useState<'thankyou' | 'follow' | 'verify' | 'download'>('thankyou');
+  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [loading, setLoading] = useState(false);
   const [processingFollow, setProcessingFollow] = useState(false);
   const [error, setError] = useState('');
@@ -41,7 +35,7 @@ export default function SuccessPage() {
       setStudent(parsed);
       
       if (parsed.hasFollowedInstagram) {
-        setStep('download');
+        setStep(3);
         setDownloadReady(true);
       }
     } else {
@@ -52,11 +46,9 @@ export default function SuccessPage() {
   const handleFollowInstagram = () => {
     window.open(INSTAGRAM_URL, '_blank');
     setProcessingFollow(true);
-    // 6 seconds delay before showing verify step
     setTimeout(() => {
-      setStep('verify');
       setProcessingFollow(false);
-    }, 6000);
+    }, 3000);
   };
 
   const handleVerifyFollow = async () => {
@@ -76,7 +68,7 @@ export default function SuccessPage() {
           ...student,
           hasFollowedInstagram: true
         }));
-        setStep('download');
+        setStep(3);
         setDownloadReady(true);
       }
     } catch (err: any) {
@@ -119,267 +111,313 @@ export default function SuccessPage() {
 
   if (!student) {
     return (
-      <div className="desk-bg flex items-center justify-center">
-        <Loader2 className="w-12 h-12 text-[#DAA520] animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
       </div>
     );
   }
 
+  const steps = [
+    { num: 1, label: 'Registration Complete' },
+    { num: 2, label: 'Follow Instagram' },
+    { num: 3, label: 'Download Certificate' },
+  ];
+
   return (
-    <div className="desk-bg no-scroll">
-      {/* Background container matching Home Page */}
-      <div className="certificate-container landscape">
-        <div className="certificate-border">
-          <div className="certificate-inner-border">
-            
-            {/* Corner decorations */}
-            <div className="corner-decoration corner-tl"></div>
-            <div className="corner-decoration corner-tr"></div>
-            <div className="corner-decoration corner-bl"></div>
-            <div className="corner-decoration corner-br"></div>
+    <div 
+      className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 relative overflow-hidden"
+      style={{ fontFamily: "'Inter', -apple-system, sans-serif" }}
+    >
+      {/* Subtle Background Blobs */}
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-orange-200/40 to-pink-200/40 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-gradient-to-tr from-indigo-200/40 to-purple-200/40 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+      
+      {/* Professional Navbar */}
+      <header className="relative z-10 border-b border-slate-200/60 bg-white/70 backdrop-blur-xl">
+        <div className="max-w-6xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            {/* Logo */}
+            <a href="/" className="flex items-center gap-3 group">
+              <img 
+                src="https://brandmonkacademy.com/wp-content/uploads/2023/09/cropped-BMA-Logo-01-01-768x228-1.png"
+                alt="Brand Monk Academy"
+                className="h-1 w-auto object-contain"
+              />
+            </a>
 
-            <div className="cert-content-grid">
+            {/* Right Side */}
+            <div className="flex items-center gap-6">
               
-              {/* LEFT SIDE: Identity & Info */}
-              <div className="cert-column left-col relative">
-                <div className="mb-4">
-                   <img 
-                      src="https://brandmonkacademy.com/wp-content/uploads/2023/09/cropped-BMA-Logo-01-01-768x228-1.png" 
-                      alt="Brand Monk Academy Seal" 
-                      className="h-16 w-auto mx-auto object-contain mix-blend-multiply opacity-90"
-                    />
-                </div>
-                <h1 className="cert-title main-title text-center">Brand Monk<br/>Academy</h1>
-                <p className="cert-subtitle text-center">Webinar Certification</p>
-                
-                <div className="cert-divider-small"></div>
-                
-                <div className="text-center space-y-4 font-serif text-[#1a237e]">
-                  <div className="border-b border-[#DAA520] pb-2 inline-block px-4">
-                    <p className="text-sm text-gray-500 uppercase tracking-widest mb-1">Student Name</p>
-                    <p className="text-xl font-bold">{student.name}</p>
-                  </div>
-                  
-                  <div className="border-b border-[#DAA520] pb-2 inline-block px-4">
-                    <p className="text-sm text-gray-500 uppercase tracking-widest mb-1">Webinar/Course</p>
-                    <p className="text-lg font-bold">{student.webinarName}</p>
-                  </div>
-                  
-                  <div>
-                     <p className="text-sm text-gray-500 uppercase tracking-widest mb-1">Certificate ID</p>
-                     <p className="font-mono font-bold text-[#c0392b] tracking-wider">{student.certificateId}</p>
-                  </div>
-                </div>
-
-                <div className="seal-area mt-auto">
-                   <div className="gold-seal relative">
-                      <div className="seal-ribbon"></div>
-                      <div className="seal-text">VERIFIED<br/>SOURCE</div>
-                   </div>
-                   <div className="signature-area">
-                      <div className="hand-signature-small">Brand Monk</div>
-                      <div className="signature-line-small"></div>
-                      <p className="signature-label-small">Registrar</p>
-                   </div>
-                </div>
-              </div>
-
-              {/* VERTICAL DIVIDER */}
-              <div className="cert-vertical-divider"></div>
-
-              {/* RIGHT SIDE: Action Steps */}
-              <div className="cert-column right-col relative flex flex-col justify-center text-center">
-                
-                {/* Step Content Swapper */}
-                <div className="flex-grow flex flex-col justify-center items-center max-w-md mx-auto w-full">
-                  
-                  {/* STEP 1: THANK YOU */}
-                  {step === 'thankyou' && (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                      <div className="mb-6">
-                         <div className="w-16 h-16 rounded-full border-2 border-[#1a237e] flex items-center justify-center mx-auto bg-white">
-                            <CheckCircle className="w-8 h-8 text-[#1a237e]" />
-                         </div>
-                      </div>
-                      <h2 className="font-cinzel text-2xl font-bold text-[#1a237e] mb-2">Registration Confirmed</h2>
-                      <p className="font-serif text-gray-600 italic mb-8">
-                        "We formally acknowledge your enrollment. Proceed to claim your digital credentials."
-                      </p>
-                      
-                      <button
-                        onClick={() => setStep('follow')}
-                        className="group relative inline-flex items-center justify-center gap-3 px-8 py-3 bg-[#1a237e] text-white text-sm font-bold uppercase tracking-widest hover:bg-[#2c3e50] transition-all transform hover:scale-[1.02] shadow-lg border-2 border-[#DAA520]"
-                      >
-                        <Award className="w-5 h-5 text-[#DAA520]" />
-                        <span>Claim Certificate</span>
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                      </button>
-                    </div>
-                  )}
-
-                  {/* STEP 2: FOLLOW INSTAGRAM */}
-                  {step === 'follow' && (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                      <div className="mb-6">
-                         <div className="w-16 h-16 rounded-full border-2 border-[#1a237e] flex items-center justify-center mx-auto bg-white">
-                            <Lock className="w-8 h-8 text-[#1a237e]" />
-                         </div>
-                      </div>
-                      <h2 className="font-cinzel text-2xl font-bold text-[#1a237e] mb-2">Unlock Credentials</h2>
-                      <p className="font-serif text-gray-600 italic mb-8">
-                        "To release the seal on your certificate, adhere to the academy's social registry."
-                      </p>
-
-                      <div className="p-4 bg-[#f9f7f2] border border-[#d4c5b0] rounded mb-6 flex items-center gap-4 text-left shadow-inner">
-                        <div className="bg-gradient-to-br from-purple-600 to-orange-500 p-2 rounded text-white">
-                           <Instagram className="w-6 h-6" />
-                        </div>
-                        <div>
-                           <p className="font-bold font-serif text-[#1a237e]">@brandmonkacademy</p>
-                           <p className="text-xs text-gray-500 uppercase tracking-widest">Official Channel</p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex flex-col gap-3 w-full">
-                        <button
-                          onClick={handleFollowInstagram}
-                          disabled={processingFollow}
-                          className={`w-full inline-flex items-center justify-center gap-3 px-6 py-3 bg-[#c13584] text-white text-sm font-bold uppercase tracking-widest hover:bg-[#a02c6d] transition-all shadow-md ${processingFollow ? 'opacity-75' : ''}`}
-                        >
-                          {processingFollow ? (
-                            <>
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                              <span>Verifying...</span>
-                            </>
-                          ) : (
-                            <>
-                              <Instagram className="w-4 h-4" />
-                              <span>Follow Registry</span>
-                              <ExternalLink className="w-4 h-4" />
-                            </>
-                          )}
-                        </button>
-                        
-                        <button
-                           onClick={() => setStep('thankyou')}
-                           className="text-xs font-bold text-gray-500 hover:text-[#1a237e] uppercase tracking-widest border-b border-transparent hover:border-[#1a237e]"
-                        >
-                           Return to Previous
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* STEP 3: VERIFY */}
-                  {step === 'verify' && (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                      <div className="mb-6">
-                         <div className="w-16 h-16 rounded-full border-2 border-[#DAA520] flex items-center justify-center mx-auto bg-[#fff9f0]">
-                            <Users className="w-8 h-8 text-[#DAA520]" />
-                         </div>
-                      </div>
-                      <h2 className="font-cinzel text-2xl font-bold text-[#1a237e] mb-2">Verify Attendance</h2>
-                      <p className="font-serif text-gray-600 italic mb-6">
-                        "Confirming your support of the academy."
-                      </p>
-                      
-                      {error && (
-                         <div className="mb-4 text-xs font-bold text-red-600 bg-red-50 p-2 border border-red-200">
-                           {error}
-                         </div>
-                      )}
-
-                      <div className="flex flex-col gap-3 w-full">
-                        <button
-                          onClick={handleVerifyFollow}
-                          disabled={loading}
-                          className={`w-full inline-flex items-center justify-center gap-3 px-6 py-3 bg-[#1a237e] text-white text-sm font-bold uppercase tracking-widest hover:bg-[#2c3e50] transition-all shadow-md border border-[#DAA520] ${loading ? 'opacity-70' : ''}`}
-                        >
-                           {loading ? (
-                             <>
-                               <Loader2 className="w-4 h-4 animate-spin" />
-                               <span>Checking Records...</span>
-                             </>
-                           ) : (
-                             <>
-                               <CheckCircle className="w-4 h-4" />
-                               <span>Confirm Follow</span>
-                             </>
-                           )}
-                        </button>
-
-                        <button
-                          onClick={handleFollowInstagram}
-                          className="w-full inline-flex items-center justify-center gap-3 px-6 py-3 bg-white text-[#1a237e] text-sm font-bold uppercase tracking-widest hover:bg-gray-50 transition-all border border-[#1a237e]"
-                        >
-                          <RefreshCw className="w-4 h-4" />
-                          <span>Re-Open Instagram</span>
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* STEP 4: DOWNLOAD */}
-                  {step === 'download' && downloadReady && (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                      <div className="mb-4">
-                         <div className="w-20 h-20 rounded-full border-4 double border-[#DAA520] flex items-center justify-center mx-auto bg-[#fff9f0] shadow-xl">
-                            <Award className="w-10 h-10 text-[#DAA520]" />
-                         </div>
-                      </div>
-                      <h2 className="font-cinzel text-3xl font-bold text-[#1a237e] mb-2">Certificate Granted</h2>
-                      <p className="font-serif text-gray-600 italic mb-8">
-                        "This document serves as efficient proof of your completion."
-                      </p>
-                      
-                      {error && (
-                         <div className="mb-4 text-xs font-bold text-red-600 bg-red-50 p-2 border border-red-200">
-                           {error}
-                         </div>
-                      )}
-
-                      <div className="flex flex-col gap-4 w-full">
-                        <button
-                          onClick={generateCertificate}
-                          disabled={loading}
-                          className={`group relative w-full inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#c0392b] text-white text-sm font-bold uppercase tracking-widest hover:bg-[#a93226] transition-all shadow-lg border-2 border-[#fff] outline outline-2 outline-[#c0392b] ${loading ? 'opacity-70' : ''}`}
-                        >
-                           {loading ? (
-                             <>
-                               <Loader2 className="w-5 h-5 animate-spin" />
-                               <span>Scribing Document...</span>
-                             </>
-                           ) : (
-                             <>
-                               <Download className="w-5 h-5" />
-                               <span>Download Certificate (PDF)</span>
-                               <span className="absolute right-4 opacity-0 group-hover:opacity-100 transition-opacity">↓</span>
-                             </>
-                           )}
-                        </button>
-                        
-                        <button
-                          onClick={() => router.push('/')}
-                          className="text-xs font-bold text-[#1a237e] uppercase tracking-widest hover:underline decoration-1 underline-offset-4"
-                        >
-                          Return to Registry
-                        </button>
-                      </div>
-                      
-                      <div className="mt-8 flex items-center justify-center gap-2 text-[#DAA520] opacity-80">
-                         <Shield className="w-4 h-4" />
-                         <span className="text-[10px] uppercase tracking-widest font-bold">Securely Signed</span>
-                      </div>
-                    </div>
-                  )}
-
-                </div>
-              </div>
+              <button 
+                onClick={() => router.push('/')}
+                className="px-5 py-2.5 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors"
+              >
+                Back to Home
+              </button>
             </div>
-
           </div>
         </div>
-      </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="relative z-10 px-6 py-8">
+        <div className="max-w-3xl mx-auto">
+          {/* Title */}
+          <div className="text-center mb-10">
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">
+              Let's get your certificate
+            </h1>
+            <p className="text-slate-500">
+              Complete the steps below to download your certificate
+            </p>
+          </div>
+
+          {/* Step Indicator */}
+          <div className="flex items-center justify-center mb-12">
+            {steps.map((s, i) => (
+              <div key={s.num} className="flex items-center">
+                <div className="flex flex-col items-center">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${
+                    step > s.num 
+                      ? 'bg-indigo-600 text-white' 
+                      : step === s.num 
+                        ? 'bg-indigo-600 text-white ring-4 ring-indigo-100' 
+                        : 'bg-slate-100 text-slate-400 border-2 border-slate-200'
+                  }`}>
+                    {step > s.num ? <CheckCircle className="w-5 h-5" /> : s.num}
+                  </div>
+                  <span className={`mt-2 text-xs font-medium ${
+                    step >= s.num ? 'text-slate-700' : 'text-slate-400'
+                  }`}>
+                    {s.label}
+                  </span>
+                </div>
+                {i < steps.length - 1 && (
+                  <div className={`w-20 sm:w-32 h-[2px] mx-2 mt-[-20px] transition-all duration-300 ${
+                    step > s.num ? 'bg-indigo-600' : 'bg-slate-200'
+                  }`} />
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Card */}
+          <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+            
+            {/* STEP 1: Registration Complete */}
+            {step === 1 && (
+              <div className="p-8 sm:p-12">
+                <div className="max-w-md mx-auto">
+                  <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-6">
+                    <CheckCircle className="w-8 h-8 text-emerald-600" />
+                  </div>
+                  
+                  <h2 className="text-2xl font-bold text-slate-900 text-center mb-2">
+                    Registration Successful!
+                  </h2>
+                  <p className="text-slate-500 text-center mb-8">
+                    You're all set for the webinar
+                  </p>
+
+                  {/* Student Info */}
+                  <div className="space-y-4 mb-8">
+                    <div className="flex justify-between items-center py-3 border-b border-slate-100">
+                      <span className="text-sm text-slate-500">Name</span>
+                      <span className="font-medium text-slate-900">{student.name}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-3 border-b border-slate-100">
+                      <span className="text-sm text-slate-500">Email</span>
+                      <span className="font-medium text-slate-900">{student.email}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-3 border-b border-slate-100">
+                      <span className="text-sm text-slate-500">Program</span>
+                      <span className="font-medium text-slate-900">{student.webinarName}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-3">
+                      <span className="text-sm text-slate-500">Certificate ID</span>
+                      <span className="font-mono font-medium text-indigo-600">{student.certificateId}</span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setStep(2)}
+                    className="w-full py-4 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2"
+                  >
+                    Continue
+                    <ArrowRight className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 2: Follow Instagram */}
+            {step === 2 && (
+              <div className="p-8 sm:p-12">
+                <div className="max-w-md mx-auto">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 flex items-center justify-center mx-auto mb-6">
+                    <Instagram className="w-8 h-8 text-white" />
+                  </div>
+                  
+                  <h2 className="text-2xl font-bold text-slate-900 text-center mb-2">
+                    Follow us on Instagram
+                  </h2>
+                  <p className="text-slate-500 text-center mb-8">
+                    Stay updated with our latest courses and content
+                  </p>
+
+                  {/* Instagram Profile Card */}
+                  <div className="bg-slate-50 rounded-xl p-6 mb-6">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 p-[2px]">
+                        <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
+                          <img 
+                            src="https://brandmonkacademy.com/wp-content/uploads/2023/09/cropped-BMA-Logo-01-01-768x228-1.png"
+                            alt="BMA"
+                            className="w-8 h-8 object-contain"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-slate-900">brandmonkacademy</p>
+                        <p className="text-sm text-slate-500">Brand Monk Academy</p>
+                      </div>
+                    </div>
+                    
+                    <button
+                      onClick={handleFollowInstagram}
+                      disabled={processingFollow}
+                      className="w-full py-3 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white font-semibold rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                    >
+                      {processingFollow ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          Opening...
+                        </>
+                      ) : (
+                        <>
+                          Follow
+                          <ExternalLink className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {error && (
+                    <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm text-center">
+                      {error}
+                    </div>
+                  )}
+
+                  <button
+                    onClick={handleVerifyFollow}
+                    disabled={loading}
+                    className="w-full py-4 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Verifying...
+                      </>
+                    ) : (
+                      <>
+                        I've Followed
+                        <ArrowRight className="w-5 h-5" />
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={() => setStep(1)}
+                    className="w-full mt-3 py-3 text-slate-500 hover:text-slate-700 font-medium text-sm"
+                  >
+                    ← Go Back
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 3: Download Certificate */}
+            {step === 3 && downloadReady && (
+              <div className="p-8 sm:p-12">
+                <div className="max-w-md mx-auto">
+                  <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-6">
+                    <Download className="w-8 h-8 text-amber-600" />
+                  </div>
+                  
+                  <h2 className="text-2xl font-bold text-slate-900 text-center mb-2">
+                    Your Certificate is Ready!
+                  </h2>
+                  <p className="text-slate-500 text-center mb-8">
+                    Congratulations on completing the webinar
+                  </p>
+
+                  {/* Certificate Preview */}
+                  <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-6 mb-6 border border-amber-100">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <p className="text-xs text-slate-500 uppercase tracking-wider">Participant</p>
+                        <p className="font-semibold text-slate-900">{student.name}</p>
+                      </div>
+                      <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center">
+                        <span className="text-amber-600 text-2xl">🏆</span>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs text-slate-500 uppercase tracking-wider">Program</p>
+                        <p className="font-medium text-slate-900 text-sm">{student.webinarName}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-500 uppercase tracking-wider">Certificate ID</p>
+                        <p className="font-mono font-medium text-indigo-600 text-sm">{student.certificateId}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {error && (
+                    <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm text-center">
+                      {error}
+                    </div>
+                  )}
+
+                  <button
+                    onClick={generateCertificate}
+                    disabled={loading}
+                    className="w-full py-4 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Generating PDF...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-5 h-5" />
+                        Download Certificate
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={() => router.push('/')}
+                    className="w-full mt-3 py-3 text-slate-500 hover:text-slate-700 font-medium text-sm"
+                  >
+                    Back to Home
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Footer */}
+          <p className="text-center text-slate-400 text-sm mt-8">
+            Need help?{' '}
+            <a href="mailto:info@brandmonkacademy.com" className="text-indigo-600 hover:underline">
+              Contact Support
+            </a>
+          </p>
+        </div>
+      </main>
 
       {/* Hidden Certificate Template for PDF Generation */}
       <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
@@ -399,28 +437,5 @@ export default function SuccessPage() {
         )}
       </div>
     </div>
-  );
-}
-
-// Helper icon component since 'Users' was imported but might need local definition if lucide version varies
-function Users({ className }: { className?: string }) {
-  return (
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      width="24" 
-      height="24" 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round" 
-      className={className}
-    >
-      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
-      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-    </svg>
   );
 }

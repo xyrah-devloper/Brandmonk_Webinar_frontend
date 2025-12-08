@@ -35,13 +35,18 @@ export default function RegisterPage({ params }: PageProps) {
   const [error, setError] = useState('');
   const [webinar, setWebinar] = useState<any>(null);
   const [notFound, setNotFound] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [registeredData, setRegisteredData] = useState<any>(null);
   
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     location: '',
-    profession: ''
+    profession: '',
+    collegeOrCompany: '',
+    department: '',
+    yearOfStudyOrExperience: ''
   });
 
   useEffect(() => {
@@ -89,8 +94,14 @@ export default function RegisterPage({ params }: PageProps) {
       });
       
       if (res.data.success) {
-        sessionStorage.setItem('registeredStudent', JSON.stringify(res.data.student));
-        router.push('/webinar/success');
+        // For Courses, show thank you inline. For Webinars, redirect.
+        if (webinar?.type === 'Course') {
+          setRegisteredData(res.data.student);
+          setSubmitted(true);
+        } else {
+          sessionStorage.setItem('registeredStudent', JSON.stringify(res.data.student));
+          router.push('/webinar/success');
+        }
       }
     } catch (err: any) {
       console.error('Registration error:', err);
@@ -105,7 +116,7 @@ export default function RegisterPage({ params }: PageProps) {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100" style={{ fontFamily: "'Outfit', 'Inter', sans-serif" }}>
         <div className="text-center">
           <Loader2 className="w-10 h-10 text-emerald-600 animate-spin mx-auto mb-4" />
-          <p className="text-gray-500 font-medium">Loading webinar details...</p>
+          <p className="text-gray-500 font-medium">Loading details...</p>
         </div>
       </div>
     );
@@ -119,10 +130,10 @@ export default function RegisterPage({ params }: PageProps) {
             <AlertCircle className="w-10 h-10 text-red-500" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-3">
-            Webinar Not Found
+            Registration Not Found
           </h1>
           <p className="text-gray-600 mb-8">
-            This registration link is invalid or the webinar is no longer accepting registrations.
+            This registration link is invalid or registrations are no longer open.
           </p>
           <a 
             href="/" 
@@ -130,6 +141,71 @@ export default function RegisterPage({ params }: PageProps) {
           >
             Go to Home
           </a>
+        </div>
+      </div>
+    );
+  }
+
+  // Thank You view for Course registrations
+  if (submitted && webinar?.type === 'Course') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-4" style={{ fontFamily: "'Outfit', 'Inter', sans-serif" }}>
+        <div className="w-full max-w-lg text-center">
+          {/* Logo */}
+          <img 
+            src="https://brandmonkacademy.com/wp-content/uploads/2023/09/cropped-BMA-Logo-01-01-768x228-1.png"
+            alt="Brand Monk Academy"
+            className="h-20 mx-auto mb-8"
+          />
+          
+          {/* Success Card */}
+          <div className="bg-white rounded-3xl shadow-2xl shadow-emerald-200/40 p-8 overflow-hidden relative">
+            {/* Top decoration */}
+            <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600" />
+            
+            {/* Success Icon */}
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-100 mb-6">
+              <CheckCircle className="w-10 h-10 text-emerald-600" />
+            </div>
+            
+            <h1 className="text-3xl font-bold text-gray-900 mb-3">
+              Thank You! 🎉
+            </h1>
+            
+            <p className="text-gray-600 text-lg mb-2">
+              Your registration is complete.
+            </p>
+            
+            {registeredData?.name && (
+              <p className="text-emerald-700 font-semibold text-xl mb-4">
+                Welcome, {registeredData.name}!
+              </p>
+            )}
+            
+            <div className="bg-emerald-50 rounded-2xl p-6 mt-6 border border-emerald-100">
+              <h2 className="font-bold text-gray-900 text-lg mb-2">{webinar?.name}</h2>
+              <p className="text-gray-600 text-sm">
+                We've received your registration for this course. Our team will contact you shortly with further details.
+              </p>
+            </div>
+            
+            {/* <div className="mt-8 space-y-3">
+              <a 
+                href="/"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-emerald-600 text-white rounded-full font-semibold hover:bg-emerald-700 hover:shadow-lg transition-all duration-300 w-full"
+              >
+                Back to Home
+              </a>
+            </div> */}
+          </div>
+          
+          {/* Footer Text */}
+          <p className="text-gray-500 text-sm mt-6">
+            Questions? Contact us at{' '}
+            <a href="mailto:info@brandmonkacademy.com" className="text-emerald-600 font-semibold hover:underline">
+              info@brandmonkacademy.com
+            </a>
+          </p>
         </div>
       </div>
     );
@@ -164,7 +240,7 @@ export default function RegisterPage({ params }: PageProps) {
             <div className="flex items-start justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-                  Webinar Registration
+                  {webinar?.type === 'Course' ? 'Course Registration' : 'Webinar Registration'}
                 </h1>
                 <p className="text-gray-500 mt-2 font-medium">
                   Complete your registration below
@@ -289,6 +365,51 @@ export default function RegisterPage({ params }: PageProps) {
                   placeholder="Chennai, India"
                 />
               </div>
+
+              {/* College / Company */}
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
+                  College / Company Name
+                </label>
+                <input
+                  name="collegeOrCompany"
+                  type="text"
+                  value={formData.collegeOrCompany}
+                  onChange={handleChange}
+                  className="w-full text-gray-900 text-lg font-medium border-0 border-b-2 border-gray-200 pb-3 focus:border-emerald-500 focus:outline-none transition-colors bg-transparent placeholder:text-gray-400 placeholder:font-normal"
+                  placeholder="Eg: Anna University"
+                />
+              </div>
+
+              {/* Department */}
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
+                  Department / Designation
+                </label>
+                <input
+                  name="department"
+                  type="text"
+                  value={formData.department}
+                  onChange={handleChange}
+                  className="w-full text-gray-900 text-lg font-medium border-0 border-b-2 border-gray-200 pb-3 focus:border-emerald-500 focus:outline-none transition-colors bg-transparent placeholder:text-gray-400 placeholder:font-normal"
+                  placeholder="Eg: B.Tech CSE / Software Engineer"
+                />
+              </div>
+
+              {/* Year / Experience - Full Width */}
+              <div className="md:col-span-2">
+                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
+                  Year of Study / Years of Experience
+                </label>
+                <input
+                  name="yearOfStudyOrExperience"
+                  type="text"
+                  value={formData.yearOfStudyOrExperience}
+                  onChange={handleChange}
+                  className="w-full text-gray-900 text-lg font-medium border-0 border-b-2 border-gray-200 pb-3 focus:border-emerald-500 focus:outline-none transition-colors bg-transparent placeholder:text-gray-400 placeholder:font-normal"
+                  placeholder="Eg: 3rd Year / 2 Years"
+                />
+              </div>
             </div>
 
             {/* Error Message */}
@@ -299,7 +420,6 @@ export default function RegisterPage({ params }: PageProps) {
               </div>
             )}
 
-            {/* Submit Button - Pill shape with neumorphism */}
             <button
               type="submit"
               disabled={loading}
@@ -328,7 +448,7 @@ export default function RegisterPage({ params }: PageProps) {
           {/* Footer */}
           <div className="px-8 py-5 bg-gray-50 border-t border-gray-100">
             <p className="text-center text-gray-500 text-sm font-medium">
-              By registering, you agree to receive updates about our webinars and courses.
+              By registering, you agree to receive updates about our {webinar?.type === 'Course' ? 'courses and programs' : 'webinars and courses'}.
             </p>
           </div>
         </div>
