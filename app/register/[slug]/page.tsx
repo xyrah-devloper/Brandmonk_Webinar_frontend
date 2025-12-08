@@ -149,7 +149,7 @@ export default function RegisterPage({ params }: PageProps) {
   // Thank You view for Course registrations
   if (submitted && webinar?.type === 'Course') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-4" style={{ fontFamily: "'Outfit', 'Inter', sans-serif" }}>
+      <div className="min-h-screen flex items-center justify-center   p-4" style={{ fontFamily: "'Outfit', 'Inter', sans-serif" }}>
         <div className="w-full max-w-lg text-center">
           {/* Logo */}
           <img 
@@ -161,7 +161,7 @@ export default function RegisterPage({ params }: PageProps) {
           {/* Success Card */}
           <div className="bg-white rounded-3xl shadow-2xl shadow-emerald-200/40 p-8 overflow-hidden relative">
             {/* Top decoration */}
-            <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600" />
+            <div className="absolute top-0 left-0 right-0 h-2 " />
             
             {/* Success Icon */}
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-100 mb-6">
@@ -213,7 +213,7 @@ export default function RegisterPage({ params }: PageProps) {
 
   return (
     <div 
-      className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 py-6 sm:py-12 px-4 sm:px-6 lg:px-8"
+      className="min-h-screen bg-white py-6 sm:py-12 px-4 sm:px-6 lg:px-8"
       style={{ fontFamily: "'Outfit', 'Inter', sans-serif" }}
     >
       {/* Background Pattern */}
@@ -238,10 +238,10 @@ export default function RegisterPage({ params }: PageProps) {
           {/* Card Header */}
           <div className="px-5 sm:px-8 pt-6 sm:pt-8 pb-4 sm:pb-6">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
-              {webinar?.type === 'Course' ? 'Course Registration' : 'Webinar Registration'}
+              {webinar?.type === 'Course' ? 'Course Registration' : 'Claim Certificate'}
             </h1>
             <p className="text-gray-500 mt-1 sm:mt-2 text-sm sm:text-base font-medium">
-              Complete your registration below
+              Fill this form to claim your certificate
             </p>
           </div>
 
@@ -436,11 +436,11 @@ export default function RegisterPage({ params }: PageProps) {
           </form>
 
           {/* Footer */}
-          <div className="px-5 sm:px-8 py-4 sm:py-5 bg-slate-50 border-t border-slate-100">
+          {/* <div className="px-5 sm:px-8 py-4 sm:py-5 bg-slate-50 border-t border-slate-100">
             <p className="text-center text-gray-500 text-xs sm:text-sm font-medium">
               By registering, you agree to receive updates about our {webinar?.type === 'Course' ? 'courses and programs' : 'webinars and courses'}.
             </p>
-          </div>
+          </div> */}
         </div>
 
         {/* Bottom Help Text */}
