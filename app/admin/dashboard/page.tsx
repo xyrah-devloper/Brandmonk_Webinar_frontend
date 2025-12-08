@@ -12,8 +12,9 @@ import {
   Plus, Calendar, MapPin, MoreVertical, ArrowRight, CheckCircle, 
   Award, TrendingUp, ChevronDown, Filter, ShieldCheck, Quote, Sparkles,
   ExternalLink, Trash2, Edit2, X, Loader2, BookOpen, Mail, AlertTriangle,
-  Palette, Code, Share2, Laptop, Presentation
+  Palette, Code, Share2, Laptop, Presentation, Download
 } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://brandmonk-backend-1.onrender.com';
 
@@ -403,6 +404,64 @@ export default function AdminDashboard() {
     } finally {
        setSendingEmailId(null);
     }
+  };
+
+  // Download students data as XLSX
+  const downloadStudentsXLSX = () => {
+    // Prepare data for export
+    const exportData = students.map((student, index) => ({
+      'S.No': index + 1,
+      'Name': student.name,
+      'Email': student.email,
+      'Phone': student.phone || 'N/A',
+      'Program Name': student.webinarName,
+      'Program Type': getProgramType(student.webinarName),
+      'Location': student.location || 'N/A',
+      'Profession': student.profession || 'N/A',
+      'College/Company': student.collegeOrCompany || 'N/A',
+      'Department': student.department || 'N/A',
+      'Year/Experience': student.yearOfStudyOrExperience || 'N/A',
+      'Certificate ID': student.certificateId,
+      'Instagram Followed': student.hasFollowedInstagram ? 'Yes' : 'No',
+      'Registration Date': new Date(student.dateOfRegistration || student.createdAt).toLocaleDateString('en-IN', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      })
+    }));
+
+    // Create worksheet
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    
+    // Set column widths for better readability
+    const columnWidths = [
+      { wch: 6 },   // S.No
+      { wch: 25 },  // Name
+      { wch: 30 },  // Email
+      { wch: 15 },  // Phone
+      { wch: 25 },  // Program Name
+      { wch: 12 },  // Program Type
+      { wch: 15 },  // Location
+      { wch: 20 },  // Profession
+      { wch: 25 },  // College/Company
+      { wch: 20 },  // Department
+      { wch: 15 },  // Year/Experience
+      { wch: 18 },  // Certificate ID
+      { wch: 16 },  // Instagram Followed
+      { wch: 18 },  // Registration Date
+    ];
+    worksheet['!cols'] = columnWidths;
+
+    // Create workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Students');
+
+    // Generate filename with date
+    const today = new Date().toISOString().split('T')[0];
+    const filename = `BrandMonk_Students_${today}.xlsx`;
+
+    // Download file
+    XLSX.writeFile(workbook, filename);
   };
 
   // Filter Logic
@@ -1114,9 +1173,16 @@ export default function AdminDashboard() {
                        </select>
                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
                     </div>
-                    <Button variant="slate" onClick={() => setIsAddStudentOpen(true)} className="shadow-lg shadow-slate-200 ml-2">
-                       <Plus className="mr-2 h-4 w-4" /> Add Student
-                    </Button>
+                    <Button 
+                        variant="outline" 
+                        onClick={downloadStudentsXLSX} 
+                        className="border-emerald-200 text-emerald-600 hover:bg-emerald-50 ml-2"
+                     >
+                        <Download className="mr-2 h-4 w-4" /> Download Database
+                     </Button>
+                     <Button variant="slate" onClick={() => setIsAddStudentOpen(true)} className="shadow-lg shadow-slate-200 ml-2">
+                        <Plus className="mr-2 h-4 w-4" /> Add Student
+                     </Button>
                  </div>
                </CardHeader>
                <div className="overflow-x-auto">
