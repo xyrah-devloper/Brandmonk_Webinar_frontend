@@ -150,11 +150,11 @@ export default function AdminLoginPage() {
             </form>
             
             <div className="mt-8 pt-4 border-t border-[#d4c5b0] text-center">
-               <p className="text-[10px] uppercase font-bold text-[#1a237e] mb-2 opacity-70">Authorized Credentials Only</p>
+               {/* <p className="text-[10px] uppercase font-bold text-[#1a237e] mb-2 opacity-70">Authorized Credentials Only</p>
                <div className="text-[10px] text-[#666] font-mono leading-tight opacity-60">
                   <p>Chennai: chennai_admin / chennai@123</p>
                   <p>Coimbatore: coimbatore_admin / coimbatore@123</p>
-               </div>
+               </div> */}
                
                <Link href="/" className="inline-block mt-4 text-xs font-serif italic text-[#1a237e] hover:underline">
                   ← Return to Public Registry
