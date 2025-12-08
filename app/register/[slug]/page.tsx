@@ -238,9 +238,9 @@ export default function RegisterPage({ params }: PageProps) {
           {/* Card Header */}
           <div className="px-5 sm:px-8 pt-6 sm:pt-8 pb-4 sm:pb-6">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
-              {webinar?.type === 'Course' ? 'Course Registration' : 'Claim Certificate'}
+              {webinar?.type === 'Course' ? 'Course Registration' : ''}
             </h1>
-            <p className="text-gray-500 mt-1 sm:mt-2 text-sm sm:text-base font-medium">
+            <p className="text-gray-500 mt-1 sm:mt-2 text-md sm:text-lg font-medium">
               Fill this form to claim your certificate
             </p>
           </div>
