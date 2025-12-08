@@ -213,7 +213,7 @@ export default function RegisterPage({ params }: PageProps) {
 
   return (
     <div 
-      className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 py-12 px-4 sm:px-6 lg:px-8"
+      className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 py-6 sm:py-12 px-4 sm:px-6 lg:px-8"
       style={{ fontFamily: "'Outfit', 'Inter', sans-serif" }}
     >
       {/* Background Pattern */}
@@ -225,46 +225,36 @@ export default function RegisterPage({ params }: PageProps) {
 
       <div className="w-full max-w-xl mx-auto relative">
         {/* Logo */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6 sm:mb-8">
           <img 
             src="https://brandmonkacademy.com/wp-content/uploads/2023/09/cropped-BMA-Logo-01-01-768x228-1.png"
             alt="Brand Monk Academy"
-            className="h-24 mx-auto"
+            className="h-16 sm:h-24 mx-auto"
           />
         </div>
 
         {/* Main Card */}
-        <div className="bg-white rounded-3xl shadow-2xl shadow-gray-200/60 overflow-hidden">
+        <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl sm:shadow-2xl shadow-gray-200/60 overflow-hidden">
           {/* Card Header */}
-          <div className="px-8 pt-8 pb-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-                  {webinar?.type === 'Course' ? 'Course Registration' : 'Webinar Registration'}
-                </h1>
-                <p className="text-gray-500 mt-2 font-medium">
-                  Complete your registration below
-                </p>
-              </div>
-              <button 
-                onClick={() => router.push('/')}
-                className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors text-2xl"
-              >
-                ×
-              </button>
-            </div>
+          <div className="px-5 sm:px-8 pt-6 sm:pt-8 pb-4 sm:pb-6">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
+              {webinar?.type === 'Course' ? 'Course Registration' : 'Webinar Registration'}
+            </h1>
+            <p className="text-gray-500 mt-1 sm:mt-2 text-sm sm:text-base font-medium">
+              Complete your registration below
+            </p>
           </div>
 
           {/* Webinar Info Banner */}
-          <div className="mx-8 mb-6 p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-emerald-600 flex items-center justify-center flex-shrink-0">
-                <Calendar className="w-6 h-6 text-white" />
+          <div className="mx-5 sm:mx-8 mb-4 sm:mb-6 p-3 sm:p-4 bg-emerald-50 rounded-xl sm:rounded-2xl border border-emerald-100">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-emerald-600 flex items-center justify-center flex-shrink-0">
+                <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <div>
-                <h2 className="font-bold text-gray-900 text-lg">{webinar?.name}</h2>
+                <h2 className="font-bold text-gray-900 text-base sm:text-lg">{webinar?.name}</h2>
                 {webinar?.date && (
-                  <p className="text-emerald-700 font-medium">
+                  <p className="text-emerald-700 font-medium text-sm sm:text-base">
                     {new Date(webinar.date).toLocaleDateString('en-IN', {
                       weekday: 'long',
                       day: 'numeric',
@@ -278,8 +268,8 @@ export default function RegisterPage({ params }: PageProps) {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="px-8 pb-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+          <form onSubmit={handleSubmit} className="px-5 sm:px-8 pb-6 sm:pb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 sm:gap-x-8 gap-y-5 sm:gap-y-6">
               {/* Full Name */}
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
@@ -446,15 +436,15 @@ export default function RegisterPage({ params }: PageProps) {
           </form>
 
           {/* Footer */}
-          <div className="px-8 py-5 bg-gray-50 border-t border-gray-100">
-            <p className="text-center text-gray-500 text-sm font-medium">
+          <div className="px-5 sm:px-8 py-4 sm:py-5 bg-slate-50 border-t border-slate-100">
+            <p className="text-center text-gray-500 text-xs sm:text-sm font-medium">
               By registering, you agree to receive updates about our {webinar?.type === 'Course' ? 'courses and programs' : 'webinars and courses'}.
             </p>
           </div>
         </div>
 
         {/* Bottom Help Text */}
-        <p className="text-center text-gray-500 text-sm mt-8 font-medium">
+        <p className="text-center text-gray-500 text-xs sm:text-sm mt-6 sm:mt-8 font-medium px-4">
           Need help? Contact us at{' '}
           <a href="mailto:info@brandmonkacademy.com" className="text-emerald-600 hover:text-emerald-700 font-bold">
             info@brandmonkacademy.com
@@ -462,7 +452,7 @@ export default function RegisterPage({ params }: PageProps) {
         </p>
 
         {/* Security Badge */}
-        <div className="flex items-center justify-center gap-2 mt-4 text-gray-400 text-sm">
+        <div className="flex items-center justify-center gap-2 mt-3 sm:mt-4 text-gray-400 text-xs sm:text-sm pb-4">
           <CheckCircle className="w-4 h-4" />
           <span className="font-medium">Your data is secure and encrypted</span>
         </div>

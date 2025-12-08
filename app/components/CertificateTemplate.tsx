@@ -41,29 +41,41 @@ const CertificateTemplate = forwardRef<HTMLDivElement, CertificateTemplateProps>
         {/* Content Overlays - Positioned based on actual certificate layout */}
         <div style={{ position: 'relative', width: '100%', height: '100%' }}>
           
-          {/* Student Name - Centered below "THIS CERTIFICATE IS PROUDLY AWARDED TO" */}
-          <div 
-            style={{ 
-              position: 'absolute',
-              width: '55%',
-              textAlign: 'center',
-              top: '325px', 
-              left: '25px',
-            }}
-          >
-            <h2 
-              style={{ 
-                fontSize: '44px',
-                fontWeight: 'bold',
-                color: '#1a1a1a',
-                fontFamily: '"Playfair Display", Georgia, serif',
-                margin: 0,
-                letterSpacing: '2px'
-              }}
-            >
-              {studentName}
-            </h2>
-          </div>
+          {/* Student Name - Left aligned to match underline start */}
+          {(() => {
+            const wordCount = studentName.trim().split(/\s+/).length;
+            const nameLength = studentName.length;
+            // Calculate font size based on word count and length
+            let fontSize = '44px';
+            if (wordCount >= 2 || nameLength > 15) {
+              fontSize = nameLength > 22 ? '30px' : nameLength > 18 ? '36px' : '38px';
+            }
+            return (
+              <div 
+                style={{ 
+                  position: 'absolute',
+                  top: '340px', 
+                  left: '88px',
+                }}
+              >
+                <h2 
+                  style={{ 
+                    fontSize: fontSize,
+                    fontWeight: 'bold',
+                    color: '#1a1a1a',
+                    fontFamily: '"Playfair Display", Georgia, serif',
+                    margin: 0,
+                    letterSpacing: nameLength > 20 ? '1px' : '2px',
+                    lineHeight: '1.3',
+                    whiteSpace: 'nowrap',
+                    textAlign: 'left'
+                  }}
+                >
+                  {studentName}
+                </h2>
+              </div>
+            );
+          })()}
 
           {/* Course/Webinar Name - After "WEBINAR WHICH WAS HELD ON" text */}
           <div 
