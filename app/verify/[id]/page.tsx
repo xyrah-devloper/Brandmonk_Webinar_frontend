@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import Navbar from '../../components/Navbar';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://brandmonk-backend-1.onrender.com';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 interface PageProps {
   params: Promise<{ id: string }>;

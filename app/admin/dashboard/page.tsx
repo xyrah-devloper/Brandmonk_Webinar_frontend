@@ -14,7 +14,7 @@ import {
   ExternalLink, Trash2, Edit2, X, Loader2, BookOpen, Mail, AlertTriangle
 } from 'lucide-react';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://brandmonk-backend-1.onrender.com';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 // --- Types ---
 interface Student {
