@@ -15,7 +15,7 @@ import {
   Palette, Code, Share2, Laptop, Presentation
 } from 'lucide-react';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://brandmonk-backend-1.onrender.com';
 
 // --- Types ---
 interface Student {
@@ -727,9 +727,19 @@ export default function AdminDashboard() {
                                       <span className="font-medium text-slate-900">{batch.trainer}</span>
                                     </div>
                                   )}
-                                  <div className="flex justify-between text-sm">
-                                      <span className="text-slate-500">Students:</span>
-                                      <span className="font-medium text-slate-900">{batch.totalRegistrations} / {batch.studentLimit || '∞'}</span>
+                                  <div 
+                                    className="flex justify-between text-sm cursor-pointer hover:bg-emerald-50 -mx-4 px-4 py-2 rounded-lg transition-colors group"
+                                    onClick={() => {
+                                      setStudentCourseFilter(batch.name);
+                                      setActiveTab('students');
+                                    }}
+                                    title="Click to view students enrolled in this course"
+                                  >
+                                      <span className="text-slate-500 group-hover:text-emerald-600">Students:</span>
+                                      <span className="font-medium text-slate-900 group-hover:text-emerald-700 flex items-center gap-1">
+                                        {batch.totalRegistrations} / {batch.studentLimit || '∞'}
+                                        <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                      </span>
                                   </div>
                                </div>
 

@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import CertificateTemplate from '../../components/CertificateTemplate';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://brandmonk-backend-1.onrender.com';
 const INSTAGRAM_URL = 'https://www.instagram.com/brandmonkacademy';
 
 export default function SuccessPage() {
@@ -24,6 +24,7 @@ export default function SuccessPage() {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [loading, setLoading] = useState(false);
   const [processingFollow, setProcessingFollow] = useState(false);
+  const [hasClickedFollow, setHasClickedFollow] = useState(false);
   const [error, setError] = useState('');
   const [downloadReady, setDownloadReady] = useState(false);
   const certificateRef = useRef<HTMLDivElement>(null);
@@ -48,6 +49,7 @@ export default function SuccessPage() {
     setProcessingFollow(true);
     setTimeout(() => {
       setProcessingFollow(false);
+      setHasClickedFollow(true);
     }, 3000);
   };
 
@@ -308,23 +310,33 @@ export default function SuccessPage() {
                     </div>
                   )}
 
-                  <button
-                    onClick={handleVerifyFollow}
-                    disabled={loading}
-                    className="w-full py-4 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        Verifying...
-                      </>
-                    ) : (
-                      <>
-                        I've Followed
-                        <ArrowRight className="w-5 h-5" />
-                      </>
-                    )}
-                  </button>
+                  {!hasClickedFollow ? (
+                    <div className="w-full py-4 bg-slate-100 text-slate-400 font-semibold rounded-xl flex items-center justify-center gap-2 cursor-not-allowed">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                      Click "Follow" above first
+                    </div>
+                  ) : (
+                    <button
+                      onClick={handleVerifyFollow}
+                      disabled={loading}
+                      className="w-full py-4 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          Verifying...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="w-5 h-5" />
+                          I've Followed - Continue
+                          <ArrowRight className="w-5 h-5" />
+                        </>
+                      )}
+                    </button>
+                  )}
 
                   <button
                     onClick={() => setStep(1)}
