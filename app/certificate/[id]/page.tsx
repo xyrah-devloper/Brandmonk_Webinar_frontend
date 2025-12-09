@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import CertificateTemplate from '../../components/CertificateTemplate';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://brandmonk-backend-1.onrender.com';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 // Google Business Review URL
 const GOOGLE_REVIEW_URL = 'https://www.google.com/search?num=10&sca_esv=d340eac8d7c27e5b&biw=1526&bih=728&si=AMgyJEtREmoPL4P1I5IDCfuA8gybfVI2d5Uj7QMwYCZHKDZ-ExfS61xhBIxu5eWrTTjbJnBrVoj6St3qJRJQy7_Regxi9rBug5lX1IYYydSvg_vveZJ32370cJw5ZIhVlhhSW0vP_pzp9jMPw31aObFmzFTA-peJ5g%3D%3D&q=Brand+Monk+Academy+Reviews&sa=X&ved=2ahUKEwjhne-x96yRAxUEcGwGHaSxJNMQ0bkNegQILxAE';

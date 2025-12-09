@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'https://brandmonk-backend-1.onrender.com/api/:path*',
+        destination: 'http://localhost:5000/api/:path*',
       },
     ];
   },

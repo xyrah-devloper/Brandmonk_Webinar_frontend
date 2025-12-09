@@ -12,11 +12,11 @@ import {
   Plus, Calendar, MapPin, MoreVertical, ArrowRight, CheckCircle, 
   Award, TrendingUp, ChevronDown, Filter, ShieldCheck, Quote, Sparkles,
   ExternalLink, Trash2, Edit2, X, Loader2, BookOpen, Mail, AlertTriangle,
-  Palette, Code, Share2, Laptop, Presentation, Download
+  Palette, Code, Share2, Laptop, Presentation, Download, Upload
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://brandmonk-backend-1.onrender.com';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 // --- Types ---
 interface Student {
@@ -179,6 +179,7 @@ export default function AdminDashboard() {
   const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
   const [isAddWebinarOpen, setIsAddWebinarOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Forms
   const [newStudent, setNewStudent] = useState({ name: '', email: '', phone: '', webinarName: '', location: '', profession: '' });
@@ -255,6 +256,15 @@ export default function AdminDashboard() {
            .slice(0, 5); // Top 5
      })()
   };
+
+  // Calculate actual registration counts from students
+  const webinarsWithCounts = webinars.map(w => {
+    const actualCount = students.filter(s => s.webinarName === w.name).length;
+    return {
+      ...w,
+      totalRegistrations: actualCount
+    };
+  });
 
   const handleAddStudent = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -464,6 +474,77 @@ export default function AdminDashboard() {
     XLSX.writeFile(workbook, filename);
   };
 
+  // Upload and import students from XLSX file
+  const handleUploadXLSX = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Check file type
+    if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
+      alert('Please upload a valid Excel file (.xlsx or .xls)');
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      // Read the file
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const data = e.target?.result;
+          const workbook = XLSX.read(data, { type: 'binary' });
+          const sheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[sheetName];
+          const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+          if (jsonData.length === 0) {
+            alert('No data found in the Excel file');
+            setIsUploading(false);
+            return;
+          }
+
+          console.log('Parsed XLSX data:', jsonData.length, 'rows');
+          console.log('Sample row:', jsonData[0]);
+
+          // Send to backend
+          const res = await axios.post(`${API_URL}/api/admin/students/bulk-import`, {
+            students: jsonData
+          });
+
+          if (res.data.success) {
+            const { results } = res.data;
+            alert(`Import Complete!\n\n✅ ${results.success} students added\n⏭️ ${results.skipped} skipped (duplicates)\n❌ ${results.failed} failed`);
+            
+            // Refresh data
+            fetchData();
+          } else {
+            alert('Import failed: ' + res.data.message);
+          }
+        } catch (parseError: any) {
+          console.error('XLSX parse error:', parseError);
+          alert('Failed to parse Excel file: ' + parseError.message);
+        } finally {
+          setIsUploading(false);
+        }
+      };
+
+      reader.onerror = () => {
+        alert('Failed to read file');
+        setIsUploading(false);
+      };
+
+      reader.readAsBinaryString(file);
+    } catch (error: any) {
+      console.error('Upload error:', error);
+      alert('Upload failed: ' + error.message);
+      setIsUploading(false);
+    }
+
+    // Reset file input
+    event.target.value = '';
+  };
+
   // Filter Logic
   const getProgramType = (programName: string) => {
     const webinar = webinars.find(w => w.name === programName);
@@ -481,7 +562,7 @@ export default function AdminDashboard() {
     return matchesSearch && matchesCourse && matchesType;
   });
 
-  const filteredWebinars = webinars.filter(w => {
+  const filteredWebinars = webinarsWithCounts.filter(w => {
     const matchesSearch = w.name.toLowerCase().includes(webinarSearch.toLowerCase());
     const matchesType = webinarTypeFilter === 'All' || w.type === webinarTypeFilter;
     return matchesSearch && matchesType;
@@ -758,7 +839,7 @@ export default function AdminDashboard() {
                       Active Batches
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                       {webinars.filter(w => w.type === 'Course').map(batch => (
+                       {webinarsWithCounts.filter(w => w.type === 'Course').map(batch => (
                          <Card key={batch._id} className="overflow-hidden hover:shadow-md transition-shadow">
                             <div className={`h-2 bg-gradient-to-r ${batch.isActive ? 'from-emerald-500 to-teal-500' : 'from-slate-400 to-slate-500'}`} />
                             <CardContent className="pt-6">
@@ -823,7 +904,7 @@ export default function AdminDashboard() {
                             </CardContent>
                          </Card>
                        ))}
-                       {webinars.filter(w => w.type === 'Course').length === 0 && (
+                       {webinarsWithCounts.filter(w => w.type === 'Course').length === 0 && (
                           <div className="col-span-full py-12 text-center bg-white rounded-xl border border-dashed border-slate-300">
                             <p className="text-slate-500">No active batches. Select a course above to create one.</p>
                           </div>
@@ -904,28 +985,15 @@ export default function AdminDashboard() {
                  )}
                </div>
              ) : (
-                // Standard Admin View (Coimbatore / Super Admin)
+                // Standard Admin View (Coimbatore / Super Admin) - Courses Only
                  <div className="space-y-6">
                    <div className="flex justify-between items-center">
                      <div>
-                        <h2 className="text-2xl font-bold tracking-tight">Courses & Webinars</h2>
-                        <p className="text-slate-500 text-sm mt-1">Manage your educational content available to students.</p>
+                        <h2 className="text-2xl font-bold tracking-tight">Courses</h2>
+                        <p className="text-slate-500 text-sm mt-1">Manage your courses available to students.</p>
                      </div>
                      
                      <div className="flex gap-4">
-                        <div className="flex h-10 items-center rounded-lg border border-slate-200 bg-white p-1">
-                          {['All', 'Course', 'Webinar'].map((type) => (
-                            <button
-                              key={type}
-                              onClick={() => setWebinarTypeFilter(type as any)}
-                              className={`h-full px-4 rounded-md text-sm font-medium transition-all ${
-                                webinarTypeFilter === type ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-50'
-                              }`}
-                            >
-                              {type === 'All' ? 'All' : type + 's'}
-                            </button>
-                          ))}
-                        </div>
                         <div className="relative">
                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                           <input 
@@ -936,13 +1004,13 @@ export default function AdminDashboard() {
                           />
                         </div>
                         <Button onClick={() => setIsAddWebinarOpen(true)}>
-                          <Plus className="mr-2 h-4 w-4" /> Add New
+                          <Plus className="mr-2 h-4 w-4" /> Add Course
                         </Button>
                      </div>
                    </div>
                    
                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                     {filteredWebinars.map((webinar) => (
+                     {webinarsWithCounts.filter(w => w.type === 'Course' && w.name.toLowerCase().includes(webinarSearch.toLowerCase())).map((webinar) => (
                        <Card key={webinar._id} className="overflow-hidden hover:shadow-lg transition-all group border-slate-200">
                          <div className={`h-2 bg-gradient-to-r ${webinar.type === 'Course' ? 'from-indigo-500 to-blue-500' : 'from-emerald-500 to-teal-500'}`} />
                          <CardContent className="pt-6">
@@ -1000,9 +1068,9 @@ export default function AdminDashboard() {
                          </CardContent>
                        </Card>
                      ))}
-                     {filteredWebinars.length === 0 && (
+                     {webinarsWithCounts.filter(w => w.type === 'Course' && w.name.toLowerCase().includes(webinarSearch.toLowerCase())).length === 0 && (
                        <div className="col-span-full py-12 text-center text-slate-400">
-                         No {webinarTypeFilter === 'All' ? 'content' : webinarTypeFilter.toLowerCase() + 's'} found matching your search.
+                         No courses found matching your search.
                        </div>
                      )}
                    </div>
@@ -1038,7 +1106,7 @@ export default function AdminDashboard() {
 
               {/* Webinars Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {webinars.filter(w => w.type === 'Webinar').map((webinar) => (
+                {webinarsWithCounts.filter(w => w.type === 'Webinar').map((webinar) => (
                   <Card key={webinar._id} className="overflow-hidden hover:shadow-lg transition-shadow border-slate-200">
                     <div className="h-2 bg-gradient-to-r from-purple-500 to-pink-500" />
                     <CardContent className="pt-6">
@@ -1116,7 +1184,7 @@ export default function AdminDashboard() {
                   </Card>
                 ))}
 
-                {webinars.filter(w => w.type === 'Webinar').length === 0 && (
+                {webinarsWithCounts.filter(w => w.type === 'Webinar').length === 0 && (
                   <div className="col-span-full py-16 text-center bg-white rounded-xl border border-dashed border-slate-300">
                     <Presentation className="w-12 h-12 text-slate-300 mx-auto mb-4" />
                     <h3 className="text-lg font-semibold text-slate-700 mb-2">No Webinars Yet</h3>
@@ -1180,6 +1248,31 @@ export default function AdminDashboard() {
                      >
                         <Download className="mr-2 h-4 w-4" /> Download Database
                      </Button>
+                     <div className="relative ml-2">
+                        <input
+                          type="file"
+                          accept=".xlsx,.xls"
+                          onChange={handleUploadXLSX}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          disabled={isUploading}
+                          id="xlsx-upload"
+                        />
+                        <Button 
+                          variant="outline" 
+                          className="border-blue-200 text-blue-600 hover:bg-blue-50 pointer-events-none"
+                          disabled={isUploading}
+                        >
+                          {isUploading ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Importing...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="mr-2 h-4 w-4" /> Upload XLSX
+                            </>
+                          )}
+                        </Button>
+                     </div>
                      <Button variant="slate" onClick={() => setIsAddStudentOpen(true)} className="shadow-lg shadow-slate-200 ml-2">
                         <Plus className="mr-2 h-4 w-4" /> Add Student
                      </Button>
@@ -1408,7 +1501,7 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent className="pt-6">
               <form onSubmit={handleAddWebinar} className="space-y-4">
-                <Input label="Name" placeholder="e.g. Advanced Digital Marketing" value={newWebinar.name} onChange={(e: any) => setNewWebinar({...newWebinar, name: e.target.value})} required />
+                <Input label="Name" placeholder="e.g. AI Digital Marketing" value={newWebinar.name} onChange={(e: any) => setNewWebinar({...newWebinar, name: e.target.value})} required />
                 
                 <div className="space-y-2">
                    <label className="text-sm font-medium leading-none">Type</label>
