@@ -146,7 +146,7 @@ const CertificateTemplate = forwardRef<HTMLDivElement, CertificateTemplateProps>
                 backgroundColor: 'white'
               }}
             />
-            <p 
+            {/* <p 
               style={{ 
                 fontSize: '10px',
                 fontWeight: '700',
@@ -157,7 +157,7 @@ const CertificateTemplate = forwardRef<HTMLDivElement, CertificateTemplateProps>
               }}
             >
               ID: {certificateId}
-            </p>
+            </p> */}
           </div>
         </div>
       </div>
