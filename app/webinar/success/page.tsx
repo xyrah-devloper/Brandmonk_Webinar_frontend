@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import CertificateTemplate from '../../components/CertificateTemplate';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://brandmonk-backend-1.onrender.com';
 const INSTAGRAM_URL = 'https://www.instagram.com/brandmonkacademy';
 
 export default function SuccessPage() {

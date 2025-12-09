@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://brandmonk-backend-1.onrender.com';
 
 // --- Types ---
 interface Student {
