@@ -797,19 +797,13 @@ export default function AdminDashboard() {
           </div>
           
           <div className="flex items-center gap-6">
-            <div className="flex items-center gap-4">
-              <button className="relative rounded-full p-2.5 hover:bg-slate-50 transition-colors">
-                <Bell className="h-5 w-5 text-slate-600" />
-                <span className="absolute top-2 right-2.5 h-2 w-2 rounded-full bg-emerald-500 border-2 border-white" />
-              </button>
-              <div className="flex items-center gap-3 pl-3 border-l border-slate-200">
-                <div className="text-right">
-                  <p className="text-sm font-semibold text-slate-900">{admin?.username}</p>
-                  <p className="text-xs text-slate-500 capitalize">{admin?.role || 'Admin'}</p>
-                </div>
-                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-sm font-bold text-white shadow-md ring-2 ring-white">
-                  {admin?.username?.[0]?.toUpperCase()}
-                </div>
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <p className="text-sm font-semibold text-slate-900">{admin?.username}</p>
+                <p className="text-xs text-slate-500 capitalize">{admin?.role || 'Admin'}</p>
+              </div>
+              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-sm font-bold text-white shadow-md ring-2 ring-white">
+                {admin?.username?.[0]?.toUpperCase()}
               </div>
             </div>
           </div>
