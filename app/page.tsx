@@ -111,59 +111,36 @@ export default function Home() {
                 </div>
 
                 {view === 'home' ? (
-                  <div className="flex flex-col h-full">
+                  <div className="flex flex-col h-full justify-between">
                     
-                    {/* Steps centered in upper portion */}
-                    <div className="steps-container mb-8">
-                      <div className="step-item">
-                        <div className="step-text text-center"><span className="font-serif italic text-2xl text-[#DAA520]">1</span></div>
-                        <div className="step-text text-center"><strong>Attend</strong></div>
-                      </div>
-                       <div className="step-arrow text-[#DAA520]">→</div>
-                      <div className="step-item">
-                        <div className="step-text text-center"><span className="font-serif italic text-2xl text-[#DAA520]">2</span></div>
-                        <div className="step-text text-center"><strong>Follow Us</strong></div>
-                      </div>
-                       <div className="step-arrow text-[#DAA520]">→</div>
-                      <div className="step-item">
-                        <div className="step-text text-center"><span className="font-serif italic text-2xl text-[#DAA520]">3</span></div>
-                        <div className="step-text text-center"><strong>Download Certificate</strong></div>
+                    {/* Steps centered */}
+                    <div className="flex-grow flex items-center justify-center">
+                      <div className="steps-container">
+                        <div className="step-item">
+                          <div className="step-text text-center"><span className="font-serif italic text-3xl text-[#DAA520]">1</span></div>
+                          <div className="step-text text-center text-sm mt-2"><strong>Attend</strong></div>
+                        </div>
+                         <div className="step-arrow text-[#DAA520] text-3xl">→</div>
+                        <div className="step-item">
+                          <div className="step-text text-center"><span className="font-serif italic text-3xl text-[#DAA520]">2</span></div>
+                          <div className="step-text text-center text-sm mt-2"><strong>Follow Us</strong></div>
+                        </div>
+                         <div className="step-arrow text-[#DAA520] text-3xl">→</div>
+                        <div className="step-item">
+                          <div className="step-text text-center"><span className="font-serif italic text-3xl text-[#DAA520]">3</span></div>
+                          <div className="step-text text-center text-sm mt-2"><strong>Download</strong><br/><strong>Certificate</strong></div>
+                        </div>
                       </div>
                     </div>
-
-                    <div className="cert-divider-small mb-8"></div>
-
-                    {/* Registry Actions */}
-                    <div className="flex-grow flex flex-col justify-center gap-6">
-                      <div className="text-center font-serif text-[#1a237e] text-lg font-bold border-b border-[#1a237e] pb-2">
-                        COURSE CATALOGUE & REGISTRY
-                      </div>
-
-                      <button 
-                         onClick={handleWebinarClick}
-                         className="flex items-center justify-between w-full p-5 border-2 border-[#1a237e] bg-white hover:shadow-lg transition-all group rounded-sm"
-                      >
-                         <div className="flex items-center gap-4">
-                            <span className="font-serif font-bold text-3xl text-[#DAA520] group-hover:text-[#1a237e] transition-colors">I.</span>
-                            <div className="text-left">
-                               <h3 className="font-serif text-xl font-bold text-[#333]">View Webinars & Events</h3>
-                               <p className="font-serif italic text-sm text-gray-500">Access schedules, stats, and certificates</p>
-                            </div>
-                         </div>
-                         <div className="bg-[#1a237e] text-white px-4 py-1.5 rounded text-xs font-bold uppercase tracking-widest group-hover:bg-[#333] transition-colors">
-                            Enter
-                         </div>
-                      </button>
-                    </div>
                     
-                    {/* Notice at the bottom, nicely contained */}
-                    <div className="mt-auto pt-4">
-                      <div className="p-4 bg-[#f7f3e8] border border-[#d4c5b0] text-center relative rounded-sm">
-                         <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#fff9f0] px-2 font-serif text-xs text-[#1a237e] font-bold uppercase tracking-widest">
+                    {/* Notice at the bottom */}
+                    <div className="mt-auto">
+                      <div className="p-5 bg-[#f7f3e8] border-2 border-[#DAA520] text-center relative rounded-md">
+                         <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#fff9f0] px-3 py-1 font-serif text-xs text-[#1a237e] font-bold uppercase tracking-widest border border-[#DAA520]">
                             Important Notice
                          </div>
-                         <p className="font-serif text-xs text-gray-600 italic leading-relaxed">
-                            "Certificates of completion and community access passes are automatically issued within your specific event dashboard upon verification of attendance."
+                         <p className="font-serif text-sm text-gray-700 leading-relaxed">
+                            Certificates of completion are automatically issued within your event dashboard upon verification of attendance and Instagram follow.
                          </p>
                       </div>
                     </div>
