@@ -822,11 +822,7 @@ export default function AdminDashboard() {
                      { 
                        label: 'Total Registrations', 
                        value: uniqueStudents, 
-                       sub: hasDuplicates 
-                         ? `${uniqueStudents} unique (${databaseTotal} in DB with duplicates)` 
-                         : hasDiscrepancy 
-                           ? `${uniqueStudents} unique (${uniqueStudents - allWebinarCounts} unmatched)` 
-                           : `${uniqueStudents} unique students`, 
+                       sub: 'Unique students', 
                        icon: Users,
                        warning: hasDiscrepancy,
                        info: hasDuplicates
