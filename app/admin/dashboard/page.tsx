@@ -217,7 +217,34 @@ export default function AdminDashboard() {
         axios.get(`${API_URL}/api/webinars`)
       ]);
 
-      if (studentsRes.data.success) setStudents(studentsRes.data.students);
+      if (studentsRes.data.success) {
+        setStudents(studentsRes.data.students);
+        
+        // Log duplicates in console if any exist
+        if (studentsRes.data.duplicates && studentsRes.data.duplicates.length > 0) {
+          const duplicates = studentsRes.data.duplicates;
+          console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          console.log(`🔄 DUPLICATE REGISTRATIONS FOUND: ${duplicates.length}`);
+          console.log(`📊 Total in DB: ${studentsRes.data.totalInDB} | Unique: ${studentsRes.data.students.length}`);
+          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          duplicates.forEach((dup: any, index: number) => {
+            console.log(`${index + 1}. ${dup.name} (${dup.email})`);
+            console.log(`   Course: ${dup.course}`);
+            console.log(`   Registered: ${new Date(dup.registeredAt).toLocaleString('en-IN', {
+              day: '2-digit',
+              month: '2-digit', 
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+              hour12: true
+            })}`);
+            console.log('');
+          });
+          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+        }
+      }
+      
       if (statsRes.data.success) setStats(statsRes.data.stats);
       if (webinarsRes.data.success) setWebinars(webinarsRes.data.webinars);
     } catch (err) {
@@ -227,11 +254,102 @@ export default function AdminDashboard() {
     }
   };
 
+  // --- Levenshtein Distance Helper for Fuzzy Matching ---
+  const levenshteinDistance = (str1: string, str2: string): number => {
+    const len1 = str1.length;
+    const len2 = str2.length;
+    const matrix: number[][] = [];
+
+    for (let i = 0; i <= len1; i++) {
+      matrix[i] = [i];
+    }
+    for (let j = 0; j <= len2; j++) {
+      matrix[0][j] = j;
+    }
+
+    for (let i = 1; i <= len1; i++) {
+      for (let j = 1; j <= len2; j++) {
+        if (str1[i - 1] === str2[j - 1]) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j - 1] + 1, // substitution
+            matrix[i][j - 1] + 1,     // insertion
+            matrix[i - 1][j] + 1      // deletion
+          );
+        }
+      }
+    }
+
+    return matrix[len1][len2];
+  };
+
+  const calculateSimilarity = (str1: string, str2: string): number => {
+    const distance = levenshteinDistance(str1.toLowerCase(), str2.toLowerCase());
+    const maxLength = Math.max(str1.length, str2.length);
+    return maxLength === 0 ? 1 : 1 - distance / maxLength;
+  };
+
+  // --- Smart Webinar Matching Helper ---
+  const findMatchingWebinar = (studentWebinarName: string, debug: boolean = false): Webinar | undefined => {
+    if (!studentWebinarName) return undefined;
+    
+    const studentName = studentWebinarName.trim();
+    
+    // 1. Try exact match first
+    let match = webinars.find(w => w.name === studentName);
+    if (match) return match;
+    
+    // 2. Try case-insensitive exact match
+    match = webinars.find(w => w.name.toLowerCase() === studentName.toLowerCase());
+    if (match) return match;
+    
+    // 3. Try similarity-based fuzzy matching (threshold: 0.50 = 50% similar)
+    let bestMatch: Webinar | undefined;
+    let bestSimilarity = 0;
+    const SIMILARITY_THRESHOLD = 0.50; // 50% similarity required (lowered to catch more variations)
+    
+    webinars.forEach(w => {
+      const similarity = calculateSimilarity(studentName, w.name);
+      if (similarity > bestSimilarity && similarity >= SIMILARITY_THRESHOLD) {
+        bestSimilarity = similarity;
+        bestMatch = w;
+      }
+    });
+    
+    if (bestMatch) return bestMatch;
+    
+    // 4. Try matching by first significant word (ignore common words)
+    const ignoreWords = ['the', 'a', 'an', 'and', 'or', 'of', 'in', 'on', 'at', 'to'];
+    const studentWords = studentName.toLowerCase().split(/\s+/).filter(w => w.length > 2 && !ignoreWords.includes(w));
+    
+    if (studentWords.length > 0) {
+      match = webinars.find(w => {
+        const webinarWords = w.name.toLowerCase().split(/\s+/).filter(word => word.length > 2 && !ignoreWords.includes(word));
+        return webinarWords.some(ww => studentWords.some(sw => ww === sw || ww.includes(sw) || sw.includes(ww)));
+      });
+      
+      if (match) return match;
+    }
+    
+    // 5. Try partial substring match (one contains the other, min 5 chars)
+    match = webinars.find(w => {
+      const studentLower = studentName.toLowerCase();
+      const webinarLower = w.name.toLowerCase();
+      
+      if (studentLower.length >= 5 && webinarLower.length >= 5) {
+        return studentLower.includes(webinarLower) || webinarLower.includes(studentLower);
+      }
+      return false;
+    });
+    
+    if (match) return match;
+    
+    // 6. No match found
+    return undefined;
+  };
+
   // --- Derived Stats (Frontend Calculation Fallback) ---
-  // Debug: Log all webinars to identify duplicates
-  console.log('📋 All webinars from database:', webinars.map(w => ({ name: w.name, id: w._id, type: w.type })));
-  console.log('📋 Total webinars count:', webinars.length);
-  
   const derivedStats = {
      monthlyRegistrations: stats?.monthlyRegistrations?.length ? stats.monthlyRegistrations : (() => {
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -247,15 +365,16 @@ export default function AdminDashboard() {
         
         return months.map((m, i) => ({ name: m, registrations: counts[i] }));
      })(),
-     topWebinars: stats?.topWebinars?.length ? stats.topWebinars : (() => {
+     topWebinars: (() => {
         const counts: Record<string, number> = {};
-        students.forEach(s => {
-            counts[s.webinarName] = (counts[s.webinarName] || 0) + 1;
-        });
         
-        // Debug: Show all webinar names found in student records
-        console.log('🎯 All webinar names in student records:', Object.keys(counts));
-        console.log('🎯 Full counts:', counts);
+        // Count students using smart matching
+        students.forEach(s => {
+            const webinar = findMatchingWebinar(s.webinarName);
+            if (webinar) {
+              counts[webinar.name] = (counts[webinar.name] || 0) + 1;
+            }
+        });
         
         // Convert to array and sort
         return Object.entries(counts)
@@ -265,26 +384,19 @@ export default function AdminDashboard() {
      })()
   };
 
-  // Calculate actual registration counts from students
+  // Calculate actual registration counts from students using smart matching
   const webinarsWithCounts = webinars.map(w => {
-    const actualCount = students.filter(s => s.webinarName === w.name).length;
-    
-    // Debug logging for UI/UX discrepancy
-    if (w.name === 'UI/UX' || w.name.includes('UI')) {
-      console.log(`🔍 Webinar: "${w.name}" (ID: ${w._id})`);
-      console.log(`   Students matched: ${actualCount}`);
-      console.log(`   Webinar type: ${w.type}`);
-      console.log(`   Is Active: ${w.isActive}`);
-    }
+    // Count students using smart fuzzy matching
+    const actualCount = students.filter(s => {
+      const matchedWebinar = findMatchingWebinar(s.webinarName);
+      return matchedWebinar && matchedWebinar._id === w._id;
+    }).length;
     
     return {
       ...w,
       totalRegistrations: actualCount
     };
   });
-
-  // Log Top Programs data for comparison
-  console.log('📊 Top Programs Data:', derivedStats.topWebinars);
 
   const handleAddStudent = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -567,7 +679,7 @@ export default function AdminDashboard() {
 
   // Filter Logic
   const getProgramType = (programName: string) => {
-    const webinar = webinars.find(w => w.name === programName);
+    const webinar = findMatchingWebinar(programName);
     return webinar?.type || 'Webinar';
   };
 
@@ -675,23 +787,45 @@ export default function AdminDashboard() {
             <>
               {/* Stats Overview */}
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                 {[
-                   { label: 'Total Registrations', value: stats?.totalStudents || 0, sub: 'All time students', icon: Users },
-                   { label: 'Active Courses', value: webinars.filter(w => w.isActive).length, sub: 'Currently running', icon: Video },
-                   { label: 'Certificates Sent', value: stats?.certificatesSent || 0, sub: 'Successfully issued', icon: Award },
-                   { label: 'Eligible Students', value: stats?.eligibleStudents || 0, sub: 'Met criteria', icon: CheckCircle },
-                 ].map((stat, i) => (
-                   <Card key={i}>
-                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                       <CardTitle className="text-sm font-medium text-slate-500">{stat.label}</CardTitle>
-                       <stat.icon className="h-4 w-4 text-slate-400" />
-                     </CardHeader>
-                     <CardContent>
-                       <div className="text-3xl font-bold text-slate-900">{stat.value}</div>
-                       <p className="text-xs text-slate-400 mt-1">{stat.sub}</p>
-                     </CardContent>
-                   </Card>
-                 ))}
+                 {(() => {
+                   // Calculate actual total from webinar counts
+                   const actualTotalCounted = derivedStats.topWebinars.reduce((sum, w) => sum + w.count, 0);
+                   // Get total from all webinars (including those not in top 5)
+                   const allWebinarCounts = webinarsWithCounts.reduce((sum, w) => sum + w.totalRegistrations, 0);
+                   const uniqueStudents = students.length; // Frontend receives deduplicated data
+                   const databaseTotal = stats?.totalStudents || 0; // Backend database total (may include duplicates)
+                   const hasDiscrepancy = allWebinarCounts !== uniqueStudents;
+                   const hasDuplicates = databaseTotal > uniqueStudents;
+                   
+                   return [
+                     { 
+                       label: 'Total Registrations', 
+                       value: allWebinarCounts, 
+                       sub: hasDuplicates 
+                         ? `${uniqueStudents} unique (${databaseTotal} in DB with duplicates)` 
+                         : hasDiscrepancy 
+                           ? `${uniqueStudents} unique (${uniqueStudents - allWebinarCounts} unmatched)` 
+                           : `${uniqueStudents} unique students`, 
+                       icon: Users,
+                       warning: hasDiscrepancy,
+                       info: hasDuplicates
+                     },
+                     { label: 'Active Courses', value: webinars.filter(w => w.isActive).length, sub: 'Currently running', icon: Video },
+                     { label: 'Certificates Sent', value: stats?.certificatesSent || 0, sub: 'Successfully issued', icon: Award },
+                     { label: 'Eligible Students', value: stats?.eligibleStudents || 0, sub: 'Met criteria', icon: CheckCircle },
+                   ].map((stat, i) => (
+                     <Card key={i} className={stat.warning ? 'border-amber-200 bg-amber-50/30' : stat.info ? 'border-blue-200 bg-blue-50/30' : ''}>
+                       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                         <CardTitle className="text-sm font-medium text-slate-500">{stat.label}</CardTitle>
+                         <stat.icon className={`h-4 w-4 ${stat.warning ? 'text-amber-500' : stat.info ? 'text-blue-500' : 'text-slate-400'}`} />
+                       </CardHeader>
+                       <CardContent>
+                         <div className={`text-3xl font-bold ${stat.warning ? 'text-amber-600' : stat.info ? 'text-blue-600' : 'text-slate-900'}`}>{stat.value}</div>
+                         <p className={`text-xs mt-1 ${stat.warning ? 'text-amber-600 font-semibold' : stat.info ? 'text-blue-600 font-medium' : 'text-slate-400'}`}>{stat.sub}</p>
+                       </CardContent>
+                     </Card>
+                   ));
+                 })()}
               </div>
 
               {/* Charts Section - NEW GRID */}
