@@ -532,6 +532,7 @@ export default function AdminDashboard() {
   };
 
   const [sendingEmailId, setSendingEmailId] = useState<string | null>(null);
+  const [isRemovingDuplicates, setIsRemovingDuplicates] = useState(false);
 
   const handleSendCertificate = async (studentId: string) => {
     try {
@@ -545,6 +546,26 @@ export default function AdminDashboard() {
        alert(err.response?.data?.message || 'Failed to send certificate email.');
     } finally {
        setSendingEmailId(null);
+    }
+  };
+
+  const handleRemoveDuplicates = async () => {
+    if (!window.confirm('⚠️ This will permanently delete duplicate registrations (same email + same course).\n\nOnly the FIRST registration will be kept.\n\nAre you sure you want to continue?')) {
+      return;
+    }
+    
+    setIsRemovingDuplicates(true);
+    try {
+      const res = await axios.post(`${API_URL}/api/admin/students/remove-duplicates`);
+      if (res.data.success) {
+        alert(`✅ ${res.data.message}\n\nRemoved: ${res.data.removed} duplicates`);
+        fetchData(); // Refresh all data
+      }
+    } catch (err: any) {
+      console.error('Failed to remove duplicates:', err);
+      alert(err.response?.data?.message || 'Failed to remove duplicates.');
+    } finally {
+      setIsRemovingDuplicates(false);
     }
   };
 
@@ -800,7 +821,7 @@ export default function AdminDashboard() {
                    return [
                      { 
                        label: 'Total Registrations', 
-                       value: allWebinarCounts, 
+                       value: uniqueStudents, 
                        sub: hasDuplicates 
                          ? `${uniqueStudents} unique (${databaseTotal} in DB with duplicates)` 
                          : hasDiscrepancy 
@@ -1354,88 +1375,100 @@ export default function AdminDashboard() {
 
           {activeTab === 'students' && (
              <Card className="shadow-sm border-slate-200 overflow-hidden">
-               <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 bg-slate-50/50">
-                 <div>
-                   <CardTitle>Students</CardTitle>
-                   <p className="text-sm text-slate-500 mt-1">Manage student registrations and certificates.</p>
-                 </div>
-                 <div className="flex gap-3">
-                    <div className="flex h-10 items-center rounded-lg border border-slate-200 bg-white p-1">
-                      {['All', 'Course', 'Webinar'].map((type) => (
-                        <button
-                          key={type}
-                          onClick={() => setStudentTypeFilter(type as any)}
-                          className={`h-full px-4 rounded-md text-sm font-medium transition-all ${
-                            studentTypeFilter === type ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-50'
-                          }`}
-                        >
-                          {type === 'All' ? 'All' : type + 's'}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                      <input 
-                        className="h-10 w-64 rounded-lg border border-slate-200 pl-9 pr-4 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" 
-                        placeholder="Search students..." 
-                        value={studentSearch}
-                        onChange={(e) => setStudentSearch(e.target.value)}
-                      />
-                    </div>
-                    <div className="relative">
-                       <select
-                         className="h-10 rounded-lg border border-slate-200 bg-white pl-3 pr-8 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 appearance-none max-w-[150px]"
-                         value={studentCourseFilter}
-                         onChange={(e) => setStudentCourseFilter(e.target.value)}
-                       >
-                         <option value="All">All Programs</option>
-                         {uniqueCourseNames.map((name, i) => (
-                           <option key={i} value={name}>{name}</option>
-                         ))}
-                       </select>
-                       <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-                    </div>
-                    <Button 
-                        variant="outline" 
-                        onClick={downloadStudentsXLSX} 
-                        className="border-emerald-200 text-emerald-600 hover:bg-emerald-50 ml-2"
-                     >
-                        <Download className="mr-2 h-4 w-4" /> Download Database
-                     </Button>
-                     <div className="relative ml-2">
-                        <input
-                          type="file"
-                          accept=".xlsx,.xls"
-                          onChange={handleUploadXLSX}
-                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                          disabled={isUploading}
-                          id="xlsx-upload"
-                        />
-                        <Button 
-                          variant="outline" 
-                          className="border-blue-200 text-blue-600 hover:bg-blue-50 pointer-events-none"
-                          disabled={isUploading}
-                        >
-                          {isUploading ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Importing...
-                            </>
-                          ) : (
-                            <>
-                              <Upload className="mr-2 h-4 w-4" /> Upload XLSX
-                            </>
-                          )}
-                        </Button>
+               <CardHeader className="border-b border-slate-100 bg-slate-50/50 pb-4">
+                 <div className="flex flex-col gap-4">
+                   <div className="flex items-center justify-between">
+                     <div>
+                       <CardTitle className="text-xl">Student Records</CardTitle>
+                       <p className="text-sm text-slate-500 mt-1">Manage student registrations and certificates.</p>
                      </div>
-                     <Button variant="slate" onClick={() => setIsAddStudentOpen(true)} className="shadow-lg shadow-slate-200 ml-2">
+                     <Button variant="slate" onClick={() => setIsAddStudentOpen(true)} className="shadow-lg shadow-slate-200">
                         <Plus className="mr-2 h-4 w-4" /> Add Student
                      </Button>
+                   </div>
+                   
+                   <div className="flex flex-wrap items-center gap-3">
+                     <div className="flex h-10 items-center rounded-lg border border-slate-200 bg-white p-1 shadow-sm">
+                       {['All', 'Course', 'Webinar'].map((type) => (
+                         <button
+                           key={type}
+                           onClick={() => setStudentTypeFilter(type as any)}
+                           className={`h-full px-4 rounded-md text-sm font-medium transition-all ${
+                             studentTypeFilter === type ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-50'
+                           }`}
+                         >
+                           {type === 'All' ? 'All' : type + 's'}
+                         </button>
+                       ))}
+                     </div>
+                     
+                     <div className="relative flex-1 min-w-[200px] max-w-[300px]">
+                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                       <input 
+                         className="h-10 w-full rounded-lg border border-slate-200 pl-9 pr-4 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20" 
+                         placeholder="Search students..." 
+                         value={studentSearch}
+                         onChange={(e) => setStudentSearch(e.target.value)}
+                       />
+                     </div>
+                     
+                     <div className="relative">
+                        <select
+                          className="h-10 rounded-lg border border-slate-200 bg-white pl-3 pr-9 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 appearance-none min-w-[150px]"
+                          value={studentCourseFilter}
+                          onChange={(e) => setStudentCourseFilter(e.target.value)}
+                        >
+                          <option value="All">All Programs</option>
+                          {uniqueCourseNames.map((name, i) => (
+                            <option key={i} value={name}>{name}</option>
+                          ))}
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                     </div>
+                     
+                     <div className="flex gap-2 ml-auto">
+                       <Button 
+                         variant="outline" 
+                         onClick={downloadStudentsXLSX} 
+                         className="border-emerald-200 text-emerald-600 hover:bg-emerald-50 shadow-sm"
+                       >
+                         <Download className="mr-2 h-4 w-4" /> Download
+                       </Button>
+                       
+                       <div className="relative">
+                         <input
+                           type="file"
+                           accept=".xlsx,.xls"
+                           onChange={handleUploadXLSX}
+                           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                           disabled={isUploading}
+                           id="xlsx-upload"
+                         />
+                         <Button 
+                           variant="outline" 
+                           className="border-blue-200 text-blue-600 hover:bg-blue-50 pointer-events-none shadow-sm"
+                           disabled={isUploading}
+                         >
+                           {isUploading ? (
+                             <>
+                               <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Importing...
+                             </>
+                           ) : (
+                             <>
+                               <Upload className="mr-2 h-4 w-4" /> Upload
+                             </>
+                           )}
+                         </Button>
+                       </div>
+                     </div>
+                   </div>
                  </div>
                </CardHeader>
                <div className="overflow-x-auto">
                  <table className="w-full text-sm">
                    <thead>
                      <tr className="border-b border-slate-100 bg-white text-left">
+                       <th className="px-4 py-4 font-semibold text-slate-500 text-center w-16">S.No</th>
                        <th className="px-6 py-4 font-semibold text-slate-500">Name</th>
                        <th className="px-6 py-4 font-semibold text-slate-500">Status</th>
                        <th className="px-6 py-4 font-semibold text-slate-500">Enrolled Program</th>
@@ -1445,10 +1478,13 @@ export default function AdminDashboard() {
                      </tr>
                    </thead>
                    <tbody className="divide-y divide-slate-100 bg-white">
-                     {filteredStudents.map((student) => {
+                     {filteredStudents.map((student, index) => {
                        const type = getProgramType(student.webinarName);
                        return (
                          <tr key={student._id} className="hover:bg-slate-50/80 transition-colors">
+                           <td className="px-4 py-4 text-center text-slate-500 font-medium">
+                             {index + 1}
+                           </td>
                            <td className="px-6 py-4">
                              <div className="flex items-center gap-3">
                                <div className="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
@@ -1696,3 +1732,4 @@ export default function AdminDashboard() {
     </div>
   );
 }
+
