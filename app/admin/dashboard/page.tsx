@@ -228,6 +228,10 @@ export default function AdminDashboard() {
   };
 
   // --- Derived Stats (Frontend Calculation Fallback) ---
+  // Debug: Log all webinars to identify duplicates
+  console.log('📋 All webinars from database:', webinars.map(w => ({ name: w.name, id: w._id, type: w.type })));
+  console.log('📋 Total webinars count:', webinars.length);
+  
   const derivedStats = {
      monthlyRegistrations: stats?.monthlyRegistrations?.length ? stats.monthlyRegistrations : (() => {
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -249,6 +253,10 @@ export default function AdminDashboard() {
             counts[s.webinarName] = (counts[s.webinarName] || 0) + 1;
         });
         
+        // Debug: Show all webinar names found in student records
+        console.log('🎯 All webinar names in student records:', Object.keys(counts));
+        console.log('🎯 Full counts:', counts);
+        
         // Convert to array and sort
         return Object.entries(counts)
            .map(([name, count]) => ({ name, count }))
@@ -260,11 +268,23 @@ export default function AdminDashboard() {
   // Calculate actual registration counts from students
   const webinarsWithCounts = webinars.map(w => {
     const actualCount = students.filter(s => s.webinarName === w.name).length;
+    
+    // Debug logging for UI/UX discrepancy
+    if (w.name === 'UI/UX' || w.name.includes('UI')) {
+      console.log(`🔍 Webinar: "${w.name}" (ID: ${w._id})`);
+      console.log(`   Students matched: ${actualCount}`);
+      console.log(`   Webinar type: ${w.type}`);
+      console.log(`   Is Active: ${w.isActive}`);
+    }
+    
     return {
       ...w,
       totalRegistrations: actualCount
     };
   });
+
+  // Log Top Programs data for comparison
+  console.log('📊 Top Programs Data:', derivedStats.topWebinars);
 
   const handleAddStudent = async (e: React.FormEvent) => {
     e.preventDefault();
