@@ -41,12 +41,13 @@ export default function GraduationRegistration() {
     selfIdentification: '',
     batch: '',
     course: '',
+    photo: null as File | null,
+    photoPreview: '',
   });
-  const [attendees, setAttendees] = useState<Attendee[]>([
-    { name: '', relation: 'Self' }
-  ]);
+  // Initialize empty to show no rows by default (Student is always included implicitly)
+  const [attendees, setAttendees] = useState<Attendee[]>([]);
 
-  const relationOptions = ['Self', 'Friend', 'Father', 'Mother', 'Brother', 'Sister', 'Spouse', 'Other'];
+  const relationOptions = ['Friend', 'Father', 'Mother', 'Brother', 'Sister', 'Spouse', 'Other'];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -66,9 +67,7 @@ export default function GraduationRegistration() {
   };
 
   const removeAttendee = (index: number) => {
-    if (attendees.length > 1) {
-      setAttendees(attendees.filter((_, i) => i !== index));
-    }
+    setAttendees(attendees.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -76,12 +75,15 @@ export default function GraduationRegistration() {
     setLoading(true);
 
     try {
-      const validAttendees = attendees.filter(a => a.name.trim());
-      if (validAttendees.length === 0) {
-        alert('Please add at least one attendee');
-        setLoading(false);
-        return;
-      }
+      // 1. Prepare Guests (filter out empty names)
+      const validGuests = attendees.filter(a => a.name.trim());
+      
+      // 2. ALWAYS add the Student as the first attendee ("Self")
+      // This ensures Seat 1 is the Student, and Total Seats = 1 + Guests
+      const finalAttendees = [
+        { name: formData.studentName || 'Student', relation: 'Self' },
+        ...validGuests
+      ];
 
       const response = await axios.post(`${API_URL}/api/graduation/register`, {
         studentName: formData.studentName,
@@ -89,11 +91,14 @@ export default function GraduationRegistration() {
         phone: formData.cellPhone || formData.phone,
         batch: formData.batch,
         course: formData.course || formData.major,
-        attendees: validAttendees
+        attendees: finalAttendees
       });
 
       if (response.data.success) {
-        router.push(`/graduation/success?seats=${response.data.data.seatNumbers}&total=${response.data.data.totalSeats}&student=${encodeURIComponent(formData.studentName)}&course=${encodeURIComponent(formData.course || formData.major)}&batch=${encodeURIComponent(formData.batch)}`);
+        // Encode attendees as JSON string for URL
+        const attendeesParam = encodeURIComponent(JSON.stringify(finalAttendees));
+        // Use seatStart (clean number) to ensure the success page logic works correctly
+        router.push(`/graduation/success?seats=${response.data.data.seatStart}&total=${response.data.data.totalSeats}&student=${encodeURIComponent(formData.studentName)}&course=${encodeURIComponent(formData.course || formData.major)}&batch=${encodeURIComponent(formData.batch)}&attendees=${attendeesParam}`);
       }
     } catch (error: any) {
       console.error('Registration error:', error);
@@ -109,7 +114,7 @@ export default function GraduationRegistration() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <GraduationCap className="w-16 h-16 text-indigo-600" />
+            <img src="/image.png" alt="BrandMonk Academy" className="w-24 h-24 object-contain" />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-slate-800 mb-2 tracking-tight">
             COLLEGE GRADUATE REGISTRATION FORM
@@ -127,10 +132,12 @@ export default function GraduationRegistration() {
             {/* Main Registration Table */}
             <table className="w-full border-collapse border-2 border-slate-800 mb-8">
               <tbody>
-                {/* Row 1 - Name & Email */}
+                {/* Row 1 - Name & Photo */}
                 <tr>
-                  <td className="border-2 border-slate-800 p-4 bg-slate-50 font-semibold w-1/4 text-slate-800">Full Name *</td>
-                  <td className="border-2 border-slate-800 p-3" colSpan={3}>
+                  <td className="border-2 border-slate-800 p-4 bg-slate-50 font-semibold w-1/4 text-slate-800">
+                    Full Name *
+                  </td>
+                  <td className="border-2 border-slate-800 p-3" colSpan={2}>
                     <input
                       type="text"
                       name="studentName"
@@ -141,12 +148,62 @@ export default function GraduationRegistration() {
                       placeholder="Enter your full name"
                     />
                   </td>
+                  <td className="border-2 border-slate-800 p-1 w-32 bg-slate-100/50 text-center align-middle" rowSpan={3}>
+                    <div className="flex flex-col items-center justify-center p-2 relative h-full min-h-[140px]">
+                      {formData.photoPreview ? (
+                        <div className="relative w-28 h-28 mb-2">
+                          <img 
+                            src={formData.photoPreview} 
+                            alt="Preview" 
+                            className="w-full h-full object-cover rounded-lg border-2 border-indigo-200 shadow-sm"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setFormData(prev => ({ ...prev, photo: null, photoPreview: '' }))}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <label 
+                            htmlFor="photo-upload" 
+                            className="w-24 h-24 border-2 border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition-colors mb-2"
+                          >
+                            <span className="text-2xl text-slate-400">📷</span>
+                            <span className="text-[10px] text-slate-500 mt-1">Upload Photo</span>
+                          </label>
+                          <input
+                            id="photo-upload"
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const reader = new FileReader();
+                                reader.onloadend = () => {
+                                  const base64 = reader.result as string;
+                                  setFormData(prev => ({ ...prev, photo: file, photoPreview: base64 }));
+                                  // Save to sessionStorage for success page
+                                  sessionStorage.setItem('graduationPhoto', base64);
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                            className="hidden"
+                          />
+                        </>
+                      )}
+                      <span className="text-[10px] text-slate-400 block">* Passport size</span>
+                    </div>
+                  </td>
                 </tr>
 
                 {/* Row 2 - Email */}
                 <tr>
                   <td className="border-2 border-slate-800 p-4 bg-slate-50 font-semibold text-slate-800">Email Address *</td>
-                  <td className="border-2 border-slate-800 p-3" colSpan={3}>
+                  <td className="border-2 border-slate-800 p-3" colSpan={2}>
                     <input
                       type="email"
                       name="email"
@@ -162,7 +219,7 @@ export default function GraduationRegistration() {
                 {/* Row 3 - Phone */}
                 <tr>
                   <td className="border-2 border-slate-800 p-4 bg-slate-50 font-semibold text-slate-800">Phone Number *</td>
-                  <td className="border-2 border-slate-800 p-3" colSpan={3}>
+                  <td className="border-2 border-slate-800 p-3" colSpan={2}>
                     <input
                       type="tel"
                       name="cellPhone"
@@ -222,7 +279,7 @@ export default function GraduationRegistration() {
                       type="text"
                       value={attendee.name}
                       onChange={(e) => handleAttendeeChange(index, 'name', e.target.value)}
-                      placeholder="Name"
+                      placeholder="Guest Name"
                       required
                       className="flex-1 px-3 py-2 border-2 border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
@@ -235,15 +292,14 @@ export default function GraduationRegistration() {
                         <option key={opt} value={opt}>{opt}</option>
                       ))}
                     </select>
-                    {index > 0 && (
-                      <button
-                        type="button"
-                        onClick={() => removeAttendee(index)}
-                        className="px-4 py-2 bg-red-100 text-red-700 rounded hover:bg-red-200 font-semibold"
-                      >
-                        Remove
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      onClick={() => removeAttendee(index)}
+                      className="px-3 py-2 bg-red-100 text-red-600 rounded hover:bg-red-200 font-bold"
+                      title="Remove"
+                    >
+                      ✕
+                    </button>
                   </div>
                 ))}
               </div>
@@ -252,7 +308,7 @@ export default function GraduationRegistration() {
                 onClick={addAttendee}
                 className="mt-4 w-full py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition"
               >
-                + Add Another Attendee
+                + Add {attendees.length === 0 ? 'Guest Attendee' : 'Another Attendee'}
               </button>
             </div>
 
