@@ -4,8 +4,7 @@ import { Award, Video, Users, ArrowRight, MousePointerClick, Download, Calendar,
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://brandmonk-backend-1.onrender.com';
+import { API_URL } from '@/utils/config';
 
 interface Webinar {
   _id: string;

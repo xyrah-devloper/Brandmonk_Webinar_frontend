@@ -15,8 +15,7 @@ import {
   Palette, Code, Share2, Laptop, Presentation, Download, Upload, GraduationCap
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://brandmonk-backend-1.onrender.com';
+import { API_URL } from '@/utils/config';
 
 // --- Types ---
 interface Student {
@@ -1616,6 +1615,175 @@ export default function AdminDashboard() {
                </div>
              </Card>
           )}
+
+          {/* Graduation Records Tab */}
+          {activeTab === 'graduation' && (
+             <div className="space-y-6">
+               {/* Stats Cards */}
+               <div className="grid gap-6 md:grid-cols-4">
+                 <Card className="border-purple-200">
+                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                     <CardTitle className="text-sm font-medium text-slate-500">Total Registrations</CardTitle>
+                     <GraduationCap className="h-4 w-4 text-purple-500" />
+                   </CardHeader>
+                   <CardContent>
+                     <div className="text-3xl font-bold text-purple-600">{graduationStats?.totalRegistrations || 0}</div>
+                     <p className="text-xs text-slate-400 mt-1">Graduation registrations</p>
+                   </CardContent>
+                 </Card>
+
+                 <Card className="border-pink-200">
+                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                     <CardTitle className="text-sm font-medium text-slate-500">Total Attendees</CardTitle>
+                     <Users className="h-4 w-4 text-pink-500" />
+                   </CardHeader>
+                   <CardContent>
+                     <div className="text-3xl font-bold text-pink-600">{graduationStats?.totalMembers || 0}</div>
+                     <p className="text-xs text-slate-400 mt-1">Including guests</p>
+                   </CardContent>
+                 </Card>
+
+                 <Card className="border-blue-200">
+                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                     <CardTitle className="text-sm font-medium text-slate-500">Total Seats</CardTitle>
+                     <Award className="h-4 w-4 text-blue-500" />
+                   </CardHeader>
+                   <CardContent>
+                     <div className="text-3xl font-bold text-blue-600">{graduationStats?.totalSeats || 0}</div>
+                     <p className="text-xs text-slate-400 mt-1">Seats allocated</p>
+                   </CardContent>
+                 </Card>
+
+                 <Card className="border-emerald-200">
+                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                     <CardTitle className="text-sm font-medium text-slate-500">Last Seat Number</CardTitle>
+                     <CheckCircle className="h-4 w-4 text-emerald-500" />
+                   </CardHeader>
+                   <CardContent>
+                     <div className="text-3xl font-bold text-emerald-600">
+                       {graduationStats?.lastSeatNumber ? String(graduationStats.lastSeatNumber).padStart(3, '0') : '000'}
+                     </div>
+                     <p className="text-xs text-slate-400 mt-1">Most recent seat</p>
+                   </CardContent>
+                 </Card>
+               </div>
+
+               {/* Registrations Table */}
+               <Card className="shadow-sm border-slate-200 overflow-hidden">
+                 <CardHeader className="border-b border-slate-100 bg-slate-50/50">
+                   <div className="flex items-center justify-between">
+                     <div>
+                       <CardTitle className="text-xl">Graduation Registrations</CardTitle>
+                       <p className="text-sm text-slate-500 mt-1">View all students registered for the graduation celebration</p>
+                     </div>
+                     <div className="text-right">
+                       <p className="text-sm text-slate-600">
+                         <span className="font-bold text-2xl text-purple-600">{graduations.length}</span>
+                         <span className="text-slate-500 ml-2">registrations</span>
+                       </p>
+                     </div>
+                   </div>
+                 </CardHeader>
+                 <div className="overflow-x-auto">
+                   <table className="w-full text-sm">
+                     <thead>
+                       <tr className="border-b border-slate-100 bg-white text-left">
+                         <th className="px-4 py-4 font-semibold text-slate-500 text-center w-16">S.No</th>
+                         <th className="px-6 py-4 font-semibold text-slate-500">Student Name</th>
+                         <th className="px-6 py-4 font-semibold text-slate-500">Email</th>
+                         <th className="px-6 py-4 font-semibold text-slate-500">Phone</th>
+                         <th className="px-6 py-4 font-semibold text-slate-500">Batch</th>
+                         <th className="px-6 py-4 font-semibold text-slate-500">Course</th>
+                         <th className="px-6 py-4 font-semibold text-slate-500 text-center">Attendees</th>
+                         <th className="px-6 py-4 font-semibold text-slate-500 text-center">Seat Numbers</th>
+                         <th className="px-6 py-4 font-semibold text-slate-500">Registered On</th>
+                         <th className="px-4 py-4 font-semibold text-slate-500 text-center">Actions</th>
+                       </tr>
+                     </thead>
+                     <tbody>
+                       {graduations.map((grad, index) => (
+                         <tr key={grad._id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                           <td className="px-4 py-4 text-center text-slate-600 font-medium">{index + 1}</td>
+                           <td className="px-6 py-4">
+                             <div className="flex items-center gap-3">
+                               <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-sm font-bold text-white">
+                                 {grad.studentName.charAt(0).toUpperCase()}
+                               </div>
+                               <div>
+                                 <p className="font-semibold text-slate-900">{grad.studentName}</p>
+                               </div>
+                             </div>
+                           </td>
+                           <td className="px-6 py-4 text-slate-600">{grad.email}</td>
+                           <td className="px-6 py-4 text-slate-600">{grad.phone}</td>
+                           <td className="px-6 py-4">
+                             <Badge variant="blue">{grad.batch}</Badge>
+                           </td>
+                           <td className="px-6 py-4 text-slate-600">{grad.course}</td>
+                           <td className="px-6 py-4">
+                             <div className="flex flex-col gap-1">
+                               {grad.attendees.map((attendee, idx) => (
+                                 <div key={idx} className="text-xs">
+                                   <span className="font-semibold text-slate-700">{attendee.name}</span>
+                                   <span className="text-slate-500"> ({attendee.relation})</span>
+                                 </div>
+                               ))}
+                             </div>
+                           </td>
+                           <td className="px-6 py-4 text-center">
+                             <div className="inline-flex flex-col gap-1 bg-gradient-to-r from-yellow-100 to-orange-100 rounded-lg px-3 py-2">
+                               <span className="text-lg font-black text-orange-700">
+                                 {String(grad.seatStart).padStart(3, '0')} {grad.seatStart !== grad.seatEnd && `- ${String(grad.seatEnd).padStart(3, '0')}`}
+                               </span>
+                               <span className="text-xs text-orange-600 font-semibold">
+                                 {grad.totalSeats} {grad.totalSeats === 1 ? 'Seat' : 'Seats'}
+                               </span>
+                             </div>
+                           </td>
+                           <td className="px-6 py-4 text-slate-600 text-sm">
+                             {new Date(grad.registrationDate || grad.createdAt).toLocaleDateString('en-IN', {
+                               year: 'numeric',
+                               month: 'short',
+                               day: 'numeric'
+                             })}
+                           </td>
+                           <td className="px-4 py-4">
+                             <button 
+                               onClick={async () => {
+                                 if (window.confirm('Are you sure you want to delete this graduation registration?')) {
+                                   try {
+                                     await axios.delete(`${API_URL}/api/graduation/${grad._id}`);
+                                     setGraduations(graduations.filter(g => g._id !== grad._id));
+                                     fetchData();
+                                   } catch (err) {
+                                     console.error('Failed to delete:', err);
+                                     alert('Failed to delete registration');
+                                   }
+                                 }
+                               }}
+                               className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                               title="Delete Registration"
+                             >
+                               <Trash2 className="w-4 h-4" />
+                             </button>
+                           </td>
+                         </tr>
+                       ))}
+                       {graduations.length === 0 && (
+                         <tr>
+                           <td colSpan={10} className="px-6 py-16 text-center">
+                             <GraduationCap className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                             <h3 className="text-lg font-semibold text-slate-700 mb-2">No Graduation Registrations Yet</h3>
+                             <p className="text-slate-500">Students will appear here once they register for the graduation celebration.</p>
+                           </td>
+                         </tr>
+                       )}
+                     </tbody>
+                   </table>
+                 </div>
+               </Card>
+             </div>
+           )}
         </main>
       </div>
       

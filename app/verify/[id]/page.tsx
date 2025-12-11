@@ -13,8 +13,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import Navbar from '../../components/Navbar';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://brandmonk-backend-1.onrender.com';
+import { API_URL } from '@/utils/config';
 
 interface PageProps {
   params: Promise<{ id: string }>;

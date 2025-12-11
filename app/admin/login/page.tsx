@@ -11,8 +11,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://brandmonk-backend-1.onrender.com';
+import { API_URL } from '@/utils/config';
 
 export default function AdminLoginPage() {
   const router = useRouter();

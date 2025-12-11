@@ -4,8 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { GraduationCap } from 'lucide-react';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://brandmonk-backend-1.onrender.com';
+import { API_URL } from '@/utils/config';
 
 interface Attendee {
   name: string;
