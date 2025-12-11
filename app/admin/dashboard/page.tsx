@@ -12,7 +12,7 @@ import {
   Plus, Calendar, MapPin, MoreVertical, ArrowRight, CheckCircle, 
   Award, TrendingUp, ChevronDown, Filter, ShieldCheck, Quote, Sparkles,
   ExternalLink, Trash2, Edit2, X, Loader2, BookOpen, Mail, AlertTriangle,
-  Palette, Code, Share2, Laptop, Presentation, Download, Upload
+  Palette, Code, Share2, Laptop, Presentation, Download, Upload, GraduationCap
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
@@ -61,6 +61,27 @@ interface Stats {
   certificatesSent: number;
   monthlyRegistrations: { name: string; registrations: number }[];
   topWebinars: { name: string; count: number }[];
+}
+
+interface GraduationAttendee {
+  name: string;
+  relation: string;
+  _id?: string;
+}
+
+interface Graduation {
+  _id: string;
+  studentName: string;
+  email: string;
+  phone: string;
+  batch: string;
+  course: string;
+  attendees: GraduationAttendee[];
+  seatStart: number;
+  seatEnd: number;
+  totalSeats: number;
+  registrationDate: string;
+  createdAt: string;
 }
 
 // --- Shadcn-like UI Components (Restored) ---
@@ -162,6 +183,8 @@ export default function AdminDashboard() {
   const [students, setStudents] = useState<Student[]>([]);
   const [webinars, setWebinars] = useState<Webinar[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
+  const [graduations, setGraduations] = useState<Graduation[]>([]);
+  const [graduationStats, setGraduationStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
   
@@ -247,6 +270,26 @@ export default function AdminDashboard() {
       
       if (statsRes.data.success) setStats(statsRes.data.stats);
       if (webinarsRes.data.success) setWebinars(webinarsRes.data.webinars);
+      
+      // Fetch graduation data separately (non-blocking)
+      try {
+        const [graduationsRes, gradStatsRes] = await Promise.all([
+          axios.get(`${API_URL}/api/graduation/all`),
+          axios.get(`${API_URL}/api/graduation/stats`)
+        ]);
+        
+        if (graduationsRes.data.success) {
+          setGraduations(graduationsRes.data.data || []);
+        }
+        
+        if (gradStatsRes.data.success) {
+          setGraduationStats(gradStatsRes.data.stats);
+        }
+      } catch (gradErr) {
+        console.log('Graduation endpoints not available yet (this is ok if backend not deployed)');
+        setGraduations([]);
+        setGraduationStats(null);
+      }
     } catch (err) {
       console.error('Failed to fetch data:', err);
     } finally {
@@ -753,6 +796,7 @@ export default function AdminDashboard() {
               { id: 'courses', label: 'Courses', icon: BookOpen },
               { id: 'webinars', label: 'Webinars', icon: Presentation },
               { id: 'students', label: 'Student Records', icon: Users },
+              { id: 'graduation', label: 'Graduation Records', icon: GraduationCap },
             ].map((item) => (
               <button
                 key={item.id}
@@ -790,6 +834,7 @@ export default function AdminDashboard() {
               {activeTab === 'courses' && 'Course Management'}
               {activeTab === 'webinars' && 'Webinar Management'}
               {activeTab === 'students' && 'Student Records'}
+              {activeTab === 'graduation' && 'Graduation Celebration Records'}
             </h2>
             <p className="text-sm text-slate-500 mt-0.5">
               Welcome back, <span className="font-medium text-slate-700">{admin?.username}</span>
