@@ -24,6 +24,8 @@ interface Student {
   email: string;
   phone: string;
   webinarName: string;
+  webinarSlug?: string;
+  webinarId?: string;
   location: string;
   profession: string;
   certificateId: string;
@@ -428,8 +430,15 @@ export default function AdminDashboard() {
 
   // Calculate actual registration counts from students using smart matching
   const webinarsWithCounts = webinars.map(w => {
-    // Count students using smart fuzzy matching
+    // Count students by slug (supports repeated webinars with same name)
+    // Fallbacks keep older/manual records from disappearing entirely.
     const actualCount = students.filter(s => {
+      if (s.webinarSlug && w.slug) return s.webinarSlug === w.slug;
+
+      // Legacy fallback: if student has webinarId stored
+      if (s.webinarId) return String(s.webinarId) === String(w._id);
+
+      // Last-resort fallback: old records that only stored webinarName
       const matchedWebinar = findMatchingWebinar(s.webinarName);
       return matchedWebinar && matchedWebinar._id === w._id;
     }).length;
