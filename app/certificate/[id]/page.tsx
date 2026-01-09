@@ -464,6 +464,7 @@ export default function CertificatePage({ params }: PageProps) {
             })}
             verifyUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/verify/${student._id}`}
             certificateId={student.certificateId}
+            type={student.certificateType || 'Standard'}
           />
         )}
       </div>

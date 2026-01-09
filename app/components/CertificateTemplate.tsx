@@ -6,12 +6,19 @@ interface CertificateTemplateProps {
   date: string;
   verifyUrl: string;
   certificateId: string;
+  type?: 'Standard' | 'Government';
 }
 
 const CertificateTemplate = forwardRef<HTMLDivElement, CertificateTemplateProps>(
-  ({ studentName, courseName, date, verifyUrl, certificateId }, ref) => {
+  ({ studentName, courseName, date, verifyUrl, certificateId, type = 'Standard' }, ref) => {
     // Generate QR code URL using public API
     const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(verifyUrl)}`;
+    
+    // Choose background image based on type
+    const bgImage = type === 'Government' ? '/certificate1.png' : '/certificate.png';
+    
+    // Define styles based on type
+    const isGovt = type === 'Government';
 
     return (
       <div 
@@ -27,7 +34,7 @@ const CertificateTemplate = forwardRef<HTMLDivElement, CertificateTemplateProps>
       >
         {/* Certificate Background Image */}
         <img 
-          src="/certificate.png" 
+          src={bgImage} 
           alt="Certificate Background" 
           style={{
             position: 'absolute',
@@ -54,21 +61,27 @@ const CertificateTemplate = forwardRef<HTMLDivElement, CertificateTemplateProps>
               <div 
                 style={{ 
                   position: 'absolute',
-                  top: '340px', 
-                  left: '88px',
+                  // Adjust top/left for Government certificate if needed. Assuming similar for now or just generic centering if I can't see it.
+                  // For now, I'll keep the same position for Standard, and try to guess or use same for Govt.
+                  // Ideally, Govt cert might need different coordinates.
+                  top: isGovt ? '330px' : '340px', 
+                  left: isGovt ? '0' : '88px',
+                  width: isGovt ? '100%' : 'auto', // Center aligning for Govt as is typical, left for Standard
+                  textAlign: isGovt ? 'center' : 'left',
+                  display: 'flex',
+                  justifyContent: isGovt ? 'center' : 'flex-start'
                 }}
               >
                 <h2 
                   style={{ 
                     fontSize: fontSize,
                     fontWeight: 'bold',
-                    color: '#1a1a1a',
+                    color: isGovt ? '#000000' : '#1a1a1a',
                     fontFamily: '"Playfair Display", Georgia, serif',
                     margin: 0,
                     letterSpacing: nameLength > 20 ? '1px' : '2px',
                     lineHeight: '1.3',
                     whiteSpace: 'nowrap',
-                    textAlign: 'left'
                   }}
                 >
                   {studentName}
@@ -81,15 +94,17 @@ const CertificateTemplate = forwardRef<HTMLDivElement, CertificateTemplateProps>
           <div 
             style={{ 
               position: 'absolute',
-              top: '412px', 
-              left: '333px',
+              top: isGovt ? '435px' : '412px', 
+              left: isGovt ? '0' : '333px',
+              width: isGovt ? '100%' : 'auto',
+              textAlign: isGovt ? 'center' : 'left'
             }}
           >
             <p 
               style={{ 
-                fontSize: '18px',
+                fontSize: isGovt ? '20px' : '18px',
                 fontWeight: 'bold',
-                color: '#8B4513',
+                color: isGovt ? '#000000' : '#8B4513',
                 textTransform: 'uppercase',
                 letterSpacing: '3px',
                 fontFamily: 'Arial, sans-serif',
@@ -104,10 +119,10 @@ const CertificateTemplate = forwardRef<HTMLDivElement, CertificateTemplateProps>
           <div 
             style={{ 
               position: 'absolute',
-              width: '55%',
+              width: isGovt ? '100%' : '55%',
               textAlign: 'center',
-              top: '440px', 
-              left: '160px',
+              top: isGovt ? '490px' : '440px', 
+              left: isGovt ? '0' : '160px',
             }}
           >
             <p 
@@ -127,8 +142,9 @@ const CertificateTemplate = forwardRef<HTMLDivElement, CertificateTemplateProps>
           <div 
             style={{ 
               position: 'absolute',
-              bottom: '15px', 
-              left: '520px', 
+              bottom: isGovt ? '60px' : '15px', 
+              left: isGovt ? '50%' : '520px', 
+              transform: isGovt ? 'translateX(-50%)' : 'none',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -139,8 +155,8 @@ const CertificateTemplate = forwardRef<HTMLDivElement, CertificateTemplateProps>
               src={qrCodeUrl}
               alt="Verification QR Code"
               style={{
-                width: '50px',
-                height: '50px',
+                width: isGovt ? '70px' : '50px',
+                height: isGovt ? '70px' : '50px',
                 border: '2px solid #333',
                 borderRadius: '4px',
                 backgroundColor: 'white'

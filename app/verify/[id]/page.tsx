@@ -10,7 +10,8 @@ import {
   BookOpen,
   Loader2,
   XCircle,
-  ShieldCheck
+  ShieldCheck,
+  MapPin
 } from 'lucide-react';
 import Navbar from '../../components/Navbar';
 import { API_URL } from '@/utils/config';
@@ -123,8 +124,47 @@ export default function VerifyPage({ params }: PageProps) {
                   <div className="h-px bg-white/10" />
 
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center">
-                      <Calendar className="w-6 h-6 text-amber-400" />
+                    <div className="w-12 h-12 rounded-xl bg-pink-500/20 flex items-center justify-center">
+                      <User className="w-6 h-6 text-pink-400" />
+                    </div>
+                    <div>
+                      <p className="text-gray-500 text-sm">Profession</p>
+                      <p className="text-white font-semibold">{student.profession}</p>
+                    </div>
+                  </div>
+
+                  <div className="h-px bg-white/10" />
+
+                  <div className="flex items-center gap-4">
+                     <div className="w-12 h-12 rounded-xl bg-cyan-500/20 flex items-center justify-center">
+                       <MapPin className="w-6 h-6 text-cyan-400" />
+                     </div>
+                     <div>
+                       <p className="text-gray-500 text-sm">Location</p>
+                       <p className="text-white font-semibold">{student.location || 'Online'}</p>
+                     </div>
+                  </div>
+
+                  <div className="h-px bg-white/10" />
+
+                   <div className="flex items-center gap-4">
+                     <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                       <ShieldCheck className="w-6 h-6 text-amber-400" />
+                     </div>
+                     <div>
+                       <p className="text-gray-500 text-sm">Certificate Type</p>
+                       <p className="text-white font-semibold flex items-center gap-2">
+                         {student.certificateType || 'Standard'}
+                         {student.certificateType === 'Government' && <span className="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full">Official</span>}
+                       </p>
+                     </div>
+                   </div>
+
+                  <div className="h-px bg-white/10" />
+
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-slate-500/20 flex items-center justify-center">
+                      <Calendar className="w-6 h-6 text-slate-400" />
                     </div>
                     <div>
                       <p className="text-gray-500 text-sm">Issue Date</p>
@@ -138,7 +178,7 @@ export default function VerifyPage({ params }: PageProps) {
                     </div>
                   </div>
                 </div>
-
+                
                 <div className="mt-6 p-4 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center gap-3">
                   <CheckCircle className="w-6 h-6 text-green-400 flex-shrink-0" />
                   <p className="text-green-300 text-sm">

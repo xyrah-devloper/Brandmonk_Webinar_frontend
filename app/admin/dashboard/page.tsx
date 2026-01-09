@@ -12,7 +12,7 @@ import {
   Plus, Calendar, MapPin, MoreVertical, ArrowRight, CheckCircle, 
   Award, TrendingUp, ChevronDown, Filter, ShieldCheck, Quote, Sparkles,
   ExternalLink, Trash2, Edit2, X, Loader2, BookOpen, Mail, AlertTriangle,
-  Palette, Code, Share2, Laptop, Presentation, Download, Upload, GraduationCap
+  Palette, Code, Share2, Laptop, Presentation, Download, Upload, QrCode, Eye
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { API_URL } from '@/utils/config';
@@ -37,6 +37,7 @@ interface Student {
   department?: string;
   yearOfStudyOrExperience?: string;
   hasFollowedInstagram?: boolean;
+  certificateType?: 'Standard' | 'Government';
 }
 
 interface Webinar {
@@ -64,26 +65,7 @@ interface Stats {
   topWebinars: { name: string; count: number }[];
 }
 
-interface GraduationAttendee {
-  name: string;
-  relation: string;
-  _id?: string;
-}
 
-interface Graduation {
-  _id: string;
-  studentName: string;
-  email: string;
-  phone: string;
-  batch: string;
-  course: string;
-  attendees: GraduationAttendee[];
-  seatStart: number;
-  seatEnd: number;
-  totalSeats: number;
-  registrationDate: string;
-  createdAt: string;
-}
 
 // --- Shadcn-like UI Components (Restored) ---
 
@@ -184,8 +166,7 @@ export default function AdminDashboard() {
   const [students, setStudents] = useState<Student[]>([]);
   const [webinars, setWebinars] = useState<Webinar[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
-  const [graduations, setGraduations] = useState<Graduation[]>([]);
-  const [graduationStats, setGraduationStats] = useState<any>(null);
+
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
   
@@ -204,9 +185,13 @@ export default function AdminDashboard() {
   const [isAddWebinarOpen, setIsAddWebinarOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isQROpen, setIsQROpen] = useState(false);
+  const [qrStudent, setQrStudent] = useState<Student | null>(null);
 
   // Forms
-  const [newStudent, setNewStudent] = useState({ name: '', email: '', phone: '', webinarName: '', location: '', profession: '' });
+  const [newStudent, setNewStudent] = useState({ 
+    name: '', email: '', phone: '', webinarName: '', location: '', profession: '', certificateType: 'Government' 
+  });
   const [newWebinar, setNewWebinar] = useState({ name: '', type: 'Webinar', description: '', date: '', location: '' });
   
   // Chennai Admin Batch States
@@ -272,25 +257,7 @@ export default function AdminDashboard() {
       if (statsRes.data.success) setStats(statsRes.data.stats);
       if (webinarsRes.data.success) setWebinars(webinarsRes.data.webinars);
       
-      // Fetch graduation data separately (non-blocking)
-      try {
-        const [graduationsRes, gradStatsRes] = await Promise.all([
-          axios.get(`${API_URL}/api/graduation/all`),
-          axios.get(`${API_URL}/api/graduation/stats`)
-        ]);
-        
-        if (graduationsRes.data.success) {
-          setGraduations(graduationsRes.data.data || []);
-        }
-        
-        if (gradStatsRes.data.success) {
-          setGraduationStats(gradStatsRes.data.stats);
-        }
-      } catch (gradErr) {
-        console.log('Graduation endpoints not available yet (this is ok if backend not deployed)');
-        setGraduations([]);
-        setGraduationStats(null);
-      }
+
     } catch (err) {
       console.error('Failed to fetch data:', err);
     } finally {
@@ -457,8 +424,15 @@ export default function AdminDashboard() {
       if (res.data.success) {
         setStudents([res.data.student, ...students]);
         setIsAddStudentOpen(false);
-        setNewStudent({ name: '', email: '', phone: '', webinarName: '', location: '', profession: '' });
+        setStudents([res.data.student, ...students]);
+        setIsAddStudentOpen(false);
+        setNewStudent({ name: '', email: '', phone: '', webinarName: '', location: '', profession: '', certificateType: 'Government' });
         fetchData();
+        fetchData();
+        
+        // Auto-open QR for the new student
+        setQrStudent(res.data.student);
+        setIsQROpen(true);
       }
     } catch (err) {
       console.error('Failed to add student:', err);
@@ -804,7 +778,6 @@ export default function AdminDashboard() {
               { id: 'courses', label: 'Courses', icon: BookOpen },
               { id: 'webinars', label: 'Webinars', icon: Presentation },
               { id: 'students', label: 'Student Records', icon: Users },
-              { id: 'graduation', label: 'Graduation Records', icon: GraduationCap },
             ].map((item) => (
               <button
                 key={item.id}
@@ -842,7 +815,7 @@ export default function AdminDashboard() {
               {activeTab === 'courses' && 'Course Management'}
               {activeTab === 'webinars' && 'Webinar Management'}
               {activeTab === 'students' && 'Student Records'}
-              {activeTab === 'graduation' && 'Graduation Celebration Records'}
+
             </h2>
             <p className="text-sm text-slate-500 mt-0.5">
               Welcome back, <span className="font-medium text-slate-700">{admin?.username}</span>
@@ -1221,7 +1194,7 @@ export default function AdminDashboard() {
                         <p className="text-slate-500 text-sm mt-1">Manage your courses available to students.</p>
                      </div>
                      
-                     <div className="flex gap-4">
+                      <div className="flex gap-4">
                         <div className="relative">
                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                           <input 
@@ -1231,10 +1204,19 @@ export default function AdminDashboard() {
                             onChange={(e) => setWebinarSearch(e.target.value)}
                           />
                         </div>
+                        <Button 
+                          variant="secondary"
+                          onClick={() => {
+                            setNewStudent({ ...newStudent, webinarName: '', certificateType: 'Government' });
+                            setIsAddStudentOpen(true);
+                          }}
+                        >
+                          <Plus className="mr-2 h-4 w-4" /> Add Student
+                        </Button>
                         <Button onClick={() => setIsAddWebinarOpen(true)}>
                           <Plus className="mr-2 h-4 w-4" /> Add Course
                         </Button>
-                     </div>
+                      </div>
                    </div>
                    
                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1273,7 +1255,21 @@ export default function AdminDashboard() {
                              </div>
                            </div>
                            
-                             <div className="mt-6 flex flex-col gap-2">
+                              <div className="mt-6 flex flex-col gap-2">
+                               <Button 
+                                 className="w-full bg-slate-900 text-white hover:bg-slate-800"
+                                 onClick={() => {
+                                   setNewStudent({ 
+                                     ...newStudent, 
+                                     webinarName: webinar.name,
+                                     certificateType: 'Government' // Reset or default
+                                   });
+                                   setIsAddStudentOpen(true);
+                                 }}
+                               >
+                                 <Plus className="w-4 h-4 mr-2" /> Add Student
+                               </Button>
+
                                {webinar.type !== 'Course' && (
                                  <Button 
                                    variant="outline" 
@@ -1600,6 +1596,17 @@ export default function AdminDashboard() {
                                   </>
                                 )}
                                 
+                                <button
+                                  onClick={() => {
+                                    setQrStudent(student);
+                                    setIsQROpen(true);
+                                  }}
+                                  className="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
+                                  title="View/Generate QR Code"
+                                >
+                                  <QrCode className="w-4 h-4" />
+                                </button>
+                                
                                 <button 
                                   onClick={() => handleDeleteStudent(student._id)}
                                   className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
@@ -1625,174 +1632,7 @@ export default function AdminDashboard() {
              </Card>
           )}
 
-          {/* Graduation Records Tab */}
-          {activeTab === 'graduation' && (
-             <div className="space-y-6">
-               {/* Stats Cards */}
-               <div className="grid gap-6 md:grid-cols-4">
-                 <Card className="border-purple-200">
-                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                     <CardTitle className="text-sm font-medium text-slate-500">Total Registrations</CardTitle>
-                     <GraduationCap className="h-4 w-4 text-purple-500" />
-                   </CardHeader>
-                   <CardContent>
-                     <div className="text-3xl font-bold text-purple-600">{graduationStats?.totalRegistrations || 0}</div>
-                     <p className="text-xs text-slate-400 mt-1">Graduation registrations</p>
-                   </CardContent>
-                 </Card>
 
-                 <Card className="border-pink-200">
-                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                     <CardTitle className="text-sm font-medium text-slate-500">Total Attendees</CardTitle>
-                     <Users className="h-4 w-4 text-pink-500" />
-                   </CardHeader>
-                   <CardContent>
-                     <div className="text-3xl font-bold text-pink-600">{graduationStats?.totalMembers || 0}</div>
-                     <p className="text-xs text-slate-400 mt-1">Including guests</p>
-                   </CardContent>
-                 </Card>
-
-                 <Card className="border-blue-200">
-                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                     <CardTitle className="text-sm font-medium text-slate-500">Total Seats</CardTitle>
-                     <Award className="h-4 w-4 text-blue-500" />
-                   </CardHeader>
-                   <CardContent>
-                     <div className="text-3xl font-bold text-blue-600">{graduationStats?.totalSeats || 0}</div>
-                     <p className="text-xs text-slate-400 mt-1">Seats allocated</p>
-                   </CardContent>
-                 </Card>
-
-                 <Card className="border-emerald-200">
-                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                     <CardTitle className="text-sm font-medium text-slate-500">Last Seat Number</CardTitle>
-                     <CheckCircle className="h-4 w-4 text-emerald-500" />
-                   </CardHeader>
-                   <CardContent>
-                     <div className="text-3xl font-bold text-emerald-600">
-                       {graduationStats?.lastSeatNumber ? String(graduationStats.lastSeatNumber).padStart(3, '0') : '000'}
-                     </div>
-                     <p className="text-xs text-slate-400 mt-1">Most recent seat</p>
-                   </CardContent>
-                 </Card>
-               </div>
-
-               {/* Registrations Table */}
-               <Card className="shadow-sm border-slate-200 overflow-hidden">
-                 <CardHeader className="border-b border-slate-100 bg-slate-50/50">
-                   <div className="flex items-center justify-between">
-                     <div>
-                       <CardTitle className="text-xl">Graduation Registrations</CardTitle>
-                       <p className="text-sm text-slate-500 mt-1">View all students registered for the graduation celebration</p>
-                     </div>
-                     <div className="text-right">
-                       <p className="text-sm text-slate-600">
-                         <span className="font-bold text-2xl text-purple-600">{graduations.length}</span>
-                         <span className="text-slate-500 ml-2">registrations</span>
-                       </p>
-                     </div>
-                   </div>
-                 </CardHeader>
-                 <div className="overflow-x-auto">
-                   <table className="w-full text-sm">
-                     <thead>
-                       <tr className="border-b border-slate-100 bg-white text-left">
-                         <th className="px-4 py-4 font-semibold text-slate-500 text-center w-16">S.No</th>
-                         <th className="px-6 py-4 font-semibold text-slate-500">Student Name</th>
-                         <th className="px-6 py-4 font-semibold text-slate-500">Email</th>
-                         <th className="px-6 py-4 font-semibold text-slate-500">Phone</th>
-                         <th className="px-6 py-4 font-semibold text-slate-500">Batch</th>
-                         <th className="px-6 py-4 font-semibold text-slate-500">Course</th>
-                         <th className="px-6 py-4 font-semibold text-slate-500 text-center">Attendees</th>
-                         <th className="px-6 py-4 font-semibold text-slate-500 text-center">Seat Numbers</th>
-                         <th className="px-6 py-4 font-semibold text-slate-500">Registered On</th>
-                         <th className="px-4 py-4 font-semibold text-slate-500 text-center">Actions</th>
-                       </tr>
-                     </thead>
-                     <tbody>
-                       {graduations.map((grad, index) => (
-                         <tr key={grad._id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                           <td className="px-4 py-4 text-center text-slate-600 font-medium">{index + 1}</td>
-                           <td className="px-6 py-4">
-                             <div className="flex items-center gap-3">
-                               <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-sm font-bold text-white">
-                                 {grad.studentName.charAt(0).toUpperCase()}
-                               </div>
-                               <div>
-                                 <p className="font-semibold text-slate-900">{grad.studentName}</p>
-                               </div>
-                             </div>
-                           </td>
-                           <td className="px-6 py-4 text-slate-600">{grad.email}</td>
-                           <td className="px-6 py-4 text-slate-600">{grad.phone}</td>
-                           <td className="px-6 py-4">
-                             <Badge variant="blue">{grad.batch}</Badge>
-                           </td>
-                           <td className="px-6 py-4 text-slate-600">{grad.course}</td>
-                           <td className="px-6 py-4">
-                             <div className="flex flex-col gap-1">
-                               {grad.attendees.map((attendee, idx) => (
-                                 <div key={idx} className="text-xs">
-                                   <span className="font-semibold text-slate-700">{attendee.name}</span>
-                                   <span className="text-slate-500"> ({attendee.relation})</span>
-                                 </div>
-                               ))}
-                             </div>
-                           </td>
-                           <td className="px-6 py-4 text-center">
-                             <div className="inline-flex flex-col gap-1 bg-gradient-to-r from-yellow-100 to-orange-100 rounded-lg px-3 py-2">
-                               <span className="text-lg font-black text-orange-700">
-                                 {String(grad.seatStart).padStart(3, '0')} {grad.seatStart !== grad.seatEnd && `- ${String(grad.seatEnd).padStart(3, '0')}`}
-                               </span>
-                               <span className="text-xs text-orange-600 font-semibold">
-                                 {grad.totalSeats} {grad.totalSeats === 1 ? 'Seat' : 'Seats'}
-                               </span>
-                             </div>
-                           </td>
-                           <td className="px-6 py-4 text-slate-600 text-sm">
-                             {new Date(grad.registrationDate || grad.createdAt).toLocaleDateString('en-IN', {
-                               year: 'numeric',
-                               month: 'short',
-                               day: 'numeric'
-                             })}
-                           </td>
-                           <td className="px-4 py-4">
-                             <button 
-                               onClick={async () => {
-                                 if (window.confirm('Are you sure you want to delete this graduation registration?')) {
-                                   try {
-                                     await axios.delete(`${API_URL}/api/graduation/${grad._id}`);
-                                     setGraduations(graduations.filter(g => g._id !== grad._id));
-                                     fetchData();
-                                   } catch (err) {
-                                     console.error('Failed to delete:', err);
-                                     alert('Failed to delete registration');
-                                   }
-                                 }
-                               }}
-                               className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
-                               title="Delete Registration"
-                             >
-                               <Trash2 className="w-4 h-4" />
-                             </button>
-                           </td>
-                         </tr>
-                       ))}
-                       {graduations.length === 0 && (
-                         <tr>
-                           <td colSpan={10} className="px-6 py-16 text-center">
-                             <GraduationCap className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                             <h3 className="text-lg font-semibold text-slate-700 mb-2">No Graduation Registrations Yet</h3>
-                             <p className="text-slate-500">Students will appear here once they register for the graduation celebration.</p>
-                           </td>
-                         </tr>
-                       )}
-                     </tbody>
-                   </table>
-                 </div>
-               </Card>
-             </div>
-           )}
         </main>
       </div>
       
@@ -1838,26 +1678,16 @@ export default function AdminDashboard() {
                    </div>
 
                    <div className="space-y-2">
-                     <label className="text-sm font-medium leading-none">Select {studentRegisterType}</label>
-                     <div className="relative">
-                       <select 
-                         className="flex h-10 w-full appearance-none rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
-                         value={newStudent.webinarName}
-                         onChange={(e) => setNewStudent({...newStudent, webinarName: e.target.value})}
-                         required
-                       >
-                         <option value="" disabled>Select a {studentRegisterType}</option>
-                         {webinars
-                           .filter(w => w.type === studentRegisterType)
-                           .map((w) => (
-                             <option key={w._id} value={w.name}>{w.name}</option>
-                           ))
-                         }
-                       </select>
-                       <ChevronDown className="absolute right-3 top-2.5 h-4 w-4 text-slate-500 pointer-events-none" />
-                     </div>
+                     <Input 
+                       label="Course / Webinar Name" 
+                       placeholder="Type the course name here..." 
+                       value={newStudent.webinarName} 
+                       onChange={(e: any) => setNewStudent({...newStudent, webinarName: e.target.value})} 
+                       required 
+                     />
                    </div>
                 </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <Input label="Location" placeholder="e.g. Chennai" value={newStudent.location} onChange={(e: any) => setNewStudent({...newStudent, location: e.target.value})} required />
                   <div className="space-y-2">
@@ -1940,6 +1770,63 @@ export default function AdminDashboard() {
                   </Button>
                 </div>
               </form>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+      
+      {/* QR Code Modal for Verification */}
+      {isQROpen && qrStudent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <Card className="w-full max-w-sm bg-white shadow-2xl animate-in zoom-in-95">
+            <CardHeader className="flex flex-row items-center justify-between border-b pb-4">
+              <CardTitle>Verification QR Code</CardTitle>
+              <button onClick={() => setIsQROpen(false)} className="rounded-full p-1 hover:bg-slate-100">
+                <X className="h-4 w-4" />
+              </button>
+            </CardHeader>
+            <CardContent className="pt-8 pb-8 flex flex-col items-center gap-4">
+              <div className="p-4 bg-white border-2 border-slate-900 rounded-lg">
+                <img 
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${window.location.protocol}//${window.location.host}/verify/${qrStudent._id}`)}`}
+                  alt="Student Verification QR"
+                  className="w-48 h-48"
+                />
+              </div>
+              <div className="text-center space-y-1">
+                <h3 className="font-bold text-lg">{qrStudent.name}</h3>
+                <p className="text-sm text-slate-500">{qrStudent.webinarName}</p>
+                <Badge variant={qrStudent.certificateType === 'Government' ? 'purple' : 'default'} className="mt-2">
+                   {qrStudent.certificateType || 'Standard'} Certificate
+                </Badge>
+              </div>
+              
+              <div className="grid grid-cols-1 w-full gap-2 mt-4">
+                <Button 
+                   variant="outline"
+                   onClick={async () => {
+                     try {
+                        const response = await fetch(`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${window.location.protocol}//${window.location.host}/verify/${qrStudent._id}`)}`);
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `${qrStudent.name.replace(/\s+/g,'_')}_QR.png`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                     } catch (err) {
+                        alert('Failed to download QR code');
+                     }
+                   }}
+                >
+                  <Download className="w-4 h-4 mr-2" /> Download QR Image
+                </Button>
+                <p className="text-xs text-center text-slate-400 mt-2">
+                   Scan to verify validity. Validates on this platform.
+                </p>
+              </div>
             </CardContent>
           </Card>
         </div>
