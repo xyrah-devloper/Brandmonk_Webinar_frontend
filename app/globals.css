@@ -25,6 +25,8 @@
   --font-serif: var(--font-serif);
   --font-cinzel: var(--font-cinzel);
   --font-cursive: var(--font-cursive);
+  --font-poppins: var(--font-poppins);
+  --font-tangerine: var(--font-tangerine);
 }
 
 * {

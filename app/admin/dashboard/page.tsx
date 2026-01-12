@@ -1654,112 +1654,105 @@ export default function AdminDashboard() {
              <div className="space-y-6">
                 <Card className="border-slate-200">
                   <CardHeader>
-                    <CardTitle>Course Certificate Generator</CardTitle>
-                    <p className="text-sm text-slate-500">Generate QR-coded certificates for course students.</p>
+                    <CardTitle>Video Editing Certificate Generator</CardTitle>
+                    <p className="text-sm text-slate-500">Generate certificates with student names and certificate IDs.</p>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    {/* Step 1: Select Course */}
+                    {/* Step 1: Upload Template */}
                     <div className="space-y-2">
-                       <label className="text-sm font-medium">1. Select Course</label>
-                       <div className="flex flex-wrap gap-2">
-                          {[{name: 'Video Editing', slug: 'video-editing'}, {name: 'Digital Marketing', slug: 'digital-marketing'}].map(course => (
-                             <button
-                               key={course.slug}
-                               onClick={async () => {
-                                 setSelectedCertCourse(course.slug);
-                                 setSelectedCertStudent('');
-                                 setCourseStudents([]);
-                                 // Fetch students for this course
-                                 try {
-                                   const res = await axios.get(`${API_URL}/api/course-students/course/${course.slug}`);
-                                   if (res.data.success) {
-                                     setCourseStudents(res.data.students);
-                                   }
-                                 } catch (err) {
-                                   console.error('Failed to fetch course students:', err);
-                                 }
-                               }}
-                               className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
-                                 selectedCertCourse === course.slug 
-                                 ? 'bg-slate-900 text-white border-slate-900' 
-                                 : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
-                               }`}
-                             >
-                               {course.name}
-                             </button>
-                          ))}
+                       <label className="text-sm font-medium">1. Upload Certificate Template</label>
+                       <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center hover:bg-slate-50 transition-colors relative">
+                          <input 
+                            type="file" 
+                            accept="image/*"
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            onChange={(e) => {
+                               const file = e.target.files?.[0];
+                               if(file) {
+                                  const reader = new FileReader();
+                                  reader.onload = (ev) => setCertTemplate(ev.target?.result as string);
+                                  reader.readAsDataURL(file);
+                               }
+                            }}
+                          />
+                          {!certTemplate ? (
+                             <div className="flex flex-col items-center">
+                               <Upload className="w-8 h-8 text-slate-400 mb-2" />
+                               <p className="text-sm text-slate-600 font-medium">Click to upload template image</p>
+                               <p className="text-xs text-slate-400">PNG, JPG (Video Editing Certificate Template)</p>
+                             </div>
+                          ) : (
+                             <div className="relative inline-block border border-slate-200 shadow-lg rounded-lg overflow-hidden max-h-[400px]">
+                                <img src={certTemplate} alt="Template" className="max-h-[400px] object-contain" />
+                                <button 
+                                  onClick={(e) => {
+                                     e.stopPropagation();
+                                     e.preventDefault();
+                                     setCertTemplate(null);
+                                  }}
+                                  className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                             </div>
+                          )}
                        </div>
-                       {selectedCertCourse && (
-                         <p className="text-sm text-emerald-600 font-medium">
-                           {courseStudents.length} students found.
-                         </p>
-                       )}
                     </div>
 
-                    {/* Step 2: Select Student */}
-                    {courseStudents.length > 0 && (
+                    {/* Step 2: Fetch Students by Course */}
+                    {certTemplate && (
                       <div className="space-y-2">
-                         <label className="text-sm font-medium">2. Select Student</label>
-                         <select 
-                           className="w-full h-10 rounded-md border border-slate-200 bg-white px-3 text-sm"
-                           value={selectedCertStudent}
-                           onChange={(e) => setSelectedCertStudent(e.target.value)}
-                         >
-                           <option value="">-- Select a student --</option>
-                           <option value="all">All Students ({courseStudents.length})</option>
-                           {courseStudents.map(s => (
-                             <option key={s._id} value={s._id}>{s.name} ({s.certificateId})</option>
-                           ))}
-                         </select>
-                      </div>
-                    )}
-
-                    {/* Step 3: Upload Template */}
-                    {selectedCertStudent && (
-                      <div className="space-y-2">
-                         <label className="text-sm font-medium">3. Upload Certificate Template</label>
-                         <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center hover:bg-slate-50 transition-colors relative">
-                            <input 
-                              type="file" 
-                              accept="image/*"
-                              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                              onChange={(e) => {
-                                 const file = e.target.files?.[0];
-                                 if(file) {
-                                    const reader = new FileReader();
-                                    reader.onload = (ev) => setCertTemplate(ev.target?.result as string);
-                                    reader.readAsDataURL(file);
+                         <label className="text-sm font-medium">2. Select Course and Load Students</label>
+                         <div className="flex gap-3">
+                           <Button 
+                             onClick={async () => {
+                               try {
+                                 const res = await axios.get(`${API_URL}/api/course-students/course/video-editing`);
+                                 if (res.data.success) {
+                                   setCourseStudents(res.data.students);
+                                   setSelectedCertCourse('video-editing');
                                  }
-                              }}
-                            />
-                            {!certTemplate ? (
-                               <div className="flex flex-col items-center">
-                                 <Upload className="w-8 h-8 text-slate-400 mb-2" />
-                                 <p className="text-sm text-slate-600 font-medium">Click to upload template image</p>
-                                 <p className="text-xs text-slate-400">PNG, JPG</p>
-                               </div>
-                            ) : (
-                               <div className="relative inline-block border border-slate-200 shadow-lg rounded-lg overflow-hidden max-h-[300px]">
-                                  <img src={certTemplate} alt="Template" className="max-h-[300px] object-contain" />
-                                  <button 
-                                    onClick={(e) => {
-                                       e.stopPropagation();
-                                       e.preventDefault();
-                                       setCertTemplate(null);
-                                    }}
-                                    className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
-                                  >
-                                    <X className="w-4 h-4" />
-                                  </button>
-                               </div>
-                            )}
+                               } catch (err) {
+                                 console.error('Failed to fetch course students:', err);
+                                 alert('Failed to fetch Video Editing students');
+                               }
+                             }}
+                             className="flex-1"
+                             variant={selectedCertCourse === 'video-editing' ? 'default' : 'outline'}
+                           >
+                             Load Video Editing Students
+                           </Button>
+                           
+                           <Button 
+                             onClick={async () => {
+                               try {
+                                 const res = await axios.get(`${API_URL}/api/course-students/course/digital-marketing`);
+                                 if (res.data.success) {
+                                   setCourseStudents(res.data.students);
+                                   setSelectedCertCourse('digital-marketing');
+                                 }
+                               } catch (err) {
+                                 console.error('Failed to fetch course students:', err);
+                                 alert('Failed to fetch Digital Marketing students');
+                               }
+                             }}
+                             className="flex-1"
+                             variant={selectedCertCourse === 'digital-marketing' ? 'default' : 'outline'}
+                           >
+                             Load Digital Marketing Students
+                           </Button>
                          </div>
+                         {courseStudents.length > 0 && (
+                           <p className="text-sm text-emerald-600 font-medium">
+                             ✓ {courseStudents.length} Video Editing students loaded.
+                           </p>
+                         )}
                       </div>
                     )}
 
-                    {/* Step 4: Generate */}
-                    {certTemplate && selectedCertStudent && (
-                      <div className="pt-4">
+                    {/* Step 3: Generate */}
+                    {certTemplate && courseStudents.length > 0 && (
+                      <div className="pt-4 space-y-3">
                          <Button 
                            disabled={isGeneratingCerts}
                            onClick={async () => {
@@ -1767,11 +1760,6 @@ export default function AdminDashboard() {
                               setGeneratedCerts([]);
                               
                               try {
-                                 // Determine which students to process
-                                 const targetStudents = selectedCertStudent === 'all' 
-                                   ? courseStudents 
-                                   : courseStudents.filter(s => s._id === selectedCertStudent);
-                                 
                                  const newCerts = [];
                                  
                                  // Load template image once
@@ -1779,11 +1767,7 @@ export default function AdminDashboard() {
                                  templateImg.src = certTemplate!;
                                  await new Promise(r => templateImg.onload = r);
                                  
-                                 for(const student of targetStudents) {
-                                    // Generate QR URL using certificateId
-                                    const qrUrl = `https://brandmonk.academy/verify/course/${student.certificateId}`;
-                                    const qrDataUrl = await QRCode.toDataURL(qrUrl, { margin: 1, width: 250 });
-                                    
+                                 for(const student of courseStudents) {
                                     const canvas = document.createElement('canvas');
                                     const ctx = canvas.getContext('2d');
                                     if(!ctx) continue;
@@ -1791,18 +1775,53 @@ export default function AdminDashboard() {
                                     canvas.width = templateImg.width;
                                     canvas.height = templateImg.height;
                                     
+                                    // Draw template
                                     ctx.drawImage(templateImg, 0, 0);
+                                    
+                                    // Draw student name in Tangerine (on the blank line, moved down more)
+                                    const nameFontSize = canvas.width * 0.048; // 4.8% of canvas width
+                                    ctx.font = `bold ${nameFontSize}px "Tangerine", cursive`;
+                                    ctx.fillStyle = '#6B4423'; // Brown color matching certificate
+                                    ctx.textAlign = 'center';
+                                    ctx.textBaseline = 'middle';
+                                    
+                                    // Name position (moved down more)
+                                    const nameX = canvas.width / 2;
+                                    const nameY = canvas.height * 0.55; // 45% from top (moved down from 42%)
+                                    ctx.fillText(student.name, nameX, nameY);
+                                    
+                                    // Draw certificate ID in Poppins (small font, left-aligned to fit in field)
+                                    const certIdFontSize = canvas.width * 0.0165; // 0.95% of canvas width (smaller to fit)
+                                    ctx.font = `${certIdFontSize}px "Poppins", sans-serif`;
+                                    ctx.fillStyle = '#000000';
+                                    ctx.textAlign = 'left'; // Left-aligned to fit in the field box
+                                    
+                                    // Certificate ID position (left side of the field box)
+                                    const certIdX = canvas.width * 0.63; // 64.5% from left (left edge of field)
+                                    const certIdY = canvas.height * 0.838; // 86.5% from top (middle of field)
+                                    ctx.fillText(student.certificateId, certIdX, certIdY);
+                                    
+                                    // Generate QR code for verification
+                                    const qrUrl = `${window.location.origin}/verify/course/${student.certificateId}`;
+                                    const qrDataUrl = await QRCode.toDataURL(qrUrl, { 
+                                      margin: 1, 
+                                      width: 200,
+                                      color: {
+                                        dark: '#000000',
+                                        light: '#FFFFFF'
+                                      }
+                                    });
                                     
                                     const qrImg = new Image();
                                     qrImg.src = qrDataUrl;
                                     await new Promise(r => qrImg.onload = r);
                                     
-                                    // Position: Bottom Center (moved up)
-                                    const qrSize = Math.min(canvas.width * 0.08, 150); // Smaller QR
-                                    const x = (canvas.width - qrSize) / 2;
-                                    const y = canvas.height - qrSize - (canvas.height * 0.13); // 13% from bottom
+                                    // QR code position (moved down, where VERIFIED seal is)
+                                    const qrSize = Math.min(canvas.width * 0.09, 140); // 9% of width, max 140px
+                                    const qrX = (canvas.width - qrSize) / 2; // Center horizontally
+                                    const qrY = canvas.height * 0.80; // 75% from top (moved down from 73%)
                                     
-                                    ctx.drawImage(qrImg, x, y, qrSize, qrSize);
+                                    ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
                                     
                                     newCerts.push({
                                        id: student._id,
@@ -1827,7 +1846,7 @@ export default function AdminDashboard() {
                               </>
                            ) : (
                               <>
-                                <Sparkles className="w-5 h-5 mr-2" /> Generate Certificate{selectedCertStudent === 'all' ? 's' : ''}
+                                <Sparkles className="w-5 h-5 mr-2" /> Generate All Certificates ({courseStudents.length})
                               </>
                            )}
                          </Button>
@@ -1836,10 +1855,31 @@ export default function AdminDashboard() {
                   </CardContent>
                 </Card>
 
+
                 {/* Results */}
                 {generatedCerts.length > 0 && (
                    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
-                      <h3 className="text-xl font-bold">Generated Certificates ({generatedCerts.length})</h3>
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-xl font-bold">Generated Certificates ({generatedCerts.length})</h3>
+                        <Button
+                          onClick={() => {
+                            // Download all certificates
+                            generatedCerts.forEach((cert, index) => {
+                              setTimeout(() => {
+                                const link = document.createElement('a');
+                                link.href = cert.dataUrl;
+                                link.download = `${cert.name.replace(/[^a-z0-9]/gi, '_')}_VE_Certificate.png`;
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                              }, index * 100); // Stagger downloads by 100ms
+                            });
+                          }}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                        >
+                          <Download className="w-4 h-4 mr-2" /> Download All ({generatedCerts.length})
+                        </Button>
+                      </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                          {generatedCerts.map((cert) => (
                             <Card key={cert.id} className="overflow-hidden">
@@ -1862,7 +1902,7 @@ export default function AdminDashboard() {
                                      </button>
                                      <a 
                                        href={cert.dataUrl} 
-                                       download={`${cert.name.replace(/[^a-z0-9]/gi, '_')}_Certificate.png`}
+                                       download={`${cert.name.replace(/[^a-z0-9]/gi, '_')}_VE_Certificate.png`}
                                        className="p-2 bg-white rounded-full hover:bg-blue-50 text-blue-600 shadow-lg"
                                        title="Download"
                                      >
@@ -1874,7 +1914,7 @@ export default function AdminDashboard() {
                                   <p className="font-semibold text-sm truncate">{cert.name}</p>
                                   <a 
                                     href={cert.dataUrl} 
-                                    download={`${cert.name.replace(/[^a-z0-9]/gi, '_')}_Certificate.png`}
+                                    download={`${cert.name.replace(/[^a-z0-9]/gi, '_')}_VE_Certificate.png`}
                                     className="text-xs font-medium text-emerald-600 hover:text-emerald-700 flex items-center"
                                   >
                                      <Download className="w-3 h-3 mr-1" /> Download

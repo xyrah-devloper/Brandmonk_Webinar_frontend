@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Outfit, Libre_Baskerville, Cinzel, Great_Vibes } from "next/font/google";
+import { Outfit, Libre_Baskerville, Cinzel, Great_Vibes, Poppins, Tangerine } from "next/font/google";
 import "./globals.css";
 
 const outfit = Outfit({ 
@@ -26,6 +26,18 @@ const greatVibes = Great_Vibes({
   weight: ["400"]
 });
 
+const poppins = Poppins({
+  subsets: ["latin"],
+  variable: "--font-poppins",
+  weight: ["300", "400", "500", "600", "700"]
+});
+
+const tangerine = Tangerine({
+  subsets: ["latin"],
+  variable: "--font-tangerine",
+  weight: ["400", "700"]
+});
+
 export const metadata: Metadata = {
   title: "Brand Monk Academy - Webinar Certificates",
   description: "Register for webinars and download your certificates from Brand Monk Academy",
@@ -39,7 +51,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${outfit.variable} ${libreBaskerville.variable} ${cinzel.variable} ${greatVibes.variable} ${outfit.className} antialiased`}>
+      <body className={`${outfit.variable} ${libreBaskerville.variable} ${cinzel.variable} ${greatVibes.variable} ${poppins.variable} ${tangerine.variable} ${outfit.className} antialiased`}>
         {children}
       </body>
     </html>
