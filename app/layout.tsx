@@ -1,42 +1,5 @@
 import type { Metadata } from "next";
-import { Outfit, Libre_Baskerville, Cinzel, Great_Vibes, Poppins, Tangerine } from "next/font/google";
 import "./globals.css";
-
-const outfit = Outfit({ 
-  subsets: ["latin"],
-  variable: "--font-sans",
-  weight: ["300", "400", "500", "600", "700", "800"]
-});
-
-const libreBaskerville = Libre_Baskerville({
-  subsets: ["latin"],
-  variable: "--font-serif",
-  weight: ["400", "700"]
-});
-
-const cinzel = Cinzel({
-  subsets: ["latin"],
-  variable: "--font-cinzel",
-  weight: ["400", "700", "900"]
-});
-
-const greatVibes = Great_Vibes({
-  subsets: ["latin"],
-  variable: "--font-cursive",
-  weight: ["400"]
-});
-
-const poppins = Poppins({
-  subsets: ["latin"],
-  variable: "--font-poppins",
-  weight: ["300", "400", "500", "600", "700"]
-});
-
-const tangerine = Tangerine({
-  subsets: ["latin"],
-  variable: "--font-tangerine",
-  weight: ["400", "700"]
-});
 
 export const metadata: Metadata = {
   title: "Brand Monk Academy - Webinar Certificates",
@@ -51,7 +14,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${outfit.variable} ${libreBaskerville.variable} ${cinzel.variable} ${greatVibes.variable} ${poppins.variable} ${tangerine.variable} ${outfit.className} antialiased`}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Libre+Baskerville:wght@400;700&family=Cinzel:wght@400;700;900&family=Poppins:wght@300;400;500;600;700&family=Tangerine:wght@400;700&display=swap" rel="stylesheet" />
+      </head>
+      <body className="font-sans antialiased" style={{ fontFamily: "'Outfit', sans-serif" }}>
         {children}
       </body>
     </html>

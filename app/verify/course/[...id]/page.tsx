@@ -26,7 +26,18 @@ export default function VerifyCourseId() {
   useEffect(() => {
     const fetchStudent = async () => {
       try {
-        const res = await axios.get(`${API_URL}/api/course-students/${id}`);
+        // Handle both string (single segment) and array (catch-all segments)
+        // This supports certificate IDs with slashes like "BMA/2024/001"
+        const certificateId = Array.isArray(id) 
+          ? id.map(segment => decodeURIComponent(segment)).join('/') 
+          : decodeURIComponent(id || '');
+
+        if (!certificateId) return;
+
+        // Double encode if needed for safety in API call URL, or just pass as is if API handles it 
+        // Using encodeURIComponent strictly for the path param in API call
+        const res = await axios.get(`${API_URL}/api/course-students/${encodeURIComponent(certificateId)}`);
+        
         if (res.data.success) {
           setStudent(res.data.student);
         } else {

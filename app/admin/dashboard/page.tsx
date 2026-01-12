@@ -1780,14 +1780,14 @@ export default function AdminDashboard() {
                                     
                                     // Draw student name in Tangerine (on the blank line, moved down more)
                                     const nameFontSize = canvas.width * 0.048; // 4.8% of canvas width
-                                    ctx.font = `bold ${nameFontSize}px "Tangerine", cursive`;
-                                    ctx.fillStyle = '#6B4423'; // Brown color matching certificate
+                                    ctx.font = `bold ${nameFontSize}px "Monotype Corsiva", cursive`;
+                                    ctx.fillStyle = '#6f3230'; // Reddish-brown color
                                     ctx.textAlign = 'center';
                                     ctx.textBaseline = 'middle';
                                     
-                                    // Name position (moved down more)
+                                    // Name position (slightly moved up)
                                     const nameX = canvas.width / 2;
-                                    const nameY = canvas.height * 0.55; // 45% from top (moved down from 42%)
+                                    const nameY = canvas.height * 0.55; // 53% from top (moved up from 55%)
                                     ctx.fillText(student.name, nameX, nameY);
                                     
                                     // Draw certificate ID in Poppins (small font, left-aligned to fit in field)
@@ -1816,10 +1816,10 @@ export default function AdminDashboard() {
                                     qrImg.src = qrDataUrl;
                                     await new Promise(r => qrImg.onload = r);
                                     
-                                    // QR code position (moved down, where VERIFIED seal is)
+                                    // QR code position (slightly moved up)
                                     const qrSize = Math.min(canvas.width * 0.09, 140); // 9% of width, max 140px
                                     const qrX = (canvas.width - qrSize) / 2; // Center horizontally
-                                    const qrY = canvas.height * 0.80; // 75% from top (moved down from 73%)
+                                    const qrY = canvas.height * 0.78; // 78% from top (moved up from 80%)
                                     
                                     ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
                                     
