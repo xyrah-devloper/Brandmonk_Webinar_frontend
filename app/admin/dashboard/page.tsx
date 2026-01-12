@@ -15,6 +15,7 @@ import {
   Palette, Code, Share2, Laptop, Presentation, Download, Upload, QrCode, Eye
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import QRCode from 'qrcode';
 import { API_URL } from '@/utils/config';
 
 // --- Types ---
@@ -166,6 +167,14 @@ export default function AdminDashboard() {
   const [students, setStudents] = useState<Student[]>([]);
   const [webinars, setWebinars] = useState<Webinar[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
+
+  // Certificate Generator State
+  const [certTemplate, setCertTemplate] = useState<string | null>(null);
+  const [generatedCerts, setGeneratedCerts] = useState<{id: string, name: string, dataUrl: string}[]>([]);
+  const [isGeneratingCerts, setIsGeneratingCerts] = useState(false);
+  const [selectedCertCourse, setSelectedCertCourse] = useState<string>('');
+  const [courseStudents, setCourseStudents] = useState<{_id: string, name: string, courseName: string, courseSlug: string, certificateId: string}[]>([]);
+  const [selectedCertStudent, setSelectedCertStudent] = useState<string>(''); // For single student selection
 
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -778,6 +787,7 @@ export default function AdminDashboard() {
               { id: 'courses', label: 'Courses', icon: BookOpen },
               { id: 'webinars', label: 'Webinars', icon: Presentation },
               { id: 'students', label: 'Student Records', icon: Users },
+              { id: 'certificates', label: 'Certificates', icon: Award },
             ].map((item) => (
               <button
                 key={item.id}
@@ -816,6 +826,11 @@ export default function AdminDashboard() {
               {activeTab === 'webinars' && 'Webinar Management'}
               {activeTab === 'students' && 'Student Records'}
 
+              {activeTab === 'dashboard' && 'Dashboard Overview'}
+              {activeTab === 'courses' && 'Course Management'}
+              {activeTab === 'webinars' && 'Webinar Management'}
+              {activeTab === 'students' && 'Student Records'}
+              {activeTab === 'certificates' && 'Certificate Generator'}
             </h2>
             <p className="text-sm text-slate-500 mt-0.5">
               Welcome back, <span className="font-medium text-slate-700">{admin?.username}</span>
@@ -1633,6 +1648,245 @@ export default function AdminDashboard() {
           )}
 
 
+
+          {/* Certificate Generator Tab */}
+          {activeTab === 'certificates' && (
+             <div className="space-y-6">
+                <Card className="border-slate-200">
+                  <CardHeader>
+                    <CardTitle>Course Certificate Generator</CardTitle>
+                    <p className="text-sm text-slate-500">Generate QR-coded certificates for course students.</p>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {/* Step 1: Select Course */}
+                    <div className="space-y-2">
+                       <label className="text-sm font-medium">1. Select Course</label>
+                       <div className="flex flex-wrap gap-2">
+                          {[{name: 'Video Editing', slug: 'video-editing'}, {name: 'Digital Marketing', slug: 'digital-marketing'}].map(course => (
+                             <button
+                               key={course.slug}
+                               onClick={async () => {
+                                 setSelectedCertCourse(course.slug);
+                                 setSelectedCertStudent('');
+                                 setCourseStudents([]);
+                                 // Fetch students for this course
+                                 try {
+                                   const res = await axios.get(`${API_URL}/api/course-students/course/${course.slug}`);
+                                   if (res.data.success) {
+                                     setCourseStudents(res.data.students);
+                                   }
+                                 } catch (err) {
+                                   console.error('Failed to fetch course students:', err);
+                                 }
+                               }}
+                               className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                                 selectedCertCourse === course.slug 
+                                 ? 'bg-slate-900 text-white border-slate-900' 
+                                 : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                               }`}
+                             >
+                               {course.name}
+                             </button>
+                          ))}
+                       </div>
+                       {selectedCertCourse && (
+                         <p className="text-sm text-emerald-600 font-medium">
+                           {courseStudents.length} students found.
+                         </p>
+                       )}
+                    </div>
+
+                    {/* Step 2: Select Student */}
+                    {courseStudents.length > 0 && (
+                      <div className="space-y-2">
+                         <label className="text-sm font-medium">2. Select Student</label>
+                         <select 
+                           className="w-full h-10 rounded-md border border-slate-200 bg-white px-3 text-sm"
+                           value={selectedCertStudent}
+                           onChange={(e) => setSelectedCertStudent(e.target.value)}
+                         >
+                           <option value="">-- Select a student --</option>
+                           <option value="all">All Students ({courseStudents.length})</option>
+                           {courseStudents.map(s => (
+                             <option key={s._id} value={s._id}>{s.name} ({s.certificateId})</option>
+                           ))}
+                         </select>
+                      </div>
+                    )}
+
+                    {/* Step 3: Upload Template */}
+                    {selectedCertStudent && (
+                      <div className="space-y-2">
+                         <label className="text-sm font-medium">3. Upload Certificate Template</label>
+                         <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center hover:bg-slate-50 transition-colors relative">
+                            <input 
+                              type="file" 
+                              accept="image/*"
+                              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                              onChange={(e) => {
+                                 const file = e.target.files?.[0];
+                                 if(file) {
+                                    const reader = new FileReader();
+                                    reader.onload = (ev) => setCertTemplate(ev.target?.result as string);
+                                    reader.readAsDataURL(file);
+                                 }
+                              }}
+                            />
+                            {!certTemplate ? (
+                               <div className="flex flex-col items-center">
+                                 <Upload className="w-8 h-8 text-slate-400 mb-2" />
+                                 <p className="text-sm text-slate-600 font-medium">Click to upload template image</p>
+                                 <p className="text-xs text-slate-400">PNG, JPG</p>
+                               </div>
+                            ) : (
+                               <div className="relative inline-block border border-slate-200 shadow-lg rounded-lg overflow-hidden max-h-[300px]">
+                                  <img src={certTemplate} alt="Template" className="max-h-[300px] object-contain" />
+                                  <button 
+                                    onClick={(e) => {
+                                       e.stopPropagation();
+                                       e.preventDefault();
+                                       setCertTemplate(null);
+                                    }}
+                                    className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                               </div>
+                            )}
+                         </div>
+                      </div>
+                    )}
+
+                    {/* Step 4: Generate */}
+                    {certTemplate && selectedCertStudent && (
+                      <div className="pt-4">
+                         <Button 
+                           disabled={isGeneratingCerts}
+                           onClick={async () => {
+                              setIsGeneratingCerts(true);
+                              setGeneratedCerts([]);
+                              
+                              try {
+                                 // Determine which students to process
+                                 const targetStudents = selectedCertStudent === 'all' 
+                                   ? courseStudents 
+                                   : courseStudents.filter(s => s._id === selectedCertStudent);
+                                 
+                                 const newCerts = [];
+                                 
+                                 // Load template image once
+                                 const templateImg = new Image();
+                                 templateImg.src = certTemplate!;
+                                 await new Promise(r => templateImg.onload = r);
+                                 
+                                 for(const student of targetStudents) {
+                                    // Generate QR URL using certificateId
+                                    const qrUrl = `https://brandmonk.academy/verify/course/${student.certificateId}`;
+                                    const qrDataUrl = await QRCode.toDataURL(qrUrl, { margin: 1, width: 250 });
+                                    
+                                    const canvas = document.createElement('canvas');
+                                    const ctx = canvas.getContext('2d');
+                                    if(!ctx) continue;
+                                    
+                                    canvas.width = templateImg.width;
+                                    canvas.height = templateImg.height;
+                                    
+                                    ctx.drawImage(templateImg, 0, 0);
+                                    
+                                    const qrImg = new Image();
+                                    qrImg.src = qrDataUrl;
+                                    await new Promise(r => qrImg.onload = r);
+                                    
+                                    // Position: Bottom Center (moved up)
+                                    const qrSize = Math.min(canvas.width * 0.08, 150); // Smaller QR
+                                    const x = (canvas.width - qrSize) / 2;
+                                    const y = canvas.height - qrSize - (canvas.height * 0.13); // 13% from bottom
+                                    
+                                    ctx.drawImage(qrImg, x, y, qrSize, qrSize);
+                                    
+                                    newCerts.push({
+                                       id: student._id,
+                                       name: student.name,
+                                       dataUrl: canvas.toDataURL('image/png')
+                                    });
+                                 }
+                                 
+                                 setGeneratedCerts(newCerts);
+                              } catch (err) {
+                                 console.error(err);
+                                 alert("Error generating certificates");
+                              } finally {
+                                 setIsGeneratingCerts(false);
+                              }
+                           }}
+                           className="w-full h-12 text-lg"
+                         >
+                           {isGeneratingCerts ? (
+                              <>
+                                <Loader2 className="w-5 h-5 animate-spin mr-2" /> Generating...
+                              </>
+                           ) : (
+                              <>
+                                <Sparkles className="w-5 h-5 mr-2" /> Generate Certificate{selectedCertStudent === 'all' ? 's' : ''}
+                              </>
+                           )}
+                         </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Results */}
+                {generatedCerts.length > 0 && (
+                   <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
+                      <h3 className="text-xl font-bold">Generated Certificates ({generatedCerts.length})</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                         {generatedCerts.map((cert) => (
+                            <Card key={cert.id} className="overflow-hidden">
+                               <div className="relative aspect-[1.414] bg-slate-100 group">
+                                  <img src={cert.dataUrl} alt={cert.name} className="w-full h-full object-contain" />
+                                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                     <button 
+                                        className="p-2 bg-white rounded-full hover:bg-emerald-50 text-emerald-600 shadow-lg"
+                                        onClick={() => {
+                                           const w = window.open('about:blank');
+                                           const image = new Image();
+                                           image.src = cert.dataUrl;
+                                           setTimeout(function(){
+                                             w?.document.write(image.outerHTML);
+                                           }, 0);
+                                        }}
+                                        title="View Full Size"
+                                     >
+                                        <Eye className="w-5 h-5" />
+                                     </button>
+                                     <a 
+                                       href={cert.dataUrl} 
+                                       download={`${cert.name.replace(/[^a-z0-9]/gi, '_')}_Certificate.png`}
+                                       className="p-2 bg-white rounded-full hover:bg-blue-50 text-blue-600 shadow-lg"
+                                       title="Download"
+                                     >
+                                        <Download className="w-5 h-5" />
+                                     </a>
+                                  </div>
+                               </div>
+                               <div className="p-3 border-t border-slate-100 flex justify-between items-center">
+                                  <p className="font-semibold text-sm truncate">{cert.name}</p>
+                                  <a 
+                                    href={cert.dataUrl} 
+                                    download={`${cert.name.replace(/[^a-z0-9]/gi, '_')}_Certificate.png`}
+                                    className="text-xs font-medium text-emerald-600 hover:text-emerald-700 flex items-center"
+                                  >
+                                     <Download className="w-3 h-3 mr-1" /> Download
+                                  </a>
+                               </div>
+                            </Card>
+                         ))}
+                      </div>
+                   </div>
+                )}
+             </div>
+          )}
         </main>
       </div>
       
@@ -1831,7 +2085,8 @@ export default function AdminDashboard() {
           </Card>
         </div>
       )}
+
+
     </div>
   );
 }
-
