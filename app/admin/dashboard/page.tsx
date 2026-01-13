@@ -1791,7 +1791,7 @@ export default function AdminDashboard() {
                                     ctx.fillText(student.name, nameX, nameY);
                                     
                                     // Draw certificate ID in Poppins (small font, left-aligned to fit in field)
-                                    const certIdFontSize = canvas.width * 0.0185; // 0.95% of canvas width (smaller to fit)
+                                    const certIdFontSize = canvas.width * 0.0160; // Slightly smaller to fix overflow
                                     ctx.font = `${certIdFontSize}px "Poppins", sans-serif`;
                                     ctx.fillStyle = '#000000';
                                     ctx.textAlign = 'left'; // Left-aligned to fit in the field box
