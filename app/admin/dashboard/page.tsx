@@ -1791,13 +1791,13 @@ export default function AdminDashboard() {
                                     ctx.fillText(student.name, nameX, nameY);
                                     
                                     // Draw certificate ID in Poppins (small font, left-aligned to fit in field)
-                                    const certIdFontSize = canvas.width * 0.0165; // 0.95% of canvas width (smaller to fit)
+                                    const certIdFontSize = canvas.width * 0.0185; // 0.95% of canvas width (smaller to fit)
                                     ctx.font = `${certIdFontSize}px "Poppins", sans-serif`;
                                     ctx.fillStyle = '#000000';
                                     ctx.textAlign = 'left'; // Left-aligned to fit in the field box
                                     
                                     // Certificate ID position (left side of the field box)
-                                    const certIdX = canvas.width * 0.63; // 64.5% from left (left edge of field)
+                                    const certIdX = canvas.width * 0.615; // 64.5% from left (left edge of field)
                                     const certIdY = canvas.height * 0.838; // 86.5% from top (middle of field)
                                     ctx.fillText(student.certificateId, certIdX, certIdY);
                                     
@@ -1818,8 +1818,8 @@ export default function AdminDashboard() {
                                     
                                     // QR code position (slightly moved up)
                                     const qrSize = Math.min(canvas.width * 0.09, 140); // 9% of width, max 140px
-                                    const qrX = (canvas.width - qrSize) / 2; // Center horizontally
-                                    const qrY = canvas.height * 0.78; // 78% from top (moved up from 80%)
+                                    const qrX = ((canvas.width - qrSize) / 2) + (canvas.width * 0.005); // Center horizontally + 1% right
+                                    const qrY = canvas.height * 0.785; // 78% from top (moved up from 80%)
                                     
                                     ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
                                     
