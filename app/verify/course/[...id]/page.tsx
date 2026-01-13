@@ -135,7 +135,7 @@ export default function VerifyCourseId() {
         {/* Certificate ID */}
         <div className="text-center border-t border-slate-100 pt-4">
           <p className="text-xs text-slate-400 mb-1">Certificate ID</p>
-          <p className="font-mono text-sm bg-slate-100 px-3 py-2 rounded-lg inline-block">
+          <p className="font-mono text-sm text-black bg-slate-100 px-3 py-2 rounded-lg inline-block">
             {student.certificateId}
           </p>
         </div>
