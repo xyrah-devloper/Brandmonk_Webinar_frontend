@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import QRCode from 'qrcode';
+import JSZip from 'jszip';
 import { API_URL } from '@/utils/config';
 
 // --- Types ---
@@ -1862,22 +1863,37 @@ export default function AdminDashboard() {
                       <div className="flex items-center justify-between">
                         <h3 className="text-xl font-bold">Generated Certificates ({generatedCerts.length})</h3>
                         <Button
-                          onClick={() => {
-                            // Download all certificates
-                            generatedCerts.forEach((cert, index) => {
-                              setTimeout(() => {
-                                const link = document.createElement('a');
-                                link.href = cert.dataUrl;
-                                link.download = `${cert.name.replace(/[^a-z0-9]/gi, '_')}_VE_Certificate.png`;
-                                document.body.appendChild(link);
-                                link.click();
-                                document.body.removeChild(link);
-                              }, index * 100); // Stagger downloads by 100ms
-                            });
+                          onClick={async () => {
+                            if (generatedCerts.length === 0) return;
+                            
+                            try {
+                              // Optional: Show some indication? For now we just run it.
+                              const zip = new JSZip();
+                              
+                              generatedCerts.forEach((cert) => {
+                                // cert.dataUrl is "data:image/png;base64,..."
+                                const base64Data = cert.dataUrl.split(',')[1];
+                                const fileName = `${cert.name.replace(/[^a-z0-9]/gi, '_')}_VE_Certificate.png`;
+                                zip.file(fileName, base64Data, {base64: true});
+                              });
+                              
+                              const content = await zip.generateAsync({type: "blob"});
+                              const url = window.URL.createObjectURL(content);
+                              const link = document.createElement('a');
+                              link.href = url;
+                              link.download = `Certificates_${new Date().toISOString().slice(0,10)}.zip`;
+                              document.body.appendChild(link);
+                              link.click();
+                              document.body.removeChild(link);
+                              window.URL.revokeObjectURL(url);
+                            } catch (error) {
+                              console.error("Error creating zip:", error);
+                              alert("Failed to create zip file.");
+                            }
                           }}
                           className="bg-emerald-600 hover:bg-emerald-700 text-white"
                         >
-                          <Download className="w-4 h-4 mr-2" /> Download All ({generatedCerts.length})
+                          <Download className="w-4 h-4 mr-2" /> Download All as ZIP ({generatedCerts.length})
                         </Button>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
