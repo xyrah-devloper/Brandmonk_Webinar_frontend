@@ -126,7 +126,7 @@ export default function VerifyCourseId() {
               <Calendar className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <p className="text-xs text-slate-400 uppercase tracking-wide">Date of Completion</p>
+              <p className="text-xs text-slate-400 uppercase tracking-wide">Date of Certificate issued</p>
               <p className="font-semibold text-slate-900">{formattedDate}</p>
             </div>
           </div>

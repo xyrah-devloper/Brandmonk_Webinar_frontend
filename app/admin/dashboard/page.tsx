@@ -1803,7 +1803,7 @@ export default function AdminDashboard() {
                                     ctx.fillText(student.certificateId, certIdX, certIdY);
                                     
                                     // Generate QR code for verification
-                                    const qrUrl = `${window.location.origin}/verify/course/${student.certificateId}`;
+                                    const qrUrl = `https://brand-monk.vercel.app/verify/course/${student.certificateId}`;
                                     const qrDataUrl = await QRCode.toDataURL(qrUrl, { 
                                       margin: 1, 
                                       width: 200,
@@ -2098,7 +2098,7 @@ export default function AdminDashboard() {
             <CardContent className="pt-8 pb-8 flex flex-col items-center gap-4">
               <div className="p-4 bg-white border-2 border-slate-900 rounded-lg">
                 <img 
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${window.location.protocol}//${window.location.host}/verify/${qrStudent._id}`)}`}
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`https://brand-monk.vercel.app/verify/${qrStudent._id}`)}`}
                   alt="Student Verification QR"
                   className="w-48 h-48"
                 />
@@ -2116,7 +2116,7 @@ export default function AdminDashboard() {
                    variant="outline"
                    onClick={async () => {
                      try {
-                        const response = await fetch(`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${window.location.protocol}//${window.location.host}/verify/${qrStudent._id}`)}`);
+                        const response = await fetch(`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`https://brand-monk.vercel.app/verify/${qrStudent._id}`)}`);
                         const blob = await response.blob();
                         const url = window.URL.createObjectURL(blob);
                         const a = document.createElement('a');
