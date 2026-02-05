@@ -61,7 +61,7 @@ const CertificateTemplate = forwardRef<HTMLDivElement, CertificateTemplateProps>
               <div 
                 style={{ 
                   position: 'absolute',
-                  top: isGovt ? '318px' : '330px', 
+                  top: isGovt ? '308px' : '325px', 
                   left: isGovt ? '0' : '88px',
                   width: isGovt ? '100%' : 'auto', // Center aligning for Govt as is typical, left for Standard
                   textAlign: isGovt ? 'center' : 'left',
@@ -192,12 +192,11 @@ const CertificateTemplate = forwardRef<HTMLDivElement, CertificateTemplateProps>
               <p 
                 style={{ 
                   fontSize: '15px',
-                  fontWeight: '500',
+                  fontWeight: 500,
                   color: '#333333',
                   letterSpacing: '0.5px',
-                  fontFamily: "'Poppins', Arial, sans-serif",
+                  fontFamily: 'Poppins, Helvetica Neue, Helvetica, Arial, sans-serif',
                   fontStyle: 'normal',
-                  WebkitFontSmoothing: 'antialiased',
                   margin: 0,
                   textAlign: 'center'
                 }}
