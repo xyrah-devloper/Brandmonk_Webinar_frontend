@@ -1743,16 +1743,16 @@ export default function AdminDashboard() {
                                       canvas.height = templateImg.height;
                                       ctx.drawImage(templateImg, 0, 0);
                                       
-                                      // Name (moved down slightly)
+                                      // Name (ALL CAPS)
                                       const nameFontSize = canvas.width * 0.048;
                                       ctx.font = `bold ${nameFontSize}px "Monotype Corsiva", cursive`;
                                       ctx.fillStyle = '#6f3230';
                                       ctx.textAlign = 'center';
                                       ctx.textBaseline = 'middle';
-                                      ctx.fillText(student.name, canvas.width / 2, canvas.height * 0.56);
+                                      ctx.fillText(student.name.toUpperCase(), canvas.width / 2, canvas.height * 0.56);
                                       
-                                      // Certificate ID (Monotype Corsiva, larger to fill box)
-                                      const certIdFontSize = canvas.width * 0.022;
+                                      // Certificate ID (Monotype Corsiva, slightly reduced)
+                                      const certIdFontSize = canvas.width * 0.019;
                                       ctx.font = `${certIdFontSize}px "Monotype Corsiva", cursive`;
                                       ctx.fillStyle = '#000000';
                                       ctx.textAlign = 'center';
@@ -1862,16 +1862,16 @@ export default function AdminDashboard() {
                                       canvas.height = templateImg.height;
                                       ctx.drawImage(templateImg, 0, 0);
                                       
-                                      // Name (moved down slightly)
+                                      // Name (ALL CAPS)
                                       const nameFontSize = canvas.width * 0.048;
                                       ctx.font = `bold ${nameFontSize}px "Monotype Corsiva", cursive`;
                                       ctx.fillStyle = '#6f3230';
                                       ctx.textAlign = 'center';
                                       ctx.textBaseline = 'middle';
-                                      ctx.fillText(student.name, canvas.width / 2, canvas.height * 0.56);
+                                      ctx.fillText(student.name.toUpperCase(), canvas.width / 2, canvas.height * 0.56);
                                       
-                                      // Certificate ID (Monotype Corsiva, larger to fill box)
-                                      const certIdFontSize = canvas.width * 0.022;
+                                      // Certificate ID (Monotype Corsiva, slightly reduced)
+                                      const certIdFontSize = canvas.width * 0.019;
                                       ctx.font = `${certIdFontSize}px "Monotype Corsiva", cursive`;
                                       ctx.fillStyle = '#000000';
                                       ctx.textAlign = 'center';
