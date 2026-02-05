@@ -1751,19 +1751,12 @@ export default function AdminDashboard() {
                                       ctx.textBaseline = 'middle';
                                       ctx.fillText(student.name, canvas.width / 2, canvas.height * 0.56);
                                       
-                                      // Certificate ID
-                                      const certIdFontSize = canvas.width * 0.0130;
-                                      ctx.font = `${certIdFontSize}px "Poppins", sans-serif`;
+                                      // Certificate ID (Monotype Corsiva, larger to fill box)
+                                      const certIdFontSize = canvas.width * 0.022;
+                                      ctx.font = `${certIdFontSize}px "Monotype Corsiva", cursive`;
                                       ctx.fillStyle = '#000000';
                                       ctx.textAlign = 'center';
-                                      ctx.fillText(student.certificateId, canvas.width * 0.72, canvas.height * 0.838);
-                                      
-                                      // Issued Date
-                                      const dateFontSize = canvas.width * 0.0160;
-                                      ctx.font = `${dateFontSize}px "Poppins", sans-serif`;
-                                      ctx.fillStyle = '#000000';
-                                      ctx.textAlign = 'center';
-                                      ctx.fillText('08/02/2026', canvas.width * 0.165, canvas.height * 0.838);
+                                      ctx.fillText(student.certificateId, canvas.width * 0.72, canvas.height * 0.840);
                                       
                                       // QR code
                                       const qrUrl = `https://brand-monk.vercel.app/verify/course/${student.certificateId}`;
@@ -1877,19 +1870,12 @@ export default function AdminDashboard() {
                                       ctx.textBaseline = 'middle';
                                       ctx.fillText(student.name, canvas.width / 2, canvas.height * 0.56);
                                       
-                                      // Certificate ID
-                                      const certIdFontSize = canvas.width * 0.0130;
-                                      ctx.font = `${certIdFontSize}px "Poppins", sans-serif`;
+                                      // Certificate ID (Monotype Corsiva, larger to fill box)
+                                      const certIdFontSize = canvas.width * 0.022;
+                                      ctx.font = `${certIdFontSize}px "Monotype Corsiva", cursive`;
                                       ctx.fillStyle = '#000000';
                                       ctx.textAlign = 'center';
-                                      ctx.fillText(student.certificateId, canvas.width * 0.72, canvas.height * 0.838);
-                                      
-                                      // Issued Date
-                                      const dateFontSize = canvas.width * 0.0160;
-                                      ctx.font = `${dateFontSize}px "Poppins", sans-serif`;
-                                      ctx.fillStyle = '#000000';
-                                      ctx.textAlign = 'center';
-                                      ctx.fillText('08/02/2026', canvas.width * 0.165, canvas.height * 0.838);
+                                      ctx.fillText(student.certificateId, canvas.width * 0.72, canvas.height * 0.840);
                                       
                                       // QR code
                                       const qrUrl = `https://brand-monk.vercel.app/verify/course/${student.certificateId}`;
