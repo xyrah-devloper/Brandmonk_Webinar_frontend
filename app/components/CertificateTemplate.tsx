@@ -61,9 +61,6 @@ const CertificateTemplate = forwardRef<HTMLDivElement, CertificateTemplateProps>
               <div 
                 style={{ 
                   position: 'absolute',
-                  // Adjust top/left for Government certificate if needed. Assuming similar for now or just generic centering if I can't see it.
-                  // For now, I'll keep the same position for Standard, and try to guess or use same for Govt.
-                  // Ideally, Govt cert might need different coordinates.
                   top: isGovt ? '325px' : '335px', 
                   left: isGovt ? '0' : '88px',
                   width: isGovt ? '100%' : 'auto', // Center aligning for Govt as is typical, left for Standard
@@ -162,20 +159,52 @@ const CertificateTemplate = forwardRef<HTMLDivElement, CertificateTemplateProps>
                 backgroundColor: 'white'
               }}
             />
-            <p 
+            {!isGovt && (
+              <p 
+                style={{ 
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: '#555555',
+                  letterSpacing: '0.5px',
+                  fontFamily: 'Poppins, sans-serif',
+                  fontStyle: 'normal',
+                  margin: 0
+                }}
+              >
+                ID: {certificateId}
+              </p>
+            )}
+          </div>
+
+          {/* Certificate ID for Government Certificate - Right side box */}
+          {isGovt && (
+            <div 
               style={{ 
-                fontSize: '10px',
-                fontWeight: '700',
-                color: '#555555',
-                letterSpacing: '1px',
-                fontFamily: '"Poppins", sans-serif',
-                fontStyle: 'normal',
-                margin: 0
+                position: 'absolute',
+                bottom: '68px',
+                right: '72px',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                width: '180px',
               }}
             >
-              ID: {certificateId}
-            </p>
-          </div>
+              <p 
+                style={{ 
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  color: '#333333',
+                  letterSpacing: '0.5px',
+                  fontFamily: 'Poppins, sans-serif',
+                  fontStyle: 'normal',
+                  margin: 0,
+                  textAlign: 'center'
+                }}
+              >
+                {certificateId}
+              </p>
+            </div>
+          )}
         </div>
       </div>
     );
