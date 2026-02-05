@@ -1655,7 +1655,7 @@ export default function AdminDashboard() {
              <div className="space-y-6">
                 <Card className="border-slate-200">
                   <CardHeader>
-                    <CardTitle>Video Editing Certificate Generator</CardTitle>
+                    <CardTitle>Certificate Generator</CardTitle>
                     <p className="text-sm text-slate-500">Generate certificates with student names and certificate IDs.</p>
                   </CardHeader>
                   <CardContent className="space-y-6">
@@ -1680,7 +1680,7 @@ export default function AdminDashboard() {
                              <div className="flex flex-col items-center">
                                <Upload className="w-8 h-8 text-slate-400 mb-2" />
                                <p className="text-sm text-slate-600 font-medium">Click to upload template image</p>
-                               <p className="text-xs text-slate-400">PNG, JPG (Video Editing Certificate Template)</p>
+                               <p className="text-xs text-slate-400">PNG, JPG (Certificate Template)</p>
                              </div>
                           ) : (
                              <div className="relative inline-block border border-slate-200 shadow-lg rounded-lg overflow-hidden max-h-[400px]">
@@ -1700,157 +1700,212 @@ export default function AdminDashboard() {
                        </div>
                     </div>
 
-                    {/* Step 2: Fetch Students by Course */}
+                    {/* Step 2: Generate Certificates */}
                     {certTemplate && (
-                      <div className="space-y-2">
-                         <label className="text-sm font-medium">2. Select Course and Load Students</label>
+                      <div className="space-y-4">
+                         <label className="text-sm font-medium">2. Generate Certificates</label>
                          <div className="flex gap-3">
                            <Button 
+                             disabled={isGeneratingCerts}
                              onClick={async () => {
-                               try {
-                                 const res = await axios.get(`${API_URL}/api/course-students/course/video-editing`);
-                                 if (res.data.success) {
-                                   setCourseStudents(res.data.students);
-                                   setSelectedCertCourse('video-editing');
-                                 }
-                               } catch (err) {
-                                 console.error('Failed to fetch course students:', err);
-                                 alert('Failed to fetch Video Editing students');
-                               }
+                                // Hardcoded VE Students
+                                const veStudents = [
+                                  { name: 'Bindhu N', certificateId: 'SMAPARMQ076001' },
+                                  { name: 's.dhanalakshmi', certificateId: 'SMAPARMQ076002' },
+                                  { name: 'Selva Ishwarya', certificateId: 'SMAPARMQ076003' },
+                                  { name: 'SIKENDAR BASHA M', certificateId: 'SMAPARMQ076004' },
+                                  { name: 'Vasantha kumar', certificateId: 'SMAPARMQ076005' },
+                                  { name: 'Mugilarasu G', certificateId: 'SMAPARMQ076006' },
+                                  { name: 'JAYARAJ P', certificateId: 'SMAPARMQ076007' },
+                                  { name: 'Vishnusithan A', certificateId: 'SMAPARMQ076008' },
+                                  { name: 'Vidhyambigai S', certificateId: 'SMAPARMQ076009' },
+                                  { name: 'Niyamath. A', certificateId: 'SMAPARMQ076010' },
+                                  { name: 'Indumathi', certificateId: 'SMAPARMQ076011' },
+                                  { name: 'Sai Selva', certificateId: 'SMAPARMQ076012' },
+                                ];
+                                
+                                setIsGeneratingCerts(true);
+                                setGeneratedCerts([]);
+                                setSelectedCertCourse('video-editing');
+                                
+                                try {
+                                   const newCerts: { id: string; name: string; dataUrl: string }[] = [];
+                                   const templateImg = new Image();
+                                   templateImg.src = certTemplate!;
+                                   await new Promise(r => templateImg.onload = r);
+                                   
+                                   for(const student of veStudents) {
+                                      const canvas = document.createElement('canvas');
+                                      const ctx = canvas.getContext('2d');
+                                      if(!ctx) continue;
+                                      
+                                      canvas.width = templateImg.width;
+                                      canvas.height = templateImg.height;
+                                      ctx.drawImage(templateImg, 0, 0);
+                                      
+                                      // Name
+                                      const nameFontSize = canvas.width * 0.048;
+                                      ctx.font = `bold ${nameFontSize}px "Monotype Corsiva", cursive`;
+                                      ctx.fillStyle = '#6f3230';
+                                      ctx.textAlign = 'center';
+                                      ctx.textBaseline = 'middle';
+                                      ctx.fillText(student.name, canvas.width / 2, canvas.height * 0.55);
+                                      
+                                      // Certificate ID
+                                      const certIdFontSize = canvas.width * 0.0160;
+                                      ctx.font = `${certIdFontSize}px "Poppins", sans-serif`;
+                                      ctx.fillStyle = '#000000';
+                                      ctx.textAlign = 'left';
+                                      ctx.fillText(student.certificateId, canvas.width * 0.615, canvas.height * 0.838);
+                                      
+                                      // QR code
+                                      const qrUrl = `https://brand-monk.vercel.app/verify/course/${student.certificateId}`;
+                                      const qrDataUrl = await QRCode.toDataURL(qrUrl, { margin: 1, width: 200, color: { dark: '#000000', light: '#FFFFFF' } });
+                                      const qrImg = new Image();
+                                      qrImg.src = qrDataUrl;
+                                      await new Promise(r => qrImg.onload = r);
+                                      const qrSize = Math.min(canvas.width * 0.09, 140);
+                                      ctx.drawImage(qrImg, ((canvas.width - qrSize) / 2) + (canvas.width * 0.005), canvas.height * 0.785, qrSize, qrSize);
+                                      
+                                      newCerts.push({ id: student.certificateId, name: student.name, dataUrl: canvas.toDataURL('image/png') });
+                                   }
+                                   
+                                   setGeneratedCerts(newCerts);
+                                } catch (err) {
+                                   console.error(err);
+                                   alert("Error generating certificates");
+                                } finally {
+                                   setIsGeneratingCerts(false);
+                                }
                              }}
-                             className="flex-1"
-                             variant={selectedCertCourse === 'video-editing' ? 'default' : 'outline'}
+                             className="flex-1 h-12 bg-purple-600 hover:bg-purple-700"
                            >
-                             Load Video Editing Students
+                             {isGeneratingCerts && selectedCertCourse === 'video-editing' ? (
+                                <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Generating...</>
+                             ) : (
+                                <><Sparkles className="w-5 h-5 mr-2" /> Generate VE Certificates (12)</>
+                             )}
                            </Button>
                            
                            <Button 
+                             disabled={isGeneratingCerts}
                              onClick={async () => {
-                               try {
-                                 const res = await axios.get(`${API_URL}/api/course-students/course/digital-marketing`);
-                                 if (res.data.success) {
-                                   setCourseStudents(res.data.students);
-                                   setSelectedCertCourse('digital-marketing');
-                                 }
-                               } catch (err) {
-                                 console.error('Failed to fetch course students:', err);
-                                 alert('Failed to fetch Digital Marketing students');
-                               }
+                                // Hardcoded DM Students
+                                const dmStudents = [
+                                  { name: 'NIKHIL KUMAR B', certificateId: 'SMAPARMQ076013' },
+                                  { name: 'Haravindh G', certificateId: 'SMAPARMQ076014' },
+                                  { name: 'Sneha S', certificateId: 'SMAPARMQ076015' },
+                                  { name: 'Yogeshwaran R', certificateId: 'SMAPARMQ076016' },
+                                  { name: 'Abinaya V', certificateId: 'SMAPARMQ076017' },
+                                  { name: 'Shalini Sivasubramaniam', certificateId: 'SMAPARMQ076018' },
+                                  { name: 'Barath Navin B', certificateId: 'SMAPARMQ076019' },
+                                  { name: 'Sathish Kumar.s', certificateId: 'SMAPARMQ076020' },
+                                  { name: 'Vimala', certificateId: 'SMAPARMQ076021' },
+                                  { name: 'Sarulatha M', certificateId: 'SMAPARMQ076022' },
+                                  { name: 'PRIYADHARSHINI M', certificateId: 'SMAPARMQ076023' },
+                                  { name: 'SARAVANAN J', certificateId: 'SMAPARMQ076024' },
+                                  { name: 'Sirmathi M', certificateId: 'SMAPARMQ076025' },
+                                  { name: 'SAMRAJ . T', certificateId: 'SMAPARMQ076026' },
+                                  { name: 'Ajitha C S', certificateId: 'SMAPARMQ076027' },
+                                  { name: 'S.J ADARSH RAMAJAYAN', certificateId: 'SMAPARMQ076028' },
+                                  { name: 'Praveen k', certificateId: 'SMAPARMQ076029' },
+                                  { name: 'Sheeba Helan Glory .C.S', certificateId: 'SMAPARMQ076030' },
+                                  { name: 'Peter Jeevanandam', certificateId: 'SMAPARMQ076031' },
+                                  { name: 'Vanitha. S', certificateId: 'SMAPARMQ076032' },
+                                  { name: 'Amuthamalar.R', certificateId: 'SMAPARMQ076033' },
+                                  { name: 'V. JANARTHANAN', certificateId: 'SMAPARMQ076034' },
+                                  { name: 'Thirunavukkarasu M', certificateId: 'SMAPARMQ076035' },
+                                  { name: 'Balaji R', certificateId: 'SMAPARMQ076036' },
+                                  { name: 'Selvaraj', certificateId: 'SMAPARMQ076037' },
+                                  { name: 'Sudha. C', certificateId: 'SMAPARMQ076038' },
+                                  { name: 'Poornima S', certificateId: 'SMAPARMQ076039' },
+                                  { name: 'M RUBINIKA', certificateId: 'SMAPARMQ076040' },
+                                  { name: 'Ishwarya Lakshmi. R', certificateId: 'SMAPARMQ076041' },
+                                  { name: 'Madhu mitha K P', certificateId: 'SMAPARMQ076042' },
+                                  { name: 'M.RAJKUMAR', certificateId: 'SMAPARMQ076043' },
+                                  { name: 'Yamuna.R', certificateId: 'SMAPARMQ076044' },
+                                  { name: 'Mounika M', certificateId: 'SMAPARMQ076045' },
+                                  { name: 'CHANDRU. S', certificateId: 'SMAPARMQ076046' },
+                                  { name: 'V.G.Latha', certificateId: 'SMAPARMQ076047' },
+                                  { name: 'PRAVEENA A', certificateId: 'SMAPARMQ076048' },
+                                  { name: 'Sivaranjini V', certificateId: 'SMAPARMQ076049' },
+                                  { name: 'Karthikeyan Ravichandran', certificateId: 'SMAPARMQ076050' },
+                                  { name: 'Gowthaman.K', certificateId: 'SMAPARMQ076051' },
+                                  { name: 'B. KAMALI', certificateId: 'SMAPARMQ076052' },
+                                  { name: 'BHUVANESHWARAN V', certificateId: 'SMAPARMQ076053' },
+                                  { name: 'Ruba Raj', certificateId: 'SMAPARMQ076054' },
+                                  { name: 'Kanimozhi L', certificateId: 'SMAPARMQ076055' },
+                                  { name: 'Abisheik M', certificateId: 'SMAPARMQ076056' },
+                                  { name: 'Mohamed Ramiz A', certificateId: 'SMAPARMQ076057' },
+                                  { name: 'SIBY R', certificateId: 'SMAPARMQ076058' },
+                                  { name: 'Nathiya Muthusamy', certificateId: 'SMAPARMQ076059' },
+                                  { name: 'Kavinilammurugu M A S', certificateId: 'SMAPARMQ076060' },
+                                  { name: 'Ramakrishnan PRATHEEBARAN', certificateId: 'SMAPARMQ076061' },
+                                ];
+                                
+                                setIsGeneratingCerts(true);
+                                setGeneratedCerts([]);
+                                setSelectedCertCourse('digital-marketing');
+                                
+                                try {
+                                   const newCerts: { id: string; name: string; dataUrl: string }[] = [];
+                                   const templateImg = new Image();
+                                   templateImg.src = certTemplate!;
+                                   await new Promise(r => templateImg.onload = r);
+                                   
+                                   for(const student of dmStudents) {
+                                      const canvas = document.createElement('canvas');
+                                      const ctx = canvas.getContext('2d');
+                                      if(!ctx) continue;
+                                      
+                                      canvas.width = templateImg.width;
+                                      canvas.height = templateImg.height;
+                                      ctx.drawImage(templateImg, 0, 0);
+                                      
+                                      // Name
+                                      const nameFontSize = canvas.width * 0.048;
+                                      ctx.font = `bold ${nameFontSize}px "Monotype Corsiva", cursive`;
+                                      ctx.fillStyle = '#6f3230';
+                                      ctx.textAlign = 'center';
+                                      ctx.textBaseline = 'middle';
+                                      ctx.fillText(student.name, canvas.width / 2, canvas.height * 0.55);
+                                      
+                                      // Certificate ID
+                                      const certIdFontSize = canvas.width * 0.0160;
+                                      ctx.font = `${certIdFontSize}px "Poppins", sans-serif`;
+                                      ctx.fillStyle = '#000000';
+                                      ctx.textAlign = 'left';
+                                      ctx.fillText(student.certificateId, canvas.width * 0.615, canvas.height * 0.838);
+                                      
+                                      // QR code
+                                      const qrUrl = `https://brand-monk.vercel.app/verify/course/${student.certificateId}`;
+                                      const qrDataUrl = await QRCode.toDataURL(qrUrl, { margin: 1, width: 200, color: { dark: '#000000', light: '#FFFFFF' } });
+                                      const qrImg = new Image();
+                                      qrImg.src = qrDataUrl;
+                                      await new Promise(r => qrImg.onload = r);
+                                      const qrSize = Math.min(canvas.width * 0.09, 140);
+                                      ctx.drawImage(qrImg, ((canvas.width - qrSize) / 2) + (canvas.width * 0.005), canvas.height * 0.785, qrSize, qrSize);
+                                      
+                                      newCerts.push({ id: student.certificateId, name: student.name, dataUrl: canvas.toDataURL('image/png') });
+                                   }
+                                   
+                                   setGeneratedCerts(newCerts);
+                                } catch (err) {
+                                   console.error(err);
+                                   alert("Error generating certificates");
+                                } finally {
+                                   setIsGeneratingCerts(false);
+                                }
                              }}
-                             className="flex-1"
-                             variant={selectedCertCourse === 'digital-marketing' ? 'default' : 'outline'}
+                             className="flex-1 h-12 bg-blue-600 hover:bg-blue-700"
                            >
-                             Load Digital Marketing Students
+                             {isGeneratingCerts && selectedCertCourse === 'digital-marketing' ? (
+                                <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Generating...</>
+                             ) : (
+                                <><Sparkles className="w-5 h-5 mr-2" /> Generate DM Certificates (49)</>
+                             )}
                            </Button>
                          </div>
-                         {courseStudents.length > 0 && (
-                           <p className="text-sm text-emerald-600 font-medium">
-                             ✓ {courseStudents.length} Video Editing students loaded.
-                           </p>
-                         )}
-                      </div>
-                    )}
-
-                    {/* Step 3: Generate */}
-                    {certTemplate && courseStudents.length > 0 && (
-                      <div className="pt-4 space-y-3">
-                         <Button 
-                           disabled={isGeneratingCerts}
-                           onClick={async () => {
-                              setIsGeneratingCerts(true);
-                              setGeneratedCerts([]);
-                              
-                              try {
-                                 const newCerts = [];
-                                 
-                                 // Load template image once
-                                 const templateImg = new Image();
-                                 templateImg.src = certTemplate!;
-                                 await new Promise(r => templateImg.onload = r);
-                                 
-                                 for(const student of courseStudents) {
-                                    const canvas = document.createElement('canvas');
-                                    const ctx = canvas.getContext('2d');
-                                    if(!ctx) continue;
-                                    
-                                    canvas.width = templateImg.width;
-                                    canvas.height = templateImg.height;
-                                    
-                                    // Draw template
-                                    ctx.drawImage(templateImg, 0, 0);
-                                    
-                                    // Draw student name in Tangerine (on the blank line, moved down more)
-                                    const nameFontSize = canvas.width * 0.048; // 4.8% of canvas width
-                                    ctx.font = `bold ${nameFontSize}px "Monotype Corsiva", cursive`;
-                                    ctx.fillStyle = '#6f3230'; // Reddish-brown color
-                                    ctx.textAlign = 'center';
-                                    ctx.textBaseline = 'middle';
-                                    
-                                    // Name position (slightly moved up)
-                                    const nameX = canvas.width / 2;
-                                    const nameY = canvas.height * 0.55; // 53% from top (moved up from 55%)
-                                    ctx.fillText(student.name, nameX, nameY);
-                                    
-                                    // Draw certificate ID in Poppins (small font, left-aligned to fit in field)
-                                    const certIdFontSize = canvas.width * 0.0160; // Slightly smaller to fix overflow
-                                    ctx.font = `${certIdFontSize}px "Poppins", sans-serif`;
-                                    ctx.fillStyle = '#000000';
-                                    ctx.textAlign = 'left'; // Left-aligned to fit in the field box
-                                    
-                                    // Certificate ID position (left side of the field box)
-                                    const certIdX = canvas.width * 0.615; // 64.5% from left (left edge of field)
-                                    const certIdY = canvas.height * 0.838; // 86.5% from top (middle of field)
-                                    ctx.fillText(student.certificateId, certIdX, certIdY);
-                                    
-                                    // Generate QR code for verification
-                                    const qrUrl = `https://brand-monk.vercel.app/verify/course/${student.certificateId}`;
-                                    const qrDataUrl = await QRCode.toDataURL(qrUrl, { 
-                                      margin: 1, 
-                                      width: 200,
-                                      color: {
-                                        dark: '#000000',
-                                        light: '#FFFFFF'
-                                      }
-                                    });
-                                    
-                                    const qrImg = new Image();
-                                    qrImg.src = qrDataUrl;
-                                    await new Promise(r => qrImg.onload = r);
-                                    
-                                    // QR code position (slightly moved up)
-                                    const qrSize = Math.min(canvas.width * 0.09, 140); // 9% of width, max 140px
-                                    const qrX = ((canvas.width - qrSize) / 2) + (canvas.width * 0.005); // Center horizontally + 1% right
-                                    const qrY = canvas.height * 0.785; // 78% from top (moved up from 80%)
-                                    
-                                    ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
-                                    
-                                    newCerts.push({
-                                       id: student._id,
-                                       name: student.name,
-                                       dataUrl: canvas.toDataURL('image/png')
-                                    });
-                                 }
-                                 
-                                 setGeneratedCerts(newCerts);
-                              } catch (err) {
-                                 console.error(err);
-                                 alert("Error generating certificates");
-                              } finally {
-                                 setIsGeneratingCerts(false);
-                              }
-                           }}
-                           className="w-full h-12 text-lg"
-                         >
-                           {isGeneratingCerts ? (
-                              <>
-                                <Loader2 className="w-5 h-5 animate-spin mr-2" /> Generating...
-                              </>
-                           ) : (
-                              <>
-                                <Sparkles className="w-5 h-5 mr-2" /> Generate All Certificates ({courseStudents.length})
-                              </>
-                           )}
-                         </Button>
                       </div>
                     )}
                   </CardContent>
@@ -1867,13 +1922,12 @@ export default function AdminDashboard() {
                             if (generatedCerts.length === 0) return;
                             
                             try {
-                              // Optional: Show some indication? For now we just run it.
                               const zip = new JSZip();
+                              const courseLabel = selectedCertCourse === 'video-editing' ? 'VE' : 'DM';
                               
                               generatedCerts.forEach((cert) => {
-                                // cert.dataUrl is "data:image/png;base64,..."
                                 const base64Data = cert.dataUrl.split(',')[1];
-                                const fileName = `${cert.name.replace(/[^a-z0-9]/gi, '_')}_VE_Certificate.png`;
+                                const fileName = `${cert.name.replace(/[^a-z0-9]/gi, '_')}_${courseLabel}_Certificate.png`;
                                 zip.file(fileName, base64Data, {base64: true});
                               });
                               
@@ -1881,7 +1935,7 @@ export default function AdminDashboard() {
                               const url = window.URL.createObjectURL(content);
                               const link = document.createElement('a');
                               link.href = url;
-                              link.download = `Certificates_${new Date().toISOString().slice(0,10)}.zip`;
+                              link.download = `${courseLabel}_Certificates_${new Date().toISOString().slice(0,10)}.zip`;
                               document.body.appendChild(link);
                               link.click();
                               document.body.removeChild(link);
@@ -1918,7 +1972,7 @@ export default function AdminDashboard() {
                                      </button>
                                      <a 
                                        href={cert.dataUrl} 
-                                       download={`${cert.name.replace(/[^a-z0-9]/gi, '_')}_VE_Certificate.png`}
+                                       download={`${cert.name.replace(/[^a-z0-9]/gi, '_')}_${selectedCertCourse === 'video-editing' ? 'VE' : 'DM'}_Certificate.png`}
                                        className="p-2 bg-white rounded-full hover:bg-blue-50 text-blue-600 shadow-lg"
                                        title="Download"
                                      >
@@ -1930,7 +1984,7 @@ export default function AdminDashboard() {
                                   <p className="font-semibold text-sm truncate">{cert.name}</p>
                                   <a 
                                     href={cert.dataUrl} 
-                                    download={`${cert.name.replace(/[^a-z0-9]/gi, '_')}_VE_Certificate.png`}
+                                    download={`${cert.name.replace(/[^a-z0-9]/gi, '_')}_${selectedCertCourse === 'video-editing' ? 'VE' : 'DM'}_Certificate.png`}
                                     className="text-xs font-medium text-emerald-600 hover:text-emerald-700 flex items-center"
                                   >
                                      <Download className="w-3 h-3 mr-1" /> Download
