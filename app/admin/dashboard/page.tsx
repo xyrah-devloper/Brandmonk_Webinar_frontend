@@ -1875,7 +1875,7 @@ export default function AdminDashboard() {
                                       ctx.font = `${certIdFontSize}px "Poppins", sans-serif`;
                                       ctx.fillStyle = '#000000';
                                       ctx.textAlign = 'center';
-                                      ctx.fillText(student.certificateId, canvas.width * 0.725, canvas.height * 0.840);
+                                      ctx.fillText(student.certificateId, canvas.width * 0.728, canvas.height * 0.837);
                                       
                                       // QR code
                                       const qrUrl = `https://brand-monk.vercel.app/verify/course/${student.certificateId}`;
