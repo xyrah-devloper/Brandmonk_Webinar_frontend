@@ -1752,7 +1752,7 @@ export default function AdminDashboard() {
                                       ctx.fillText(student.name.toUpperCase(), canvas.width / 2, canvas.height * 0.56);
                                       
                                       // Certificate ID (Poppins)
-                                      const certIdFontSize = canvas.width * 0.017;
+                                      const certIdFontSize = canvas.width * 0.020;
                                       ctx.font = `${certIdFontSize}px "Poppins", sans-serif`;
                                       ctx.fillStyle = '#000000';
                                       ctx.textAlign = 'center';
@@ -1871,7 +1871,7 @@ export default function AdminDashboard() {
                                       ctx.fillText(student.name.toUpperCase(), canvas.width / 2, canvas.height * 0.56);
                                       
                                       // Certificate ID (Poppins)
-                                      const certIdFontSize = canvas.width * 0.017;
+                                      const certIdFontSize = canvas.width * 0.020;
                                       ctx.font = `${certIdFontSize}px "Poppins", sans-serif`;
                                       ctx.fillStyle = '#000000';
                                       ctx.textAlign = 'center';
