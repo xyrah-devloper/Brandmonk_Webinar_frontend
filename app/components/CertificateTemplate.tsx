@@ -61,7 +61,7 @@ const CertificateTemplate = forwardRef<HTMLDivElement, CertificateTemplateProps>
               <div 
                 style={{ 
                   position: 'absolute',
-                  top: isGovt ? '308px' : '325px', 
+                  top: isGovt ? '300px' : '320px', 
                   left: isGovt ? '0' : '88px',
                   width: isGovt ? '100%' : 'auto', // Center aligning for Govt as is typical, left for Standard
                   textAlign: isGovt ? 'center' : 'left',
