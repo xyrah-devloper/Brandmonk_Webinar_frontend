@@ -1765,7 +1765,7 @@ export default function AdminDashboard() {
                                       qrImg.src = qrDataUrl;
                                       await new Promise(r => qrImg.onload = r);
                                       const qrSize = Math.min(canvas.width * 0.09, 140);
-                                      ctx.drawImage(qrImg, ((canvas.width - qrSize) / 2) + (canvas.width * 0.005), canvas.height * 0.785, qrSize, qrSize);
+                                      ctx.drawImage(qrImg, ((canvas.width - qrSize) / 2) + (canvas.width * 0.010), canvas.height * 0.785, qrSize, qrSize);
                                       
                                       newCerts.push({ id: student.certificateId, name: student.name, dataUrl: canvas.toDataURL('image/png') });
                                    }
@@ -1884,7 +1884,7 @@ export default function AdminDashboard() {
                                       qrImg.src = qrDataUrl;
                                       await new Promise(r => qrImg.onload = r);
                                       const qrSize = Math.min(canvas.width * 0.09, 140);
-                                      ctx.drawImage(qrImg, ((canvas.width - qrSize) / 2) + (canvas.width * 0.005), canvas.height * 0.785, qrSize, qrSize);
+                                      ctx.drawImage(qrImg, ((canvas.width - qrSize) / 2) + (canvas.width * 0.010), canvas.height * 0.785, qrSize, qrSize);
                                       
                                       newCerts.push({ id: student.certificateId, name: student.name, dataUrl: canvas.toDataURL('image/png') });
                                    }
