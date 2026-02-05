@@ -159,6 +159,7 @@ const CertificateTemplate = forwardRef<HTMLDivElement, CertificateTemplateProps>
                 height: isGovt ? '70px' : '50px',
                 border: '2px solid #333',
                 borderRadius: '4px',
+                
                 backgroundColor: 'white'
               }}
             />
@@ -168,7 +169,7 @@ const CertificateTemplate = forwardRef<HTMLDivElement, CertificateTemplateProps>
                 fontWeight: '700',
                 color: '#555555',
                 letterSpacing: '1px',
-                fontFamily: 'Consolas, "Courier New", monospace',
+                fontFamily: '"Poppins", sans-serif',
                 margin: 0
               }}
             >
