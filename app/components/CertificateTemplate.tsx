@@ -191,10 +191,10 @@ const CertificateTemplate = forwardRef<HTMLDivElement, CertificateTemplateProps>
             >
               <p 
                 style={{ 
-                  fontSize: '11px',
+                  fontSize: '9px',
                   fontWeight: 500,
                   color: '#333333',
-                  letterSpacing: '0.3px',
+                  letterSpacing: '0.2px',
                   fontFamily: 'Poppins, Helvetica Neue, Helvetica, Arial, sans-serif',
                   fontStyle: 'normal',
                   margin: 0,
