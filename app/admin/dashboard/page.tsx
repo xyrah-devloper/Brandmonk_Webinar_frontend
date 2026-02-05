@@ -1710,18 +1710,18 @@ export default function AdminDashboard() {
                              onClick={async () => {
                                 // Hardcoded VE Students
                                 const veStudents = [
-                                  { name: 'Bindhu N', certificateId: 'SMAPARMQ076050' },
-                                  { name: 's.dhanalakshmi', certificateId: 'SMAPARMQ076051' },
-                                  { name: 'Selva Ishwarya', certificateId: 'SMAPARMQ076052' },
-                                  { name: 'SIKENDAR BASHA M', certificateId: 'SMAPARMQ076053' },
-                                  { name: 'Vasantha kumar', certificateId: 'SMAPARMQ076054' },
-                                  { name: 'Mugilarasu G', certificateId: 'SMAPARMQ076055' },
-                                  { name: 'JAYARAJ P', certificateId: 'SMAPARMQ076056' },
-                                  { name: 'Vishnusithan A', certificateId: 'SMAPARMQ076057' },
-                                  { name: 'Vidhyambigai S', certificateId: 'SMAPARMQ076058' },
-                                  { name: 'Niyamath. A', certificateId: 'SMAPARMQ076059' },
-                                  { name: 'Indumathi', certificateId: 'SMAPARMQ076060' },
-                                  { name: 'Sai Selva', certificateId: 'SMAPARMQ076061' },
+                                  { name: 'Bindhu N', certificateId: 'BMAJUNVEMES/Q1401S001' },
+                                  { name: 's.dhanalakshmi', certificateId: 'BMAJUNVEMES/Q1401S002' },
+                                  { name: 'Selva Ishwarya', certificateId: 'BMAJUNVEMES/Q1401S003' },
+                                  { name: 'SIKENDAR BASHA M', certificateId: 'BMAJUNVEMES/Q1401S004' },
+                                  { name: 'Vasantha kumar', certificateId: 'BMAJUNVEMES/Q1401S005' },
+                                  { name: 'Mugilarasu G', certificateId: 'BMAJUNVEMES/Q1401S006' },
+                                  { name: 'JAYARAJ P', certificateId: 'BMAJUNVEMES/Q1401S007' },
+                                  { name: 'Vishnusithan A', certificateId: 'BMAJUNVEMES/Q1401S008' },
+                                  { name: 'Vidhyambigai S', certificateId: 'BMAJUNVEMES/Q1401S009' },
+                                  { name: 'Niyamath. A', certificateId: 'BMAJUNVEMES/Q1401S010' },
+                                  { name: 'Indumathi', certificateId: 'BMAJUNVEMES/Q1401S011' },
+                                  { name: 'Sai Selva', certificateId: 'BMAJUNVEMES/Q1401S012' },
                                 ];
                                 
                                 setIsGeneratingCerts(true);
@@ -1743,20 +1743,27 @@ export default function AdminDashboard() {
                                       canvas.height = templateImg.height;
                                       ctx.drawImage(templateImg, 0, 0);
                                       
-                                      // Name
+                                      // Name (moved down slightly)
                                       const nameFontSize = canvas.width * 0.048;
                                       ctx.font = `bold ${nameFontSize}px "Monotype Corsiva", cursive`;
                                       ctx.fillStyle = '#6f3230';
                                       ctx.textAlign = 'center';
                                       ctx.textBaseline = 'middle';
-                                      ctx.fillText(student.name, canvas.width / 2, canvas.height * 0.55);
+                                      ctx.fillText(student.name, canvas.width / 2, canvas.height * 0.56);
                                       
                                       // Certificate ID
-                                      const certIdFontSize = canvas.width * 0.0160;
+                                      const certIdFontSize = canvas.width * 0.0130;
                                       ctx.font = `${certIdFontSize}px "Poppins", sans-serif`;
                                       ctx.fillStyle = '#000000';
-                                      ctx.textAlign = 'left';
-                                      ctx.fillText(student.certificateId, canvas.width * 0.615, canvas.height * 0.838);
+                                      ctx.textAlign = 'center';
+                                      ctx.fillText(student.certificateId, canvas.width * 0.72, canvas.height * 0.838);
+                                      
+                                      // Issued Date
+                                      const dateFontSize = canvas.width * 0.0160;
+                                      ctx.font = `${dateFontSize}px "Poppins", sans-serif`;
+                                      ctx.fillStyle = '#000000';
+                                      ctx.textAlign = 'center';
+                                      ctx.fillText('08/02/2026', canvas.width * 0.165, canvas.height * 0.838);
                                       
                                       // QR code
                                       const qrUrl = `https://brand-monk.vercel.app/verify/course/${student.certificateId}`;
@@ -1792,55 +1799,55 @@ export default function AdminDashboard() {
                              onClick={async () => {
                                 // Hardcoded DM Students
                                 const dmStudents = [
-                                  { name: 'NIKHIL KUMAR B', certificateId: 'SMAPARMQ076001' },
-                                  { name: 'Haravindh G', certificateId: 'SMAPARMQ076002' },
-                                  { name: 'Sneha S', certificateId: 'SMAPARMQ076003' },
-                                  { name: 'Yogeshwaran R', certificateId: 'SMAPARMQ076004' },
-                                  { name: 'Abinaya V', certificateId: 'SMAPARMQ076005' },
-                                  { name: 'Shalini Sivasubramaniam', certificateId: 'SMAPARMQ076006' },
-                                  { name: 'Barath Navin B', certificateId: 'SMAPARMQ076007' },
-                                  { name: 'Sathish Kumar.s', certificateId: 'SMAPARMQ076008' },
-                                  { name: 'Vimala', certificateId: 'SMAPARMQ076009' },
-                                  { name: 'Sarulatha M', certificateId: 'SMAPARMQ076010' },
-                                  { name: 'PRIYADHARSHINI M', certificateId: 'SMAPARMQ076011' },
-                                  { name: 'SARAVANAN J', certificateId: 'SMAPARMQ076012' },
-                                  { name: 'Sirmathi M', certificateId: 'SMAPARMQ076013' },
-                                  { name: 'SAMRAJ . T', certificateId: 'SMAPARMQ076014' },
-                                  { name: 'Ajitha C S', certificateId: 'SMAPARMQ076015' },
-                                  { name: 'S.J ADARSH RAMAJAYAN', certificateId: 'SMAPARMQ076016' },
-                                  { name: 'Praveen k', certificateId: 'SMAPARMQ076017' },
-                                  { name: 'Sheeba Helan Glory .C.S', certificateId: 'SMAPARMQ076018' },
-                                  { name: 'Peter Jeevanandam', certificateId: 'SMAPARMQ076019' },
-                                  { name: 'Vanitha. S', certificateId: 'SMAPARMQ076020' },
-                                  { name: 'Amuthamalar.R', certificateId: 'SMAPARMQ076021' },
-                                  { name: 'V. JANARTHANAN', certificateId: 'SMAPARMQ076022' },
-                                  { name: 'Thirunavukkarasu M', certificateId: 'SMAPARMQ076023' },
-                                  { name: 'Balaji R', certificateId: 'SMAPARMQ076024' },
-                                  { name: 'Selvaraj', certificateId: 'SMAPARMQ076025' },
-                                  { name: 'Sudha. C', certificateId: 'SMAPARMQ076026' },
-                                  { name: 'Poornima S', certificateId: 'SMAPARMQ076027' },
-                                  { name: 'M RUBINIKA', certificateId: 'SMAPARMQ076028' },
-                                  { name: 'Ishwarya Lakshmi. R', certificateId: 'SMAPARMQ076029' },
-                                  { name: 'Madhu mitha K P', certificateId: 'SMAPARMQ076030' },
-                                  { name: 'M.RAJKUMAR', certificateId: 'SMAPARMQ076031' },
-                                  { name: 'Yamuna.R', certificateId: 'SMAPARMQ076032' },
-                                  { name: 'Mounika M', certificateId: 'SMAPARMQ076033' },
-                                  { name: 'CHANDRU. S', certificateId: 'SMAPARMQ076034' },
-                                  { name: 'V.G.Latha', certificateId: 'SMAPARMQ076035' },
-                                  { name: 'PRAVEENA A', certificateId: 'SMAPARMQ076036' },
-                                  { name: 'Sivaranjini V', certificateId: 'SMAPARMQ076037' },
-                                  { name: 'Karthikeyan Ravichandran', certificateId: 'SMAPARMQ076038' },
-                                  { name: 'Gowthaman.K', certificateId: 'SMAPARMQ076039' },
-                                  { name: 'B. KAMALI', certificateId: 'SMAPARMQ076040' },
-                                  { name: 'BHUVANESHWARAN V', certificateId: 'SMAPARMQ076041' },
-                                  { name: 'Ruba Raj', certificateId: 'SMAPARMQ076042' },
-                                  { name: 'Kanimozhi L', certificateId: 'SMAPARMQ076043' },
-                                  { name: 'Abisheik M', certificateId: 'SMAPARMQ076044' },
-                                  { name: 'Mohamed Ramiz A', certificateId: 'SMAPARMQ076045' },
-                                  { name: 'SIBY R', certificateId: 'SMAPARMQ076046' },
-                                  { name: 'Nathiya Muthusamy', certificateId: 'SMAPARMQ076047' },
-                                  { name: 'Kavinilammurugu M A S', certificateId: 'SMAPARMQ076048' },
-                                  { name: 'Ramakrishnan PRATHEEBARAN', certificateId: 'SMAPARMQ076049' },
+                                  { name: 'NIKHIL KUMAR B', certificateId: 'BMAJUNDMMES/Q0506S001' },
+                                  { name: 'Haravindh G', certificateId: 'BMAJUNDMMES/Q0506S002' },
+                                  { name: 'Sneha S', certificateId: 'BMAJUNDMMES/Q0506S003' },
+                                  { name: 'Yogeshwaran R', certificateId: 'BMAJUNDMMES/Q0506S004' },
+                                  { name: 'Abinaya V', certificateId: 'BMAJUNDMMES/Q0506S005' },
+                                  { name: 'Shalini Sivasubramaniam', certificateId: 'BMAJUNDMMES/Q0506S006' },
+                                  { name: 'Barath Navin B', certificateId: 'BMAJUNDMMES/Q0506S007' },
+                                  { name: 'Sathish Kumar.s', certificateId: 'BMAJUNDMMES/Q0506S008' },
+                                  { name: 'Vimala', certificateId: 'BMAJUNDMMES/Q0506S009' },
+                                  { name: 'Sarulatha M', certificateId: 'BMAJUNDMMES/Q0506S010' },
+                                  { name: 'PRIYADHARSHINI M', certificateId: 'BMAJUNDMMES/Q0506S011' },
+                                  { name: 'SARAVANAN J', certificateId: 'BMAJUNDMMES/Q0506S012' },
+                                  { name: 'Sirmathi M', certificateId: 'BMAJUNDMMES/Q0506S013' },
+                                  { name: 'SAMRAJ . T', certificateId: 'BMAJUNDMMES/Q0506S014' },
+                                  { name: 'Ajitha C S', certificateId: 'BMAJUNDMMES/Q0506S015' },
+                                  { name: 'S.J ADARSH RAMAJAYAN', certificateId: 'BMAJUNDMMES/Q0506S016' },
+                                  { name: 'Praveen k', certificateId: 'BMAJUNDMMES/Q0506S017' },
+                                  { name: 'Sheeba Helan Glory .C.S', certificateId: 'BMAJUNDMMES/Q0506S018' },
+                                  { name: 'Peter Jeevanandam', certificateId: 'BMAJUNDMMES/Q0506S019' },
+                                  { name: 'Vanitha. S', certificateId: 'BMAJUNDMMES/Q0506S020' },
+                                  { name: 'Amuthamalar.R', certificateId: 'BMAJUNDMMES/Q0506S021' },
+                                  { name: 'V. JANARTHANAN', certificateId: 'BMAJUNDMMES/Q0506S022' },
+                                  { name: 'Thirunavukkarasu M', certificateId: 'BMAJUNDMMES/Q0506S023' },
+                                  { name: 'Balaji R', certificateId: 'BMAJUNDMMES/Q0506S024' },
+                                  { name: 'Selvaraj', certificateId: 'BMAJUNDMMES/Q0506S025' },
+                                  { name: 'Sudha. C', certificateId: 'BMAJUNDMMES/Q0506S026' },
+                                  { name: 'Poornima S', certificateId: 'BMAJUNDMMES/Q0506S027' },
+                                  { name: 'M RUBINIKA', certificateId: 'BMAJUNDMMES/Q0506S028' },
+                                  { name: 'Ishwarya Lakshmi. R', certificateId: 'BMAJUNDMMES/Q0506S029' },
+                                  { name: 'Madhu mitha K P', certificateId: 'BMAJUNDMMES/Q0506S030' },
+                                  { name: 'M.RAJKUMAR', certificateId: 'BMAJUNDMMES/Q0506S031' },
+                                  { name: 'Yamuna.R', certificateId: 'BMAJUNDMMES/Q0506S032' },
+                                  { name: 'Mounika M', certificateId: 'BMAJUNDMMES/Q0506S033' },
+                                  { name: 'CHANDRU. S', certificateId: 'BMAJUNDMMES/Q0506S034' },
+                                  { name: 'V.G.Latha', certificateId: 'BMAJUNDMMES/Q0506S035' },
+                                  { name: 'PRAVEENA A', certificateId: 'BMAJUNDMMES/Q0506S036' },
+                                  { name: 'Sivaranjini V', certificateId: 'BMAJUNDMMES/Q0506S037' },
+                                  { name: 'Karthikeyan Ravichandran', certificateId: 'BMAJUNDMMES/Q0506S038' },
+                                  { name: 'Gowthaman.K', certificateId: 'BMAJUNDMMES/Q0506S039' },
+                                  { name: 'B. KAMALI', certificateId: 'BMAJUNDMMES/Q0506S040' },
+                                  { name: 'BHUVANESHWARAN V', certificateId: 'BMAJUNDMMES/Q0506S041' },
+                                  { name: 'Ruba Raj', certificateId: 'BMAJUNDMMES/Q0506S042' },
+                                  { name: 'Kanimozhi L', certificateId: 'BMAJUNDMMES/Q0506S043' },
+                                  { name: 'Abisheik M', certificateId: 'BMAJUNDMMES/Q0506S044' },
+                                  { name: 'Mohamed Ramiz A', certificateId: 'BMAJUNDMMES/Q0506S045' },
+                                  { name: 'SIBY R', certificateId: 'BMAJUNDMMES/Q0506S046' },
+                                  { name: 'Nathiya Muthusamy', certificateId: 'BMAJUNDMMES/Q0506S047' },
+                                  { name: 'Kavinilammurugu M A S', certificateId: 'BMAJUNDMMES/Q0506S048' },
+                                  { name: 'Ramakrishnan PRATHEEBARAN', certificateId: 'BMAJUNDMMES/Q0506S049' },
                                 ];
                                 
                                 setIsGeneratingCerts(true);
@@ -1862,20 +1869,27 @@ export default function AdminDashboard() {
                                       canvas.height = templateImg.height;
                                       ctx.drawImage(templateImg, 0, 0);
                                       
-                                      // Name
+                                      // Name (moved down slightly)
                                       const nameFontSize = canvas.width * 0.048;
                                       ctx.font = `bold ${nameFontSize}px "Monotype Corsiva", cursive`;
                                       ctx.fillStyle = '#6f3230';
                                       ctx.textAlign = 'center';
                                       ctx.textBaseline = 'middle';
-                                      ctx.fillText(student.name, canvas.width / 2, canvas.height * 0.55);
+                                      ctx.fillText(student.name, canvas.width / 2, canvas.height * 0.56);
                                       
                                       // Certificate ID
-                                      const certIdFontSize = canvas.width * 0.0160;
+                                      const certIdFontSize = canvas.width * 0.0130;
                                       ctx.font = `${certIdFontSize}px "Poppins", sans-serif`;
                                       ctx.fillStyle = '#000000';
-                                      ctx.textAlign = 'left';
-                                      ctx.fillText(student.certificateId, canvas.width * 0.615, canvas.height * 0.838);
+                                      ctx.textAlign = 'center';
+                                      ctx.fillText(student.certificateId, canvas.width * 0.72, canvas.height * 0.838);
+                                      
+                                      // Issued Date
+                                      const dateFontSize = canvas.width * 0.0160;
+                                      ctx.font = `${dateFontSize}px "Poppins", sans-serif`;
+                                      ctx.fillStyle = '#000000';
+                                      ctx.textAlign = 'center';
+                                      ctx.fillText('08/02/2026', canvas.width * 0.165, canvas.height * 0.838);
                                       
                                       // QR code
                                       const qrUrl = `https://brand-monk.vercel.app/verify/course/${student.certificateId}`;

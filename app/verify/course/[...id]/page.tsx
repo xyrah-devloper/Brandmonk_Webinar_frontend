@@ -84,11 +84,8 @@ export default function VerifyCourseId() {
     );
   }
 
-  const formattedDate = new Date(student.dateOfRegistration).toLocaleDateString('en-IN', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
+  // Fixed issue date for this batch of certificates
+  const formattedDate = '8 February 2026';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900/20 to-slate-900 flex items-center justify-center p-4">
