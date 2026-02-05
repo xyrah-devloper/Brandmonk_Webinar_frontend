@@ -1751,12 +1751,12 @@ export default function AdminDashboard() {
                                       ctx.textBaseline = 'middle';
                                       ctx.fillText(student.name.toUpperCase(), canvas.width / 2, canvas.height * 0.56);
                                       
-                                      // Certificate ID (Monotype Corsiva, slightly reduced)
-                                      const certIdFontSize = canvas.width * 0.019;
-                                      ctx.font = `${certIdFontSize}px "poppins", cursive`;
+                                      // Certificate ID (Poppins, reduced)
+                                      const certIdFontSize = canvas.width * 0.015;
+                                      ctx.font = `${certIdFontSize}px "Poppins", sans-serif`;
                                       ctx.fillStyle = '#000000';
                                       ctx.textAlign = 'center';
-                                      ctx.fillText(student.certificateId, canvas.width * 0.72, canvas.height * 0.840);
+                                      ctx.fillText(student.certificateId, canvas.width * 0.725, canvas.height * 0.840);
                                       
                                       // QR code
                                       const qrUrl = `https://brand-monk.vercel.app/verify/course/${student.certificateId}`;
@@ -1870,12 +1870,12 @@ export default function AdminDashboard() {
                                       ctx.textBaseline = 'middle';
                                       ctx.fillText(student.name.toUpperCase(), canvas.width / 2, canvas.height * 0.56);
                                       
-                                      // Certificate ID (Monotype Corsiva, slightly reduced)
-                                      const certIdFontSize = canvas.width * 0.019;
-                                      ctx.font = `${certIdFontSize}px "poppins", cursive`;
+                                      // Certificate ID (Poppins, reduced)
+                                      const certIdFontSize = canvas.width * 0.015;
+                                      ctx.font = `${certIdFontSize}px "Poppins", sans-serif`;
                                       ctx.fillStyle = '#000000';
                                       ctx.textAlign = 'center';
-                                      ctx.fillText(student.certificateId, canvas.width * 0.72, canvas.height * 0.840);
+                                      ctx.fillText(student.certificateId, canvas.width * 0.725, canvas.height * 0.840);
                                       
                                       // QR code
                                       const qrUrl = `https://brand-monk.vercel.app/verify/course/${student.certificateId}`;
