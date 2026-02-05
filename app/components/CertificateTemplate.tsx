@@ -64,7 +64,7 @@ const CertificateTemplate = forwardRef<HTMLDivElement, CertificateTemplateProps>
                   // Adjust top/left for Government certificate if needed. Assuming similar for now or just generic centering if I can't see it.
                   // For now, I'll keep the same position for Standard, and try to guess or use same for Govt.
                   // Ideally, Govt cert might need different coordinates.
-                  top: isGovt ? '330px' : '340px', 
+                  top: isGovt ? '325px' : '335px', 
                   left: isGovt ? '0' : '88px',
                   width: isGovt ? '100%' : 'auto', // Center aligning for Govt as is typical, left for Standard
                   textAlign: isGovt ? 'center' : 'left',
@@ -143,7 +143,7 @@ const CertificateTemplate = forwardRef<HTMLDivElement, CertificateTemplateProps>
             style={{ 
               position: 'absolute',
               bottom: isGovt ? '60px' : '15px', 
-              left: isGovt ? '50%' : '520px', 
+              left: isGovt ? '51%' : '520px', 
               transform: isGovt ? 'translateX(-50%)' : 'none',
               display: 'flex',
               flexDirection: 'column',
@@ -159,22 +159,22 @@ const CertificateTemplate = forwardRef<HTMLDivElement, CertificateTemplateProps>
                 height: isGovt ? '70px' : '50px',
                 border: '2px solid #333',
                 borderRadius: '4px',
-                
                 backgroundColor: 'white'
               }}
             />
-            {/* <p 
+            <p 
               style={{ 
                 fontSize: '10px',
                 fontWeight: '700',
                 color: '#555555',
                 letterSpacing: '1px',
                 fontFamily: '"Poppins", sans-serif',
+                fontStyle: 'normal',
                 margin: 0
               }}
             >
               ID: {certificateId}
-            </p> */}
+            </p>
           </div>
         </div>
       </div>
