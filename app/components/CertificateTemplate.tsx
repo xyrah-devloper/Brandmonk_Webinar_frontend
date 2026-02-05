@@ -186,12 +186,12 @@ const CertificateTemplate = forwardRef<HTMLDivElement, CertificateTemplateProps>
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                width: '180px',
+                width: '170px',
               }}
             >
               <p 
                 style={{ 
-                  fontSize: '9px',
+                  fontSize: '8px',
                   fontWeight: 500,
                   color: '#333333',
                   letterSpacing: '0.2px',
