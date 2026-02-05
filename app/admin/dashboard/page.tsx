@@ -1753,7 +1753,7 @@ export default function AdminDashboard() {
                                       
                                       // Certificate ID (Monotype Corsiva, slightly reduced)
                                       const certIdFontSize = canvas.width * 0.019;
-                                      ctx.font = `${certIdFontSize}px "Monotype Corsiva", cursive`;
+                                      ctx.font = `${certIdFontSize}px "poppins", cursive`;
                                       ctx.fillStyle = '#000000';
                                       ctx.textAlign = 'center';
                                       ctx.fillText(student.certificateId, canvas.width * 0.72, canvas.height * 0.840);
