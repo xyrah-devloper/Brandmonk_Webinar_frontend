@@ -1841,6 +1841,9 @@ export default function AdminDashboard() {
                                   { name: 'Nathiya Muthusamy', certificateId: 'BMAJUNDMMES/Q0506S047' },
                                   { name: 'Kavinilammurugu M A S', certificateId: 'BMAJUNDMMES/Q0506S048' },
                                   { name: 'Ramakrishnan PRATHEEBARAN', certificateId: 'BMAJUNDMMES/Q0506S049' },
+                                  { name: 'Sakthikumaran M', certificateId: 'BMAJUNDMMES/Q0506S050' },
+                                  { name: 'SASIKALA J', certificateId: 'BMAJUNDMMES/Q0506S051' },
+                                  { name: 'nivethitha s', certificateId: 'BMAJUNDMMES/Q0506S052' },
                                 ];
                                 
                                 setIsGeneratingCerts(true);
@@ -1902,7 +1905,7 @@ export default function AdminDashboard() {
                              {isGeneratingCerts && selectedCertCourse === 'digital-marketing' ? (
                                 <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Generating...</>
                              ) : (
-                                <><Sparkles className="w-5 h-5 mr-2" /> Generate DM Certificates (49)</>
+                                <><Sparkles className="w-5 h-5 mr-2" /> Generate DM Certificates (52)</>
                              )}
                            </Button>
                          </div>
