@@ -1844,6 +1844,7 @@ export default function AdminDashboard() {
                                   { name: 'Sakthikumaran M', certificateId: 'BMAJUNDMMES/Q0506S050' },
                                   { name: 'SASIKALA J', certificateId: 'BMAJUNDMMES/Q0506S051' },
                                   { name: 'nivethitha s', certificateId: 'BMAJUNDMMES/Q0506S052' },
+                                  { name: 'B.THARUN', certificateId: 'BMAJUNDMMES/Q0506S053' },
                                 ];
                                 
                                 setIsGeneratingCerts(true);
