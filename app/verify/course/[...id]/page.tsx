@@ -26,24 +26,22 @@ export default function VerifyCourseId() {
   useEffect(() => {
     const fetchStudent = async () => {
       try {
-        // Handle both string (single segment) and array (catch-all segments)
-        // This supports certificate IDs with slashes like "BMA/2024/001"
-        const certificateId = Array.isArray(id) 
-          ? id.map(segment => decodeURIComponent(segment)).join('/') 
+        const certificateId = Array.isArray(id)
+          ? id.map(segment => decodeURIComponent(segment)).join('/')
           : decodeURIComponent(id || '');
 
         if (!certificateId) return;
 
-        // Double encode if needed for safety in API call URL, or just pass as is if API handles it 
-        // Using encodeURIComponent strictly for the path param in API call
-        const res = await axios.get(`${API_URL}/api/course-students/${encodeURIComponent(certificateId)}`);
-        
+        const res = await axios.get(
+          `${API_URL}/api/course-students/${encodeURIComponent(certificateId)}`
+        );
+
         if (res.data.success) {
           setStudent(res.data.student);
         } else {
           setError('Certificate not found.');
         }
-      } catch (err: any) {
+      } catch (err) {
         console.error(err);
         setError('Certificate not found or invalid.');
       } finally {
@@ -56,7 +54,7 @@ export default function VerifyCourseId() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-12 h-12 text-emerald-400 animate-spin mx-auto mb-4" />
           <p className="text-white text-lg">Verifying certificate...</p>
@@ -67,81 +65,119 @@ export default function VerifyCourseId() {
 
   if (error || !student) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-900/20 to-slate-900 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
           <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <XCircle className="w-12 h-12 text-red-500" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">Certificate Not Found</h1>
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">
+            Certificate Not Found
+          </h1>
           <p className="text-slate-500 mb-6">
-            The certificate ID <span className="font-mono bg-slate-100 px-2 py-1 rounded">{id}</span> could not be verified.
-          </p>
-          <p className="text-sm text-slate-400">
-            Please check the QR code or contact Brand Monk Academy for assistance.
+            The certificate ID{' '}
+            <span className="font-mono bg-slate-100 px-2 py-1 rounded">
+              {id}
+            </span>{' '}
+            could not be verified.
           </p>
         </div>
       </div>
     );
   }
 
-  // Fixed issue date for this batch of certificates
   const formattedDate = '8 February 2026';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900/20 to-slate-900 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
-        {/* Verified Badge */}
-        <div className="text-center mb-6">
-          <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-in zoom-in">
-            <CheckCircle className="w-12 h-12 text-emerald-500" />
-          </div>
-          <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full font-semibold text-sm">
-            <Award className="w-4 h-4" />
-            VERIFIED CERTIFICATE
-          </div>
-        </div>
+    <div className="min-h-screen bg-slate-900 flex flex-col">
 
-        {/* Student Info */}
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-slate-900 mb-1">{student.name}</h1>
-          <p className="text-slate-500 text-sm">has successfully completed</p>
-        </div>
+      {/* NAV WITH LOGOS */}
+      <div className="bg-white shadow-sm py-3 flex justify-center gap-6">
+        <img
+          src="https://upload.wikimedia.org/wikipedia/en/3/3e/Skill_India.png"
+          className="h-10 object-contain"
+        />
+        <img
+          src="https://pibindia.wordpress.com/wp-content/uploads/2016/10/nsdc-logo.png"
+          className="h-10 object-contain"
+        />
+        <img
+          src="https://www.itrc.co.in/thumbnail.php?file=abstract-images/mesc.jpg&size=article_large"
+          className="h-10 object-contain"
+        />
+      </div>
 
-        {/* Course Details */}
-        <div className="bg-slate-50 rounded-xl p-4 space-y-3 mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-              <BookOpen className="w-5 h-5 text-emerald-600" />
+      {/* MAIN CARD */}
+      <div className="flex flex-1 items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
+
+          {/* Verified Badge */}
+          <div className="text-center mb-6">
+            <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-12 h-12 text-emerald-500" />
             </div>
-            <div>
-              <p className="text-xs text-slate-400 uppercase tracking-wide">Course</p>
-              <p className="font-semibold text-slate-900">{student.courseName}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <Calendar className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-xs text-slate-400 uppercase tracking-wide">Date of Certificate issued</p>
-              <p className="font-semibold text-slate-900">{formattedDate}</p>
+
+            <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full font-semibold text-sm">
+              <Award className="w-4 h-4" />
+              VERIFIED CERTIFICATE
             </div>
           </div>
-        </div>
 
-        {/* Certificate ID */}
-        <div className="text-center border-t border-slate-100 pt-4">
-          <p className="text-xs text-slate-400 mb-1">Certificate ID</p>
-          <p className="font-mono text-sm text-black bg-slate-100 px-3 py-2 rounded-lg inline-block">
-            {student.certificateId}
-          </p>
-        </div>
+          {/* Student Info */}
+          <div className="text-center mb-6">
+            <h1 className="text-2xl font-bold text-slate-900 mb-1">
+              {student.name}
+            </h1>
+            <p className="text-slate-500 text-sm">
+              has successfully completed
+            </p>
+          </div>
 
-        {/* Footer */}
-        <div className="text-center mt-6 pt-4 border-t border-slate-100">
-          <p className="text-xs text-slate-400">
-            Issued by <span className="font-semibold text-slate-600">Brand Monk Academy</span>
-          </p>
+          {/* Course Details */}
+          <div className="bg-slate-50 rounded-xl p-4 space-y-3 mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                <BookOpen className="w-5 h-5 text-emerald-600" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-400 uppercase tracking-wide">
+                  Course
+                </p>
+                <p className="font-semibold text-slate-900">
+                  {student.courseName}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Calendar className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-400 uppercase tracking-wide">
+                  Date of Certificate issued
+                </p>
+                <p className="font-semibold text-slate-900">
+                  {formattedDate}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Certificate ID */}
+          <div className="text-center border-t border-slate-100 pt-4">
+            <p className="text-xs text-slate-400 mb-1">Certificate ID</p>
+            <p className="font-mono text-sm text-black bg-slate-100 px-3 py-2 rounded-lg inline-block">
+              {student.certificateId}
+            </p>
+          </div>
+
+          {/* Footer */}
+          <div className="text-center mt-6 pt-4 border-t border-slate-100">
+            <p className="text-xs text-slate-500 font-semibold">
+              Verified Certificate
+            </p>
+          </div>
+
         </div>
       </div>
     </div>
