@@ -88,96 +88,107 @@ export default function VerifyCourseId() {
   const formattedDate = '8 February 2026';
 
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden">
+        
+        {/* Header with Logos */}
+        <div className="bg-gradient-to-r from-emerald-600 to-emerald-500 px-6 py-4">
+          <div className="flex items-center justify-center gap-4">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/en/3/3e/Skill_India.png"
+              className="h-10 object-contain bg-white rounded-lg px-2 py-1"
+              alt="Skill India"
+            />
+            <img
+              src="https://pibindia.wordpress.com/wp-content/uploads/2016/10/nsdc-logo.png"
+              className="h-10 object-contain bg-white rounded-lg px-2 py-1"
+              alt="NSDC"
+            />
+            <img
+              src="https://www.itrc.co.in/thumbnail.php?file=abstract-images/mesc.jpg&size=article_large"
+              className="h-10 object-contain bg-white rounded-lg px-2 py-1"
+              alt="MESC"
+            />
+          </div>
+        </div>
 
-      {/* NAV WITH LOGOS */}
-      <div className="bg-white shadow-sm py-3 flex justify-center gap-6">
-        <img
-          src="https://upload.wikimedia.org/wikipedia/en/3/3e/Skill_India.png"
-          className="h-10 object-contain"
-        />
-        <img
-          src="https://pibindia.wordpress.com/wp-content/uploads/2016/10/nsdc-logo.png"
-          className="h-10 object-contain"
-        />
-        <img
-          src="https://www.itrc.co.in/thumbnail.php?file=abstract-images/mesc.jpg&size=article_large"
-          className="h-10 object-contain"
-        />
-      </div>
-
-      {/* MAIN CARD */}
-      <div className="flex flex-1 items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
-
+        <div className="p-8">
           {/* Verified Badge */}
-          <div className="text-center mb-6">
-            <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-12 h-12 text-emerald-500" />
+          <div className="text-center mb-8">
+            <div className="w-24 h-24 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-200">
+              <CheckCircle className="w-14 h-14 text-white" />
             </div>
-
-            <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full font-semibold text-sm">
-              <Award className="w-4 h-4" />
+            <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-700 px-5 py-2.5 rounded-full font-bold text-sm tracking-wide">
+              <Award className="w-5 h-5" />
               VERIFIED CERTIFICATE
             </div>
           </div>
 
           {/* Student Info */}
-          <div className="text-center mb-6">
-            <h1 className="text-2xl font-bold text-slate-900 mb-1">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">
               {student.name}
             </h1>
-            <p className="text-slate-500 text-sm">
+            <p className="text-slate-500">
               has successfully completed
             </p>
           </div>
 
           {/* Course Details */}
-          <div className="bg-slate-50 rounded-xl p-4 space-y-3 mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-emerald-600" />
+          <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-5 space-y-4 mb-6 border border-slate-200">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center shadow-md">
+                <BookOpen className="w-6 h-6 text-white" />
               </div>
               <div>
-                <p className="text-xs text-slate-400 uppercase tracking-wide">
+                <p className="text-xs text-slate-500 uppercase tracking-wider font-medium">
                   Course
                 </p>
-                <p className="font-semibold text-slate-900">
+                <p className="font-bold text-slate-900 text-lg">
                   {student.courseName}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Calendar className="w-5 h-5 text-blue-600" />
+            <div className="h-px bg-slate-200"></div>
+
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-md">
+                <Award className="w-6 h-6 text-white" />
               </div>
               <div>
-                <p className="text-xs text-slate-400 uppercase tracking-wide">
-                  Date of Certificate issued
+                <p className="text-xs text-slate-500 uppercase tracking-wider font-medium">
+                  Certificate ID
                 </p>
-                <p className="font-semibold text-slate-900">
+                <p className="font-mono font-bold text-slate-900">
+                  {student.certificateId}
+                </p>
+              </div>
+            </div>
+
+            <div className="h-px bg-slate-200"></div>
+
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center shadow-md">
+                <Calendar className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 uppercase tracking-wider font-medium">
+                  Date Issued
+                </p>
+                <p className="font-bold text-slate-900">
                   {formattedDate}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Certificate ID */}
-          <div className="text-center border-t border-slate-100 pt-4">
-            <p className="text-xs text-slate-400 mb-1">Certificate ID</p>
-            <p className="font-mono text-sm text-black bg-slate-100 px-3 py-2 rounded-lg inline-block">
-              {student.certificateId}
-            </p>
-          </div>
-
           {/* Footer */}
-          <div className="text-center mt-6 pt-4 border-t border-slate-100">
-            <p className="text-xs text-slate-500 font-semibold">
-              Verified Certificate
+          <div className="text-center pt-4 border-t border-slate-100">
+            <p className="text-xs text-slate-400">
+              This certificate has been verified and is authentic
             </p>
           </div>
-
         </div>
       </div>
     </div>
