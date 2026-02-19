@@ -17,7 +17,7 @@ import Navbar from '../../components/Navbar';
 import { API_URL } from '@/utils/config';
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string | string[] }>;
 }
 
 export default function VerifyPage({ params }: PageProps) {
@@ -29,7 +29,20 @@ export default function VerifyPage({ params }: PageProps) {
   useEffect(() => {
     const fetchStudent = async () => {
       try {
-        const res = await axios.get(`${API_URL}/api/students/${resolvedParams.id}`);
+        const rawId = resolvedParams.id;
+        // Handle catch-all params which come as an array
+        const certificateId = Array.isArray(rawId) 
+          ? rawId.map(segment => decodeURIComponent(segment)).join('/') 
+          : decodeURIComponent(rawId);
+          
+        console.log('Verifying ID:', certificateId);
+        
+        // Double encoding for the API call to ensure slashes are preserved in the path parameter
+        // The backend expects /api/students/:id. If we send A/B, it matches :id=A which is wrong.
+        // We should send encoded ID so it matches :id=A%2FB
+        const encodedId = encodeURIComponent(certificateId);
+
+        const res = await axios.get(`${API_URL}/api/students/${encodedId}`);
         if (res.data.success) {
           setStudent(res.data.student);
         }

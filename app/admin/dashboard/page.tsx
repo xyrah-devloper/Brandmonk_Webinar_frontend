@@ -1845,6 +1845,17 @@ export default function AdminDashboard() {
                                   { name: 'SASIKALA J', certificateId: 'BMAJUNDMMES/Q0506S051' },
                                   { name: 'nivethitha s', certificateId: 'BMAJUNDMMES/Q0506S052' },
                                   { name: 'B.THARUN', certificateId: 'BMAJUNDMMES/Q0506S053' },
+                                  { name: 'Ashiquah', certificateId: 'BMAJUNDMMES/Q0506S054' },
+                                  { name: 'Prakash Swaminathan', certificateId: 'BMAJUNDMMES/Q0506S055' },
+                                  { name: 'Sudhakar', certificateId: 'BMAJUNDMMES/Q0506S056' },
+                                  { name: 'Gopinath', certificateId: 'BMAJUNDMMES/Q0506S057' },
+                                  { name: 'Niranjan', certificateId: 'BMAJUNDMMES/Q0506S058' },
+                                  { name: 'Sathishkumar M', certificateId: 'BMAJUNDMMES/Q0506S059' },
+                                  { name: 'priyaa.A', certificateId: 'BMAJUNDMMES/Q0506S060' },
+                                  { name: 'Swetha N', certificateId: 'BMAJUNDMMES/Q0506S061' },
+                                  { name: 'Payal D Goklani', certificateId: 'BMAJULDMMES/Q0706S325' },
+                                  { name: 'Balachandar D.', certificateId: 'BMAJULDMMES/Q07065374' },
+                                  { name: 'Pratheekaran Ramakrishnan', certificateId: 'BMAJANDMMES/Q04065332' },
                                 ];
                                 
                                 setIsGeneratingCerts(true);
@@ -1906,7 +1917,7 @@ export default function AdminDashboard() {
                              {isGeneratingCerts && selectedCertCourse === 'digital-marketing' ? (
                                 <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Generating...</>
                              ) : (
-                                <><Sparkles className="w-5 h-5 mr-2" /> Generate DM Certificates (52)</>
+                                <><Sparkles className="w-5 h-5 mr-2" /> Generate DM Certificates (64)</>
                              )}
                            </Button>
                          </div>
