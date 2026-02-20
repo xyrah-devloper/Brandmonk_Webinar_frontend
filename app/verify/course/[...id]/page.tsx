@@ -33,7 +33,7 @@ export default function VerifyCourseId() {
         if (!certificateId) return;
 
         const res = await axios.get(
-          `${API_URL}/api/course-students/${encodeURIComponent(encodeURIComponent(certificateId))}`
+          `${API_URL}/api/course-students/${encodeURIComponent(certificateId)}`
         );
 
         if (res.data.success) {
