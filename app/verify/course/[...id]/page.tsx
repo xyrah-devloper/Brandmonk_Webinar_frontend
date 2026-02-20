@@ -33,7 +33,7 @@ export default function VerifyCourseId() {
         if (!certificateId) return;
 
         const res = await axios.get(
-          `${API_URL}/api/course-students/${encodeURIComponent(certificateId)}`
+          `${API_URL}/api/course-students/${encodeURIComponent(encodeURIComponent(certificateId))}`
         );
 
         if (res.data.success) {
@@ -76,7 +76,7 @@ export default function VerifyCourseId() {
           <p className="text-slate-500 mb-6">
             The certificate ID{' '}
             <span className="font-mono bg-slate-100 px-2 py-1 rounded">
-              {id}
+              {decodeURIComponent(Array.isArray(id) ? id.join('/') : id || '')}
             </span>{' '}
             could not be verified.
           </p>
@@ -85,7 +85,13 @@ export default function VerifyCourseId() {
     );
   }
 
-  const formattedDate = '8 February 2026';
+  const formattedDate = student?.dateOfRegistration 
+    ? new Date(student.dateOfRegistration).toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      })
+    : 'Date not available';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-4">

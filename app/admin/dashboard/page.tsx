@@ -1853,6 +1853,7 @@ export default function AdminDashboard() {
                                   { name: 'Sathishkumar M', certificateId: 'BMAJUNDMMES/Q0506S059' },
                                   { name: 'priyaa.A', certificateId: 'BMAJUNDMMES/Q0506S060' },
                                   { name: 'Swetha N', certificateId: 'BMAJUNDMMES/Q0506S061' },
+                                  { name: 'Kavin R', certificateId: 'BMAJUNDMMES/Q0506S062' },
                                   { name: 'Payal D Goklani', certificateId: 'BMAJULDMMES/Q0706S325' },
                                   { name: 'Balachandar D.', certificateId: 'BMAJULDMMES/Q07065374' },
                                   { name: 'Pratheekaran Ramakrishnan', certificateId: 'BMAJANDMMES/Q04065332' },
