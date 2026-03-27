@@ -85,10 +85,10 @@ export default function VerifyCourseId() {
     );
   }
 
-  const formattedDate = student?.dateOfRegistration 
-    ? new Date(student.dateOfRegistration).toLocaleDateString('en-IN', {
-        day: 'numeric',
-        month: 'long',
+  const formattedDate = student?.dateOfRegistration
+    ? new Date(student.dateOfRegistration).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
         year: 'numeric'
       })
     : 'Date not available';
