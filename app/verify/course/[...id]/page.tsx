@@ -188,7 +188,7 @@ export default function VerifyCourseId() {
                   {formattedDate}
                 </p>
               </div>
-            </div>
+            </div> 
           </div>
 
           {/* Footer */}
