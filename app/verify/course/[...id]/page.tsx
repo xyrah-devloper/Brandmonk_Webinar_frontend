@@ -4,8 +4,7 @@ import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { CheckCircle, XCircle, Loader2, Award, Calendar, BookOpen } from 'lucide-react';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+import { API_URL } from '@/utils/config';
 
 interface CourseStudent {
   _id: string;

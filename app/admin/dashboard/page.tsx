@@ -1765,7 +1765,7 @@ export default function AdminDashboard() {
                                       ctx.fillText(student.certificateId, canvas.width * 0.728, canvas.height * 0.837);
                                       
                                       // QR code
-                                      const qrUrl = `https://brand-monk.vercel.app/verify/course/${student.certificateId}`;
+                                      const qrUrl = `${window.location.origin}/verify/course/${encodeURIComponent(student.certificateId)}`;
                                       const qrDataUrl = await QRCode.toDataURL(qrUrl, { margin: 1, width: 200, color: { dark: '#000000', light: '#FFFFFF' } });
                                       const qrImg = new Image();
                                       qrImg.src = qrDataUrl;
@@ -1921,7 +1921,7 @@ export default function AdminDashboard() {
                                       ctx.fillText(student.certificateId, canvas.width * 0.728, canvas.height * 0.837);
                                       
                                       // QR code
-                                      const qrUrl = `https://brand-monk.vercel.app/verify/course/${student.certificateId}`;
+                                      const qrUrl = `${window.location.origin}/verify/course/${encodeURIComponent(student.certificateId)}`;
                                       const qrDataUrl = await QRCode.toDataURL(qrUrl, { margin: 1, width: 200, color: { dark: '#000000', light: '#FFFFFF' } });
                                       const qrImg = new Image();
                                       qrImg.src = qrDataUrl;
