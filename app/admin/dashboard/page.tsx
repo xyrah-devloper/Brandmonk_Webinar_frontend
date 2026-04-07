@@ -230,21 +230,22 @@ export default function AdminDashboard() {
 
   const fetchData = async () => {
     try {
-      const [studentsRes, statsRes, webinarsRes] = await Promise.all([
+      const [studentsRes, statsRes, webinarsRes] = await Promise.allSettled([
         axios.get(`${API_URL}/api/admin/students`),
         axios.get(`${API_URL}/api/admin/stats`),
         axios.get(`${API_URL}/api/webinars`)
       ]);
 
-      if (studentsRes.data.success) {
-        setStudents(studentsRes.data.students);
+      if (studentsRes.status === 'fulfilled' && studentsRes.value?.data?.success) {
+        const studentsData = Array.isArray(studentsRes.value.data.students) ? studentsRes.value.data.students : [];
+        setStudents(studentsData);
         
         // Log duplicates in console if any exist
-        if (studentsRes.data.duplicates && studentsRes.data.duplicates.length > 0) {
-          const duplicates = studentsRes.data.duplicates;
+        if (studentsRes.value.data.duplicates && studentsRes.value.data.duplicates.length > 0) {
+          const duplicates = studentsRes.value.data.duplicates;
           console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
           console.log(`🔄 DUPLICATE REGISTRATIONS FOUND: ${duplicates.length}`);
-          console.log(`📊 Total in DB: ${studentsRes.data.totalInDB} | Unique: ${studentsRes.data.students.length}`);
+          console.log(`📊 Total in DB: ${studentsRes.value.data.totalInDB} | Unique: ${studentsData.length}`);
           console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
           duplicates.forEach((dup: any, index: number) => {
             console.log(`${index + 1}. ${dup.name} (${dup.email})`);
@@ -262,10 +263,36 @@ export default function AdminDashboard() {
           });
           console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
         }
+      } else {
+        setStudents([]);
       }
       
-      if (statsRes.data.success) setStats(statsRes.data.stats);
-      if (webinarsRes.data.success) setWebinars(webinarsRes.data.webinars);
+      if (statsRes.status === 'fulfilled' && statsRes.value?.data?.success) {
+        setStats(statsRes.value.data.stats);
+      } else {
+        setStats({
+          totalStudents: 0,
+          eligibleStudents: 0,
+          certificatesSent: 0,
+          monthlyRegistrations: [],
+          topWebinars: []
+        });
+      }
+
+      if (webinarsRes.status === 'fulfilled' && webinarsRes.value?.data?.success) {
+        const webinarsData = Array.isArray(webinarsRes.value.data.webinars) ? webinarsRes.value.data.webinars : [];
+        setWebinars(webinarsData);
+      } else {
+        setWebinars([]);
+      }
+
+      if (studentsRes.status === 'rejected' || statsRes.status === 'rejected' || webinarsRes.status === 'rejected') {
+        console.error('One or more dashboard API calls failed', {
+          studentsError: studentsRes.status === 'rejected' ? studentsRes.reason : null,
+          statsError: statsRes.status === 'rejected' ? statsRes.reason : null,
+          webinarsError: webinarsRes.status === 'rejected' ? webinarsRes.reason : null
+        });
+      }
       
 
     } catch (err) {
@@ -434,10 +461,7 @@ export default function AdminDashboard() {
       if (res.data.success) {
         setStudents([res.data.student, ...students]);
         setIsAddStudentOpen(false);
-        setStudents([res.data.student, ...students]);
-        setIsAddStudentOpen(false);
         setNewStudent({ name: '', email: '', phone: '', webinarName: '', location: '', profession: '', certificateType: 'Government' });
-        fetchData();
         fetchData();
         
         // Auto-open QR for the new student
@@ -898,13 +922,13 @@ export default function AdminDashboard() {
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-8">
                 
                 {/* Registration Trends Chart */}
-                <Card className="col-span-8 lg:col-span-5 shadow-sm border-slate-200">
+                <Card className="col-span-8 lg:col-span-5 shadow-sm border-slate-200 min-w-0">
                   <CardHeader>
                     <CardTitle>Registration Trends</CardTitle>
                     <p className="text-sm text-slate-500">Monthly student registrations for the current year.</p>
                   </CardHeader>
                   <CardContent className="pl-2">
-                    <div className="h-[350px] w-full">
+                      <div className="h-[350px] w-full min-w-0 min-h-[320px]">
                        <ResponsiveContainer width="100%" height="100%">
                          <AreaChart data={derivedStats.monthlyRegistrations}>
                            <defs>
@@ -949,13 +973,13 @@ export default function AdminDashboard() {
                 </Card>
 
                 {/* Top Programs Chart - NEW */}
-                <Card className="col-span-8 lg:col-span-3 shadow-sm border-slate-200">
+                <Card className="col-span-8 lg:col-span-3 shadow-sm border-slate-200 min-w-0">
                   <CardHeader>
                     <CardTitle>Top Programs</CardTitle>
                     <p className="text-sm text-slate-500">Most popular courses by registration.</p>
                   </CardHeader>
                   <CardContent>
-                     <div className="h-[350px] w-full">
+                    <div className="h-[350px] w-full min-w-0 min-h-[320px]">
                         <ResponsiveContainer width="100%" height="100%">
                            <BarChart 
                               layout="vertical"
