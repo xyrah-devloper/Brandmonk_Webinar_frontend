@@ -1957,7 +1957,7 @@ export default function AdminDashboard() {
                                       ctx.fillText(student.name.toUpperCase(), canvas.width / 2, canvas.height * 0.555);
                                       
                                       // Certificate ID (Poppins) - smaller for DM longer IDs
-                                      const certIdFontSize = canvas.width * 0.016;
+                                      const certIdFontSize = canvas.width * 0.0155;
                                       ctx.font = `${certIdFontSize}px "Poppins", sans-serif`;
                                       ctx.fillStyle = '#000000';
                                       ctx.textAlign = 'center';
