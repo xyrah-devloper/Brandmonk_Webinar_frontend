@@ -1752,6 +1752,15 @@ export default function AdminDashboard() {
                                   { name: 'K Sowmiya', certificateId: 'BMAJUNVEMES/Q1401S016' },
                                   { name: 'Lokesh S', certificateId: 'BMAJUNVEMES/Q1401S017' },
                                   { name: 'Shalini.K', certificateId: 'BMAJUNVEMES/Q1401S018' },
+                                  { name: 'Omprakash S', certificateId: 'BMAJUNDMMES/Q0506S073' },
+                                  { name: 'Badmavathi B', certificateId: 'BMAJUNDMMES/Q0506S074' },
+                                  { name: 'R.M.Deepika', certificateId: 'BMAJUNDMMES/Q0506S075' },
+                                  { name: 'Karthi R', certificateId: 'BMAJUNDMMES/Q0506S076' },
+                                  { name: 'Ashaz Ahmed R', certificateId: 'BMAJUNDMMES/Q0506S077' },
+                                  { name: 'Saran.A', certificateId: 'BMAJUNDMMES/Q0506S078' },
+                                  { name: 'Marimuthu P', certificateId: 'BMAJUNDMMES/Q0506S079' },
+                                  { name: 'nivya', certificateId: 'BMAJUNDMMES/Q0506S080' },
+                                  { name: 'jayaraj', certificateId: 'BMAJUNDMMES/Q0506S081' },
                                 ];
                                 
                                 setIsGeneratingCerts(true);
@@ -1813,7 +1822,7 @@ export default function AdminDashboard() {
                              {isGeneratingCerts && selectedCertCourse === 'video-editing' ? (
                                 <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Generating...</>
                              ) : (
-                                <><Sparkles className="w-5 h-5 mr-2" /> Generate VE Certificates (18)</>
+                                <><Sparkles className="w-5 h-5 mr-2" /> Generate VE Certificates (27)</>
                              )}
                            </Button>
                            
@@ -1884,30 +1893,16 @@ export default function AdminDashboard() {
                                   { name: 'priyaa.A', certificateId: 'BMAJUNDMMES/Q0506S060' },
                                   { name: 'Swetha N', certificateId: 'BMAJUNDMMES/Q0506S061' },
                                   { name: 'Kavin R', certificateId: 'BMAJUNDMMES/Q0506S062' },
-                                  { name: 'J.Sriniranjan', certificateId: 'BMAFEBDMMES/Q0506S001' },
-                                  { name: 'DYANESH R', certificateId: 'BMAJULDMMES/Q0706S378' },
-                                  { name: 'Payal D Goklani', certificateId: 'BMAJULDMMES/Q0706S325' },
-                                  { name: 'Balachandar D.', certificateId: 'BMAJULDMMES/Q07065374' },
-                                  { name: 'Pratheekaran Ramakrishnan', certificateId: 'BMAJANDMMES/Q04065332' },
-                                  { name: 'Yuvarani.P', certificateId: 'BMAJUNDMMES/Q0506S063' },
-                                  { name: 'A. Sherwin rose', certificateId: 'BMAJUNDMMES/Q0506S064' },
-                                  { name: 'T. Pandurangan', certificateId: 'BMAJUNDMMES/Q0506S065' },
-                                  { name: 'Lavanya N', certificateId: 'BMAJUNDMMES/Q0506S066' },
-                                  { name: 'N BALAMURUGAN', certificateId: 'BMAJUNDMMES/Q0506S067' },
-                                  { name: 'Kavinsanjay M V', certificateId: 'BMAJUNDMMES/Q0506S068' },
-                                  { name: 'Antony Xavier Prasath R', certificateId: 'BMAJUNDMMES/Q0506S069' },
-                                  { name: 'M Saranraj', certificateId: 'BMAJUNDMMES/Q0506S070' },
-                                  { name: 'Praveen Kumar P', certificateId: 'BMAJUNDMMES/Q0506S071' },
-                                  { name: 'Yuvarekha A', certificateId: 'BMAJUNDMMES/Q0506S072' },
-                                  { name: 'Jabez Sahaya Selvan', certificateId: 'BMAJUNDMMES/Q0506S073' },
-                                  { name: 'G.tharun', certificateId: 'BMAJUNDMMES/Q0506S074' },
-                                  { name: 'Anbarasy J', certificateId: 'BMAJUNDMMES/Q0506S075' },
-                                  { name: 'HariPriya P', certificateId: 'BMAJUNDMMES/Q0506S076' },
-                                  { name: 'Shanmugam P', certificateId: 'BMAJUNDMMES/Q0506S077' },
-                                  { name: 'Premalatha D', certificateId: 'BMAJUNDMMES/Q0506S078' },
-                                  { name: 'Suganya C', certificateId: 'BMAJUNDMMES/Q0506S079' },
-                                  { name: 'S. Anitha Preethi', certificateId: 'BMAJUNDMMES/Q0506S080' },
-                                  { name: 'Hari pradheesh', certificateId: 'BMAJUNDMMES/Q0506S081' },
+                                  { name: 'RAKESH KUMAR.C', certificateId: 'BMAJUNDMMES/Q0506S063' },
+                                  { name: 'S.H.MALICK FIRDHOUSE', certificateId: 'BMAJUNDMMES/Q0506S064' },
+                                  { name: 'Vanmathi Ramasubramanian', certificateId: 'BMAJUNDMMES/Q0506S065' },
+                                  { name: 'Aabi Shankari Karunamoorthi', certificateId: 'BMAJUNDMMES/Q0506S066' },
+                                  { name: 'Kokila.M.S', certificateId: 'BMAJUNDMMES/Q0506S067' },
+                                  { name: 'Bhaheerathi S', certificateId: 'BMAJUNDMMES/Q0506S068' },
+                                  { name: 'Ashiquah S', certificateId: 'BMAJUNDMMES/Q0506S069' },
+                                  { name: 'Aruna P', certificateId: 'BMAJUNDMMES/Q0506S070' },
+                                  { name: 'Sirajudeen N', certificateId: 'BMAJUNDMMES/Q0506S071' },
+                                  { name: 'Haripriya P', certificateId: 'BMAJUNDMMES/Q0506S072' },
                                 ];
                                 
                                 setIsGeneratingCerts(true);
@@ -1969,7 +1964,7 @@ export default function AdminDashboard() {
                              {isGeneratingCerts && selectedCertCourse === 'digital-marketing' ? (
                                 <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Generating...</>
                              ) : (
-                                <><Sparkles className="w-5 h-5 mr-2" /> Generate DM Certificates (85)</>
+                                <><Sparkles className="w-5 h-5 mr-2" /> Generate DM Certificates (82)</>
                              )}
                            </Button>
                          </div>
