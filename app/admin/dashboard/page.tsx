@@ -1769,6 +1769,7 @@ export default function AdminDashboard() {
                                   { name: 'Devaraj', certificateId: 'BMAJUNVEMES/Q1401S023' },
                                   { name: 'Deenadhayalan K', certificateId: 'BMAJUNVEMES/Q1401S024' },
                                   { name: 'K. Shalini', certificateId: 'BMAJUNVEMES/Q1401S025' },
+                                  { name: 'Shruthi S', certificateId: 'BMAJUNVEMES/Q1401S026' },
                                 ];
                                 
                                 setIsGeneratingCerts(true);
