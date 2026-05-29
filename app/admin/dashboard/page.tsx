@@ -1831,7 +1831,7 @@ export default function AdminDashboard() {
                              {isGeneratingCerts && selectedCertCourse === 'video-editing' ? (
                                 <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Generating...</>
                              ) : (
-                                <><Sparkles className="w-5 h-5 mr-2" /> Generate VE Certificates (34)</>
+                                <><Sparkles className="w-5 h-5 mr-2" /> Generate VE Certificates (35)</>
                              )}
                            </Button>
                            
