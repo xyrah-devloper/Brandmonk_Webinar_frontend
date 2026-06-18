@@ -1770,6 +1770,8 @@ export default function AdminDashboard() {
                                   { name: 'Deenadhayalan K', certificateId: 'BMAJUNVEMES/Q1401S024' },
                                   { name: 'K. Shalini', certificateId: 'BMAJUNVEMES/Q1401S025' },
                                   { name: 'Shruthi S', certificateId: 'BMAJUNVEMES/Q1401S026' },
+                                  { name: 'POUL BLESSON . A', certificateId: 'BMAJUNVEMES/Q1401S027' },
+                                  { name: 'M.Sham Kumar', certificateId: 'BMAJUNVEMES/Q1401S028' },
                                 ];
                                 
                                 setIsGeneratingCerts(true);
@@ -1831,7 +1833,7 @@ export default function AdminDashboard() {
                              {isGeneratingCerts && selectedCertCourse === 'video-editing' ? (
                                 <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Generating...</>
                              ) : (
-                                <><Sparkles className="w-5 h-5 mr-2" /> Generate VE Certificates (35)</>
+                                <><Sparkles className="w-5 h-5 mr-2" /> Generate VE Certificates (37)</>
                              )}
                            </Button>
                            
@@ -1941,6 +1943,15 @@ export default function AdminDashboard() {
                                   { name: 'Suganya C', certificateId: 'BMAJUNDMMES/Q0506S089' },
                                   { name: 'S. Anitha Preethi', certificateId: 'BMAJUNDMMES/Q0506S090' },
                                   { name: 'Hari pradheesh', certificateId: 'BMAJUNDMMES/Q0506S091' },
+                                  { name: 'Jeya shree', certificateId: 'BMAJUNDMMES/Q0506S092' },
+                                  { name: 'SAI ANAND.P', certificateId: 'BMAJUNDMMES/Q0506S093' },
+                                  { name: 'Preethishankar', certificateId: 'BMAJUNDMMES/Q0506S094' },
+                                  { name: 'Hariharan Sathianathan', certificateId: 'BMAJUNDMMES/Q0506S095' },
+                                  { name: 'Rajasri', certificateId: 'BMAJUNDMMES/Q0506S096' },
+                                  { name: 'S. Deepa', certificateId: 'BMAJUNDMMES/Q0506S097' },
+                                  { name: 'Nisha S', certificateId: 'BMAJUNDMMES/Q0506S098' },
+                                  { name: 'sureka', certificateId: 'BMAJUNDMMES/Q0506S099' },
+                                  { name: 'Thulasi dass. B', certificateId: 'BMAJUNDMMES/Q0506S100' },
                                 ];
                                 
                                 setIsGeneratingCerts(true);
@@ -2002,7 +2013,7 @@ export default function AdminDashboard() {
                              {isGeneratingCerts && selectedCertCourse === 'digital-marketing' ? (
                                 <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Generating...</>
                              ) : (
-                                <><Sparkles className="w-5 h-5 mr-2" /> Generate DM Certificates (95)</>
+                                <><Sparkles className="w-5 h-5 mr-2" /> Generate DM Certificates (104)</>
                              )}
                            </Button>
                          </div>
