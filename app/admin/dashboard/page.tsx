@@ -18,6 +18,7 @@ import * as XLSX from 'xlsx';
 import QRCode from 'qrcode';
 import JSZip from 'jszip';
 import { API_URL } from '@/utils/config';
+import { dmStudents } from './dmStudentsData';
 
 // --- Types ---
 interface Student {
@@ -1964,7 +1965,7 @@ export default function AdminDashboard() {
                                    templateImg.src = certTemplate!;
                                    await new Promise(r => templateImg.onload = r);
                                    
-                                   for(const student of dmStudents) {
+                                   for(const student of [...dmStudents].reverse()) {
                                       const canvas = document.createElement('canvas');
                                       const ctx = canvas.getContext('2d');
                                       if(!ctx) continue;
@@ -2013,7 +2014,7 @@ export default function AdminDashboard() {
                              {isGeneratingCerts && selectedCertCourse === 'digital-marketing' ? (
                                 <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Generating...</>
                              ) : (
-                                <><Sparkles className="w-5 h-5 mr-2" /> Generate DM Certificates (104)</>
+                                <><Sparkles className="w-5 h-5 mr-2" /> Generate DM Certificates (293)</>
                              )}
                            </Button>
                          </div>
