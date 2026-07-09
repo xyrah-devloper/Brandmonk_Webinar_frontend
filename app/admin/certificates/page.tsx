@@ -56,7 +56,10 @@ export default function CertificateGeneratorPage() {
     { name: 'Digital Marketing', slug: 'digital-marketing' },
     { name: 'Web Development', slug: 'web-development' },
     { name: 'Graphic Design', slug: 'graphic-design' },
-    { name: 'Social Media Marketing', slug: 'social-media' }
+    { name: 'Social Media Marketing', slug: 'social-media' },
+    { name: 'Data Analytics', slug: 'data-analytics' },
+    { name: 'Artificial Intelligence', slug: 'artificial-intelligence' },
+    { name: 'UI/UX', slug: 'ui-ux' }
   ];
 
   const handleAddStudent = () => {
