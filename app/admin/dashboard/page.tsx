@@ -248,12 +248,12 @@ export default function AdminDashboard() {
         ctx.drawImage(templateImg, 0, 0);
 
         // Name (ALL CAPS)
-        const nameFontSize = canvas.width * 0.048;
+        const nameFontSize = canvas.width * 0.053;
         ctx.font = `bold ${nameFontSize}px "Monotype Corsiva", cursive`;
         ctx.fillStyle = '#6f3230';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(student.name.toUpperCase(), canvas.width / 2, canvas.height * 0.548);
+        ctx.fillText(student.name.toUpperCase(), canvas.width / 2, canvas.height * 0.54);
 
         // Certificate ID (Poppins) - smaller for longer IDs
         const certIdFontSize = isLongId ? canvas.width * 0.0175 : canvas.width * 0.019;
