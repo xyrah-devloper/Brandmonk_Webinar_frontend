@@ -262,10 +262,10 @@ export default function AdminDashboard() {
           .split(' ')
           .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
           .join(' ');
-        const maxNameWidth = canvas.width * 0.75;
-        let nameFontSize = 85;
+        const maxNameWidth = canvas.width * 0.78;
+        let nameFontSize = 130;
         ctx.font = `${nameFontSize}px "Niconne", cursive`;
-        while (nameFontSize > 36 && ctx.measureText(titleCaseName).width > maxNameWidth) {
+        while (nameFontSize > 46 && ctx.measureText(titleCaseName).width > maxNameWidth) {
           nameFontSize -= 2;
           ctx.font = `${nameFontSize}px "Niconne", cursive`;
         }
