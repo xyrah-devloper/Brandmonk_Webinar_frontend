@@ -256,14 +256,19 @@ export default function AdminDashboard() {
         canvas.height = templateImg.height;
         ctx.drawImage(templateImg, 0, 0);
 
-        // Name (Title Case)
+        // Name (Title Case) - auto-scale to fill gap
         const titleCaseName = student.name
           .toLowerCase()
           .split(' ')
           .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
           .join(' ');
-        const nameFontSize = 55.8;
+        const maxNameWidth = canvas.width * 0.75;
+        let nameFontSize = 85;
         ctx.font = `${nameFontSize}px "Niconne", cursive`;
+        while (nameFontSize > 36 && ctx.measureText(titleCaseName).width > maxNameWidth) {
+          nameFontSize -= 2;
+          ctx.font = `${nameFontSize}px "Niconne", cursive`;
+        }
         ctx.fillStyle = '#6f3230';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
