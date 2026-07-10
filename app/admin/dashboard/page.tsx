@@ -249,7 +249,7 @@ export default function AdminDashboard() {
 
         // Name (ALL CAPS)
         const nameFontSize = canvas.width * 0.053;
-        ctx.font = `bold ${nameFontSize}px "Monotype Corsiva", cursive`;
+        ctx.font = `bold ${nameFontSize}px "Niconne", cursive`;
         ctx.fillStyle = '#6f3230';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
