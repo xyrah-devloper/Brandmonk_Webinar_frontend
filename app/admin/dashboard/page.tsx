@@ -1824,55 +1824,24 @@ export default function AdminDashboard() {
                            <Button
                              disabled={isGeneratingCerts}
                              onClick={async () => {
-                                // Hardcoded VE Students
-                                const veStudents = [
-                                  { name: 'Bindhu N', certificateId: 'BMAJUNVEMES/Q1401S001' },
-                                  { name: 's.dhanalakshmi', certificateId: 'BMAJUNVEMES/Q1401S002' },
-                                  { name: 'Selva Ishwarya', certificateId: 'BMAJUNVEMES/Q1401S003' },
-                                  { name: 'SIKENDAR BASHA M', certificateId: 'BMAJUNVEMES/Q1401S004' },
-                                  { name: 'Vasantha kumar', certificateId: 'BMAJUNVEMES/Q1401S005' },
-                                  { name: 'Mugilarasu G', certificateId: 'BMAJUNVEMES/Q1401S006' },
-                                  { name: 'JAYARAJ P', certificateId: 'BMAJUNVEMES/Q1401S007' },
-                                  { name: 'Vishnusithan A', certificateId: 'BMAJUNVEMES/Q1401S008' },
-                                  { name: 'Vidhyambigai S', certificateId: 'BMAJUNVEMES/Q1401S009' },
-                                  { name: 'Niyamath. A', certificateId: 'BMAJUNVEMES/Q1401S010' },
-                                  { name: 'Indumathi', certificateId: 'BMAJUNVEMES/Q1401S011' },
-                                  { name: 'Sai Selva', certificateId: 'BMAJUNVEMES/Q1401S012' },
-                                  { name: 'S.MUTHUKUMAR', certificateId: 'BMAJUNVEMES/Q1401S013' },
-                                  { name: 'SURESH P', certificateId: 'BMAJUNVEMES/Q1401S014' },
-                                  { name: 'Karthick E', certificateId: 'BMAJUNVEMES/Q1401S015' },
-                                  { name: 'K Sowmiya', certificateId: 'BMAJUNVEMES/Q1401S016' },
-                                  { name: 'Lokesh S', certificateId: 'BMAJUNVEMES/Q1401S017' },
-                                  { name: 'Shalini.K', certificateId: 'BMAJUNVEMES/Q1401S018' },
-                                  { name: 'Omprakash S', certificateId: 'BMAJUNDMMES/Q0506S073' },
-                                  { name: 'Badmavathi B', certificateId: 'BMAJUNDMMES/Q0506S074' },
-                                  { name: 'R.M.Deepika', certificateId: 'BMAJUNDMMES/Q0506S075' },
-                                  { name: 'Karthi R', certificateId: 'BMAJUNDMMES/Q0506S076' },
-                                  { name: 'Ashaz Ahmed R', certificateId: 'BMAJUNDMMES/Q0506S077' },
-                                  { name: 'Saran.A', certificateId: 'BMAJUNDMMES/Q0506S078' },
-                                  { name: 'Marimuthu P', certificateId: 'BMAJUNDMMES/Q0506S079' },
-                                  { name: 'nivya', certificateId: 'BMAJUNDMMES/Q0506S080' },
-                                  { name: 'jayaraj', certificateId: 'BMAJUNDMMES/Q0506S081' },
-                                  // NEW VE STUDENTS
-                                  { name: 'Muhamad Jiyath E', certificateId: 'BMAJUNVEMES/Q1401S019' },
-                                  { name: 'N. Sathis Kumar', certificateId: 'BMAJUNVEMES/Q1401S020' },
-                                  { name: 'Haridasan G', certificateId: 'BMAJUNVEMES/Q1401S021' },
-                                  { name: 'Asmath Nisha', certificateId: 'BMAJUNVEMES/Q1401S022' },
-                                  { name: 'Devaraj', certificateId: 'BMAJUNVEMES/Q1401S023' },
-                                  { name: 'Deenadhayalan K', certificateId: 'BMAJUNVEMES/Q1401S024' },
-                                  { name: 'K. Shalini', certificateId: 'BMAJUNVEMES/Q1401S025' },
-                                  { name: 'Shruthi S', certificateId: 'BMAJUNVEMES/Q1401S026' },
-                                  { name: 'POUL BLESSON . A', certificateId: 'BMAJUNVEMES/Q1401S027' },
-                                  { name: 'M.Sham Kumar', certificateId: 'BMAJUNVEMES/Q1401S028' },
-                                ];
-                                await generateCertificatesForStudents(veStudents, 'video-editing');
+                                try {
+                                  const res = await axios.get(`${API_URL}/api/course-students/course/video-editing`);
+                                  if (res.data.success && res.data.students?.length > 0) {
+                                    await generateCertificatesForStudents(res.data.students, 'video-editing');
+                                  } else {
+                                    alert('No Video Editing students found in database');
+                                  }
+                                } catch (err) {
+                                  console.error(err);
+                                  alert('Failed to fetch Video Editing students');
+                                }
                              }}
                              className="h-12 bg-purple-600 hover:bg-purple-700"
                            >
                              {isGeneratingCerts && selectedCertCourse === 'video-editing' ? (
                                 <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Generating...</>
                              ) : (
-                                <><Sparkles className="w-5 h-5 mr-2" /> Generate VE Certificates (37)</>
+                                <><Sparkles className="w-5 h-5 mr-2" /> Generate VE Certificates</>
                              )}
                            </Button>
                            
