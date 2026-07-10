@@ -247,13 +247,18 @@ export default function AdminDashboard() {
         canvas.height = templateImg.height;
         ctx.drawImage(templateImg, 0, 0);
 
-        // Name (ALL CAPS)
+        // Name (Title Case)
+        const titleCaseName = student.name
+          .toLowerCase()
+          .split(' ')
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ');
         const nameFontSize = canvas.width * 0.053;
         ctx.font = `bold ${nameFontSize}px "Niconne", cursive`;
         ctx.fillStyle = '#6f3230';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(student.name.toUpperCase(), canvas.width / 2, canvas.height * 0.54);
+        ctx.fillText(titleCaseName, canvas.width / 2, canvas.height * 0.54);
 
         // Certificate ID (Poppins) - smaller for longer IDs
         const certIdFontSize = isLongId ? canvas.width * 0.0175 : canvas.width * 0.019;
