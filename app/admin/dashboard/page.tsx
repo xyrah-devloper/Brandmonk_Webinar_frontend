@@ -253,8 +253,8 @@ export default function AdminDashboard() {
           .split(' ')
           .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
           .join(' ');
-        const nameFontSize = canvas.width * 0.053;
-        ctx.font = `bold ${nameFontSize}px "Niconne", cursive`;
+        const nameFontSize = canvas.width * 0.058;
+        ctx.font = `${nameFontSize}px "Niconne", cursive`;
         ctx.fillStyle = '#6f3230';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
