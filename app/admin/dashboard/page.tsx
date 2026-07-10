@@ -253,14 +253,14 @@ export default function AdminDashboard() {
         ctx.fillStyle = '#6f3230';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(student.name.toUpperCase(), canvas.width / 2, canvas.height * 0.555);
+        ctx.fillText(student.name.toUpperCase(), canvas.width / 2, canvas.height * 0.548);
 
         // Certificate ID (Poppins) - smaller for longer IDs
-        const certIdFontSize = isLongId ? canvas.width * 0.015 : canvas.width * 0.0165;
+        const certIdFontSize = isLongId ? canvas.width * 0.0175 : canvas.width * 0.019;
         ctx.font = `${certIdFontSize}px "Poppins", sans-serif`;
         ctx.fillStyle = '#000000';
         ctx.textAlign = 'center';
-        ctx.fillText(student.certificateId, canvas.width * 0.775, canvas.height * 0.91);
+        ctx.fillText(student.certificateId, canvas.width * 0.775, canvas.height * 0.918);
 
         // QR code
         const qrUrl = `${window.location.origin}/verify/course/${encodeURIComponent(student.certificateId)}`;
