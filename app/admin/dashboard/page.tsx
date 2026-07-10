@@ -264,12 +264,12 @@ export default function AdminDashboard() {
 
         // QR code
         const qrUrl = `${window.location.origin}/verify/course/${encodeURIComponent(student.certificateId)}`;
-        const qrDataUrl = await QRCode.toDataURL(qrUrl, { margin: 1, width: 220, color: { dark: '#000000', light: '#FFFFFF' } });
+        const qrDataUrl = await QRCode.toDataURL(qrUrl, { margin: 1, width: 260, color: { dark: '#000000', light: '#FFFFFF' } });
         const qrImg = new Image();
         qrImg.src = qrDataUrl;
         await new Promise((resolve) => (qrImg.onload = resolve));
-        const qrSize = Math.min(canvas.width * 0.115, 180);
-        ctx.drawImage(qrImg, ((canvas.width - qrSize) / 2) + (canvas.width * 0.010), canvas.height * 0.83, qrSize, qrSize);
+        const qrSize = Math.min(canvas.width * 0.135, 220);
+        ctx.drawImage(qrImg, ((canvas.width - qrSize) / 2) + (canvas.width * 0.010), canvas.height * 0.835, qrSize, qrSize);
 
         newCerts.push({ id: student.certificateId, name: student.name, dataUrl: canvas.toDataURL('image/png') });
       }
