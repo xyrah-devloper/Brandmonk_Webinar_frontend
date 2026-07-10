@@ -236,6 +236,15 @@ export default function AdminDashboard() {
       templateImg.src = certTemplate;
       await new Promise((resolve) => (templateImg.onload = resolve));
 
+      // Ensure Niconne is loaded so every certificate uses the same font
+      if (document.fonts) {
+        try {
+          await document.fonts.load('1em "Niconne"');
+        } catch (e) {
+          console.warn('Niconne font load failed, using fallback', e);
+        }
+      }
+
       const isLongId = courseSlug === 'digital-marketing' || courseSlug === 'data-analytics' || courseSlug === 'artificial-intelligence' || courseSlug === 'ui-ux';
 
       for (const student of studentsToGenerate) {
@@ -253,7 +262,7 @@ export default function AdminDashboard() {
           .split(' ')
           .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
           .join(' ');
-        const nameFontSize = canvas.width * 0.07;
+        const nameFontSize = canvas.width * 0.08;
         ctx.font = `${nameFontSize}px "Niconne", cursive`;
         ctx.fillStyle = '#6f3230';
         ctx.textAlign = 'center';
