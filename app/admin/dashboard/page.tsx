@@ -260,7 +260,7 @@ export default function AdminDashboard() {
         ctx.font = `${certIdFontSize}px "Poppins", sans-serif`;
         ctx.fillStyle = '#000000';
         ctx.textAlign = 'center';
-        ctx.fillText(student.certificateId, canvas.width * 0.728, canvas.height * 0.837);
+        ctx.fillText(student.certificateId, canvas.width * 0.728, canvas.height * 0.885);
 
         // QR code
         const qrUrl = `${window.location.origin}/verify/course/${encodeURIComponent(student.certificateId)}`;
@@ -269,7 +269,7 @@ export default function AdminDashboard() {
         qrImg.src = qrDataUrl;
         await new Promise((resolve) => (qrImg.onload = resolve));
         const qrSize = Math.min(canvas.width * 0.09, 140);
-        ctx.drawImage(qrImg, ((canvas.width - qrSize) / 2) + (canvas.width * 0.010), canvas.height * 0.785, qrSize, qrSize);
+        ctx.drawImage(qrImg, ((canvas.width - qrSize) / 2) + (canvas.width * 0.010), canvas.height * 0.825, qrSize, qrSize);
 
         newCerts.push({ id: student.certificateId, name: student.name, dataUrl: canvas.toDataURL('image/png') });
       }
