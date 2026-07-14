@@ -19,6 +19,7 @@ import QRCode from 'qrcode';
 import JSZip from 'jszip';
 import { API_URL } from '@/utils/config';
 import { dmStudents } from './dmStudentsData';
+import { dmJune190Names } from './dmJune190Names';
 
 // --- Types ---
 interface Student {
@@ -172,7 +173,7 @@ export default function AdminDashboard() {
 
   // Certificate Generator State
   const [certTemplate, setCertTemplate] = useState<string | null>(null);
-  const [generatedCerts, setGeneratedCerts] = useState<{id: string, name: string, dataUrl: string}[]>([]);
+  const [generatedCerts, setGeneratedCerts] = useState<Record<string, {id: string, name: string, dataUrl: string}[]>>({});
   const [isGeneratingCerts, setIsGeneratingCerts] = useState(false);
   const [selectedCertCourse, setSelectedCertCourse] = useState<string>('');
   const [courseStudents, setCourseStudents] = useState<{_id: string, name: string, courseName: string, courseSlug: string, certificateId: string}[]>([]);
@@ -227,7 +228,6 @@ export default function AdminDashboard() {
     if (!certTemplate || studentsToGenerate.length === 0) return;
 
     setIsGeneratingCerts(true);
-    setGeneratedCerts([]);
     setSelectedCertCourse(courseSlug);
 
     try {
@@ -245,7 +245,7 @@ export default function AdminDashboard() {
         }
       }
 
-      const isLongId = courseSlug === 'digital-marketing' || courseSlug === 'data-analytics' || courseSlug === 'artificial-intelligence' || courseSlug === 'ui-ux';
+      const isLongId = courseSlug === 'digital-marketing' || courseSlug === 'digital-marketing-june-190' || courseSlug === 'data-analytics' || courseSlug === 'artificial-intelligence' || courseSlug === 'ui-ux';
 
       for (const student of studentsToGenerate) {
         const canvas = document.createElement('canvas');
@@ -293,7 +293,7 @@ export default function AdminDashboard() {
         newCerts.push({ id: student.certificateId, name: student.name, dataUrl: canvas.toDataURL('image/png') });
       }
 
-      setGeneratedCerts(newCerts);
+      setGeneratedCerts((prev) => ({ ...prev, [courseSlug]: newCerts }));
     } catch (err) {
       console.error(err);
       alert('Error generating certificates');
@@ -305,6 +305,7 @@ export default function AdminDashboard() {
   const courseLabelMap: Record<string, string> = {
     'video-editing': 'VE',
     'digital-marketing': 'DM',
+    'digital-marketing-june-190': 'DM_June190',
     'data-analytics': 'DA',
     'artificial-intelligence': 'AI',
     'ui-ux': 'UIUX'
@@ -1987,48 +1988,58 @@ export default function AdminDashboard() {
                            <Button
                              disabled={isGeneratingCerts}
                              onClick={async () => {
-                                try {
-                                  const res = await axios.get(`${API_URL}/api/course-students/course/data-analytics`);
-                                  if (res.data.success && res.data.students?.length > 0) {
-                                    await generateCertificatesForStudents(res.data.students, 'data-analytics');
-                                  } else {
-                                    alert('No Data Analytics students found in database');
-                                  }
-                                } catch (err) {
-                                  console.error(err);
-                                  alert('Failed to fetch Data Analytics students');
-                                }
+                                const daStudents = [
+                                  { name: 'Siva Subramanian A', certificateId: 'BMAJUNDAMES/Q0906S001' },
+                                  { name: 'Arun P M', certificateId: 'BMAJUNDAMES/Q0906S002' },
+                                  { name: 'Eswar sudhan', certificateId: 'BMAJUNDAMES/Q0906S003' },
+                                  { name: 'Anish Alex A', certificateId: 'BMAJUNDAMES/Q0906S004' },
+                                  { name: 'Daniel S', certificateId: 'BMAJUNDAMES/Q0906S005' },
+                                  { name: 'Gowshik B', certificateId: 'BMAJUNDAMES/Q0906S006' },
+                                  { name: 'Hepsiba L', certificateId: 'BMAJUNDAMES/Q0906S007' },
+                                  { name: 'S Vinoth Kumar', certificateId: 'BMAJUNDAMES/Q0906S008' },
+                                  { name: 'Sanjay N', certificateId: 'BMAJUNDAMES/Q0906S009' },
+                                  { name: 'R Poornima', certificateId: 'BMAJUNDAMES/Q0906S010' },
+                                  { name: 'Senthamilselvi R', certificateId: 'BMAJUNDAMES/Q0906S011' },
+                                  { name: 'Thinega R S', certificateId: 'BMAJUNDAMES/Q0906S012' },
+                                  { name: 'Madhumathi M', certificateId: 'BMAJUNDAMES/Q0906S013' },
+                                  { name: 'Pranesh B', certificateId: 'BMAJUNDAMES/Q0906S014' },
+                                  { name: 'Arun G', certificateId: 'BMAJUNDAMES/Q0906S015' },
+                                  { name: 'Suriya', certificateId: 'BMAJUNDAMES/Q0906S016' },
+                                  { name: 'Naleef Ahamed', certificateId: 'BMAJUNDAMES/Q0906S017' },
+                                  { name: 'Mohammed ummar Shaifudeen', certificateId: 'BMAJUNDAMES/Q0906S018' },
+                                  { name: 'Yuvaraja K', certificateId: 'BMAJUNDAMES/Q0906S019' },
+                                  { name: 'Mohamed shajith', certificateId: 'BMAJUNDAMES/Q0906S020' },
+                                ];
+                                await generateCertificatesForStudents(daStudents, 'data-analytics');
                              }}
                              className="h-12 bg-emerald-600 hover:bg-emerald-700"
                            >
                              {isGeneratingCerts && selectedCertCourse === 'data-analytics' ? (
                                 <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Generating...</>
                              ) : (
-                                <><Sparkles className="w-5 h-5 mr-2" /> Generate DA Certificates</>
+                                <><Sparkles className="w-5 h-5 mr-2" /> Generate DA Certificates (20)</>
                              )}
                            </Button>
                            
                            <Button
                              disabled={isGeneratingCerts}
                              onClick={async () => {
-                                try {
-                                  const res = await axios.get(`${API_URL}/api/course-students/course/artificial-intelligence`);
-                                  if (res.data.success && res.data.students?.length > 0) {
-                                    await generateCertificatesForStudents(res.data.students, 'artificial-intelligence');
-                                  } else {
-                                    alert('No AI students found in database');
-                                  }
-                                } catch (err) {
-                                  console.error(err);
-                                  alert('Failed to fetch AI students');
-                                }
+                                const aiStudents = [
+                                  { name: 'Jeba Singh P', certificateId: 'BMAJUNAIMES/Q0806S001' },
+                                  { name: 'Santhosh M', certificateId: 'BMAJUNAIMES/Q0806S002' },
+                                  { name: 'Ramesh Iyyappan', certificateId: 'BMAJUNAIMES/Q0806S003' },
+                                  { name: 'Manjula T', certificateId: 'BMAJUNAIMES/Q0806S004' },
+                                  { name: 'Ramakrishnan N', certificateId: 'BMAJUNAIMES/Q0806S005' },
+                                  { name: 'Mohamed Thowfeeq Basha', certificateId: 'BMAJUNAIMES/Q0806S006' },
+                                ];
+                                await generateCertificatesForStudents(aiStudents, 'artificial-intelligence');
                              }}
                              className="h-12 bg-rose-600 hover:bg-rose-700"
                            >
                              {isGeneratingCerts && selectedCertCourse === 'artificial-intelligence' ? (
                                 <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Generating...</>
                              ) : (
-                                <><Sparkles className="w-5 h-5 mr-2" /> Generate AI Certificates</>
+                                <><Sparkles className="w-5 h-5 mr-2" /> Generate AI Certificates (6)</>
                              )}
                            </Button>
                            
@@ -2063,86 +2074,108 @@ export default function AdminDashboard() {
 
 
                 {/* Results */}
-                {generatedCerts.length > 0 && (
+                {Object.keys(generatedCerts).length > 0 && (
                    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-xl font-bold">Generated Certificates ({generatedCerts.length})</h3>
-                        <Button
-                          onClick={async () => {
-                            if (generatedCerts.length === 0) return;
-                            
-                            try {
-                              const zip = new JSZip();
-                              const courseLabel = courseLabelMap[selectedCertCourse] || 'Course';
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div>
+                          <h3 className="text-xl font-bold">Generated Certificates</h3>
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {Object.keys(generatedCerts).map((courseSlug) => (
+                              <button
+                                key={courseSlug}
+                                onClick={() => setSelectedCertCourse(courseSlug)}
+                                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                                  selectedCertCourse === courseSlug
+                                    ? 'bg-emerald-600 text-white'
+                                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                                }`}
+                              >
+                                {courseLabelMap[courseSlug] || courseSlug} ({generatedCerts[courseSlug]?.length || 0})
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        {selectedCertCourse && generatedCerts[selectedCertCourse] && (
+                          <Button
+                            onClick={async () => {
+                              const courseCerts = generatedCerts[selectedCertCourse];
+                              if (!courseCerts || courseCerts.length === 0) return;
                               
-                              generatedCerts.forEach((cert) => {
-                                const base64Data = cert.dataUrl.split(',')[1];
-                                const fileName = `${cert.name.replace(/[^a-z0-9]/gi, '_')}_${courseLabel}_Certificate.png`;
-                                zip.file(fileName, base64Data, {base64: true});
-                              });
-                              
-                              const content = await zip.generateAsync({type: "blob"});
-                              const url = window.URL.createObjectURL(content);
-                              const link = document.createElement('a');
-                              link.href = url;
-                              link.download = `${courseLabel}_Certificates_${new Date().toISOString().slice(0,10)}.zip`;
-                              document.body.appendChild(link);
-                              link.click();
-                              document.body.removeChild(link);
-                              window.URL.revokeObjectURL(url);
-                            } catch (error) {
-                              console.error("Error creating zip:", error);
-                              alert("Failed to create zip file.");
-                            }
-                          }}
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                        >
-                          <Download className="w-4 h-4 mr-2" /> Download All as ZIP ({generatedCerts.length})
-                        </Button>
+                              try {
+                                const zip = new JSZip();
+                                const courseLabel = courseLabelMap[selectedCertCourse] || 'Course';
+                                
+                                courseCerts.forEach((cert) => {
+                                  const base64Data = cert.dataUrl.split(',')[1];
+                                  const fileName = `${cert.name.replace(/[^a-z0-9]/gi, '_')}_${courseLabel}_Certificate.png`;
+                                  zip.file(fileName, base64Data, {base64: true});
+                                });
+                                
+                                const content = await zip.generateAsync({type: "blob"});
+                                const url = window.URL.createObjectURL(content);
+                                const link = document.createElement('a');
+                                link.href = url;
+                                link.download = `${courseLabel}_Certificates_${new Date().toISOString().slice(0,10)}.zip`;
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                                window.URL.revokeObjectURL(url);
+                              } catch (error) {
+                                console.error("Error creating zip:", error);
+                                alert("Failed to create zip file.");
+                              }
+                            }}
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                          >
+                            <Download className="w-4 h-4 mr-2" /> Download {courseLabelMap[selectedCertCourse] || 'Course'} ZIP ({generatedCerts[selectedCertCourse]?.length || 0})
+                          </Button>
+                        )}
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                         {generatedCerts.map((cert) => (
-                            <Card key={cert.id} className="overflow-hidden">
-                               <div className="relative aspect-[1.414] bg-slate-100 group">
-                                  <img src={cert.dataUrl} alt={cert.name} className="w-full h-full object-contain" />
-                                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                     <button 
-                                        className="p-2 bg-white rounded-full hover:bg-emerald-50 text-emerald-600 shadow-lg"
-                                        onClick={() => {
-                                           const w = window.open('about:blank');
-                                           const image = new Image();
-                                           image.src = cert.dataUrl;
-                                           setTimeout(function(){
-                                             w?.document.write(image.outerHTML);
-                                           }, 0);
-                                        }}
-                                        title="View Full Size"
-                                     >
-                                        <Eye className="w-5 h-5" />
-                                     </button>
-                                     <a 
-                                       href={cert.dataUrl} 
-                                       download={`${cert.name.replace(/[^a-z0-9]/gi, '_')}_${courseLabelMap[selectedCertCourse] || 'Course'}_Certificate.png`}
-                                       className="p-2 bg-white rounded-full hover:bg-blue-50 text-blue-600 shadow-lg"
-                                       title="Download"
-                                     >
-                                        <Download className="w-5 h-5" />
-                                     </a>
-                                  </div>
-                               </div>
-                               <div className="p-3 border-t border-slate-100 flex justify-between items-center">
-                                  <p className="font-semibold text-sm truncate">{cert.name}</p>
-                                  <a 
-                                    href={cert.dataUrl} 
-                                    download={`${cert.name.replace(/[^a-z0-9]/gi, '_')}_${courseLabelMap[selectedCertCourse] || 'Course'}_Certificate.png`}
-                                    className="text-xs font-medium text-emerald-600 hover:text-emerald-700 flex items-center"
-                                  >
-                                     <Download className="w-3 h-3 mr-1" /> Download
-                                  </a>
-                               </div>
-                            </Card>
-                         ))}
-                      </div>
+                      {selectedCertCourse && generatedCerts[selectedCertCourse] && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                           {generatedCerts[selectedCertCourse].map((cert) => (
+                              <Card key={cert.id} className="overflow-hidden">
+                                 <div className="relative aspect-[1.414] bg-slate-100 group">
+                                    <img src={cert.dataUrl} alt={cert.name} className="w-full h-full object-contain" />
+                                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                       <button 
+                                          className="p-2 bg-white rounded-full hover:bg-emerald-50 text-emerald-600 shadow-lg"
+                                          onClick={() => {
+                                             const w = window.open('about:blank');
+                                             const image = new Image();
+                                             image.src = cert.dataUrl;
+                                             setTimeout(function(){
+                                               w?.document.write(image.outerHTML);
+                                             }, 0);
+                                          }}
+                                          title="View Full Size"
+                                       >
+                                          <Eye className="w-5 h-5" />
+                                       </button>
+                                       <a 
+                                         href={cert.dataUrl} 
+                                         download={`${cert.name.replace(/[^a-z0-9]/gi, '_')}_${courseLabelMap[selectedCertCourse] || 'Course'}_Certificate.png`}
+                                         className="p-2 bg-white rounded-full hover:bg-blue-50 text-blue-600 shadow-lg"
+                                         title="Download"
+                                       >
+                                          <Download className="w-5 h-5" />
+                                       </a>
+                                    </div>
+                                 </div>
+                                 <div className="p-3 border-t border-slate-100 flex justify-between items-center">
+                                    <p className="font-semibold text-sm truncate">{cert.name}</p>
+                                    <a 
+                                      href={cert.dataUrl} 
+                                      download={`${cert.name.replace(/[^a-z0-9]/gi, '_')}_${courseLabelMap[selectedCertCourse] || 'Course'}_Certificate.png`}
+                                      className="text-xs font-medium text-emerald-600 hover:text-emerald-700 flex items-center"
+                                    >
+                                       <Download className="w-3 h-3 mr-1" /> Download
+                                    </a>
+                                 </div>
+                              </Card>
+                           ))}
+                        </div>
+                      )}
                    </div>
                 )}
              </div>
