@@ -2141,7 +2141,7 @@ export default function AdminDashboard() {
                                 
                                 courseCerts.forEach((cert) => {
                                   const base64Data = cert.dataUrl.split(',')[1];
-                                  const fileName = `${cert.name.replace(/[^a-z0-9]/gi, '_')}_${courseLabel}_Certificate.png`;
+                                  const fileName = `${cert.name.replace(/[^a-z0-9]/gi, '_')}_${cert.id.replace(/[^a-z0-9]/gi, '_')}_${courseLabel}_Certificate.png`;
                                   zip.file(fileName, base64Data, {base64: true});
                                 });
                                 
@@ -2188,7 +2188,7 @@ export default function AdminDashboard() {
                                        </button>
                                        <a 
                                          href={cert.dataUrl} 
-                                         download={`${cert.name.replace(/[^a-z0-9]/gi, '_')}_${courseLabelMap[selectedCertCourse] || 'Course'}_Certificate.png`}
+                                         download={`${cert.name.replace(/[^a-z0-9]/gi, '_')}_${cert.id.replace(/[^a-z0-9]/gi, '_')}_${courseLabelMap[selectedCertCourse] || 'Course'}_Certificate.png`}
                                          className="p-2 bg-white rounded-full hover:bg-blue-50 text-blue-600 shadow-lg"
                                          title="Download"
                                        >
@@ -2200,7 +2200,7 @@ export default function AdminDashboard() {
                                     <p className="font-semibold text-sm truncate">{cert.name}</p>
                                     <a 
                                       href={cert.dataUrl} 
-                                      download={`${cert.name.replace(/[^a-z0-9]/gi, '_')}_${courseLabelMap[selectedCertCourse] || 'Course'}_Certificate.png`}
+                                      download={`${cert.name.replace(/[^a-z0-9]/gi, '_')}_${cert.id.replace(/[^a-z0-9]/gi, '_')}_${courseLabelMap[selectedCertCourse] || 'Course'}_Certificate.png`}
                                       className="text-xs font-medium text-emerald-600 hover:text-emerald-700 flex items-center"
                                     >
                                        <Download className="w-3 h-3 mr-1" /> Download
