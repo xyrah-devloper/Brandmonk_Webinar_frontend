@@ -1988,6 +1988,40 @@ export default function AdminDashboard() {
                            <Button
                              disabled={isGeneratingCerts}
                              onClick={async () => {
+                                try {
+                                  const res = await axios.get(`${API_URL}/api/course-students/course/digital-marketing`);
+                                  if (!res.data.success || !res.data.students?.length) {
+                                    alert('No Digital Marketing students found in database');
+                                    return;
+                                  }
+                                  const normalize = (name: string) =>
+                                    name.trim().toUpperCase().replace(/\s+/g, ' ').replace(/\./g, '').replace(/,/g, '');
+                                  const allowedNames = new Set(dmJune190Names.map(normalize));
+                                  const filtered = res.data.students.filter((s: any) =>
+                                    allowedNames.has(normalize(s.name))
+                                  );
+                                  if (filtered.length === 0) {
+                                    alert('None of the 190 DM June students found in database');
+                                    return;
+                                  }
+                                  await generateCertificatesForStudents(filtered, 'digital-marketing-june-190');
+                                } catch (err) {
+                                  console.error(err);
+                                  alert('Failed to fetch DM students');
+                                }
+                             }}
+                             className="h-12 bg-indigo-600 hover:bg-indigo-700"
+                           >
+                             {isGeneratingCerts && selectedCertCourse === 'digital-marketing-june-190' ? (
+                                <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Generating...</>
+                             ) : (
+                                <><Sparkles className="w-5 h-5 mr-2" /> Generate DM June190 Certificates ({dmJune190Names.length})</>
+                             )}
+                           </Button>
+                           
+                           <Button
+                             disabled={isGeneratingCerts}
+                             onClick={async () => {
                                 const daStudents = [
                                   { name: 'Siva Subramanian A', certificateId: 'BMAJUNDAMES/Q0906S001' },
                                   { name: 'Arun P M', certificateId: 'BMAJUNDAMES/Q0906S002' },
