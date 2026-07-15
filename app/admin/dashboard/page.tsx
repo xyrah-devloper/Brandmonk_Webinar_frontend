@@ -181,6 +181,9 @@ export default function AdminDashboard() {
 
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
+
+  const [verificationEntries, setVerificationEntries] = useState<any[]>([]);
+  const [verificationLoading, setVerificationLoading] = useState(false);
   
   // States
   const [studentTypeFilter, setStudentTypeFilter] = useState<'All' | 'Webinar' | 'Course'>('All');
@@ -321,6 +324,12 @@ export default function AdminDashboard() {
     }
   }, [router]);
 
+  useEffect(() => {
+    if (activeTab === 'verifications') {
+      fetchVerificationEntries();
+    }
+  }, [activeTab]);
+
   const fetchData = async () => {
     try {
       const [studentsRes, statsRes, webinarsRes] = await Promise.allSettled([
@@ -392,6 +401,23 @@ export default function AdminDashboard() {
       console.error('Failed to fetch data:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchVerificationEntries = async () => {
+    try {
+      setVerificationLoading(true);
+      const res = await axios.get(`${API_URL}/api/verify-student/entries`);
+      if (res.data.success) {
+        setVerificationEntries(res.data.entries || []);
+      } else {
+        setVerificationEntries([]);
+      }
+    } catch (err) {
+      console.error('Failed to fetch verification entries:', err);
+      setVerificationEntries([]);
+    } finally {
+      setVerificationLoading(false);
     }
   };
 
@@ -906,6 +932,7 @@ export default function AdminDashboard() {
               { id: 'webinars', label: 'Webinars', icon: Presentation },
               { id: 'students', label: 'Student Records', icon: Users },
               { id: 'certificates', label: 'Certificates', icon: Award },
+              { id: 'verifications', label: 'Verifications', icon: ShieldCheck },
             ].map((item) => (
               <button
                 key={item.id}
@@ -949,6 +976,7 @@ export default function AdminDashboard() {
               {activeTab === 'webinars' && 'Webinar Management'}
               {activeTab === 'students' && 'Student Records'}
               {activeTab === 'certificates' && 'Certificate Generator'}
+              {activeTab === 'verifications' && 'Student Verifications'}
             </h2>
             <p className="text-sm text-slate-500 mt-0.5">
               Welcome back, <span className="font-medium text-slate-700">{admin?.username}</span>
@@ -2213,6 +2241,69 @@ export default function AdminDashboard() {
                    </div>
                 )}
              </div>
+          )}
+
+          {/* Student Verifications Tab */}
+          {activeTab === 'verifications' && (
+            <div className="space-y-6">
+              <Card className="border-slate-200">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle>Student Verifications</CardTitle>
+                    <CardDescription>Students who verified using their mobile number</CardDescription>
+                  </div>
+                  <Button
+                    onClick={fetchVerificationEntries}
+                    disabled={verificationLoading}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                  >
+                    {verificationLoading ? (
+                      <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Loading...</>
+                    ) : (
+                      <><ShieldCheck className="w-4 h-4 mr-2" /> Refresh</>
+                    )}
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  {verificationEntries.length === 0 ? (
+                    <div className="text-center py-12 text-slate-500">
+                      <ShieldCheck className="w-12 h-12 mx-auto mb-3 text-slate-300" />
+                      <p>No verification entries yet.</p>
+                      <p className="text-sm mt-1">Students will appear here after they verify on /verifystudent</p>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm text-left">
+                        <thead className="bg-slate-50 text-slate-600 font-semibold">
+                          <tr>
+                            <th className="px-4 py-3">#</th>
+                            <th className="px-4 py-3">Name</th>
+                            <th className="px-4 py-3">Mobile Number</th>
+                            <th className="px-4 py-3">Course</th>
+                            <th className="px-4 py-3">Certificate ID</th>
+                            <th className="px-4 py-3">Verified At</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {verificationEntries.map((entry, index) => (
+                            <tr key={entry._id || index} className="hover:bg-slate-50">
+                              <td className="px-4 py-3 text-slate-500">{index + 1}</td>
+                              <td className="px-4 py-3 font-medium text-slate-900">{entry.name}</td>
+                              <td className="px-4 py-3">{entry.mobile}</td>
+                              <td className="px-4 py-3">{entry.courseName}</td>
+                              <td className="px-4 py-3 font-mono text-xs">{entry.certificateId}</td>
+                              <td className="px-4 py-3 text-slate-500">
+                                {entry.createdAt ? new Date(entry.createdAt).toLocaleString('en-IN') : 'N/A'}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           )}
         </main>
       </div>
