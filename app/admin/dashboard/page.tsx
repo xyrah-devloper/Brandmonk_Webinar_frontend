@@ -91,6 +91,10 @@ const CardContent = ({ children, className = '' }: { children: React.ReactNode; 
   <div className={`p-6 pt-0 ${className}`}>{children}</div>
 );
 
+const CardDescription = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
+  <p className={`text-sm text-slate-500 ${className}`}>{children}</p>
+);
+
 const Button = ({ children, variant = 'default', size = 'default', className = '', onClick, disabled }: any) => {
   const base = "inline-flex items-center justify-center rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 disabled:pointer-events-none disabled:opacity-50 active:scale-95";
   const variants = {
