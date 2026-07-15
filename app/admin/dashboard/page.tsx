@@ -17,8 +17,8 @@ import {
 import * as XLSX from 'xlsx';
 import QRCode from 'qrcode';
 import JSZip from 'jszip';
+import jsPDF from 'jspdf';
 import { API_URL } from '@/utils/config';
-import { dmStudents } from './dmStudentsData';
 import { dmJune190Names } from './dmJune190Names';
 
 // --- Types ---
@@ -316,6 +316,101 @@ export default function AdminDashboard() {
     'data-analytics': 'DA',
     'artificial-intelligence': 'AI',
     'ui-ux': 'UIUX'
+  };
+
+  // Fetch students from DB and generate certificates for any course
+  const generateCertificatesForCourseFromDB = async (courseSlug: string) => {
+    try {
+      const res = await axios.get(`${API_URL}/api/course-students/course/${courseSlug}`);
+      if (!res.data.success || !res.data.students?.length) {
+        alert(`No students found for ${courseLabelMap[courseSlug] || courseSlug}`);
+        return;
+      }
+      await generateCertificatesForStudents(res.data.students, courseSlug);
+    } catch (err) {
+      console.error(err);
+      alert(`Failed to fetch ${courseLabelMap[courseSlug] || courseSlug} students`);
+    }
+  };
+
+  // Generate certificates for all courses at once
+  const generateAllCourses = async () => {
+    const allCourses = ['video-editing', 'digital-marketing', 'ui-ux', 'data-analytics', 'artificial-intelligence'];
+    for (const courseSlug of allCourses) {
+      await generateCertificatesForCourseFromDB(courseSlug);
+    }
+  };
+
+  // New students added in this batch - generate certificates for these alone
+  const newStudentNamesByCourse: Record<string, string[]> = {
+    'digital-marketing': [
+      'Nirmal Raj', 'Harish M R', 'Naveen Vinayak S', 'Lakshmi Durgaa M', 'Abuthahir J',
+      'Gayathri V', 'SANDHIYA S', 'ABINAYA M', 'DHAYANANDHAN V', 'NAVEENKUMAR M', 'Atulaananth M'
+    ],
+    'ui-ux': [
+      'Dinesh Kumar K', 'Mathavan S', 'Balaji K C', 'Ganesh K', 'Boomika S',
+      'CHEZLIYAN N L', 'SHYAM KUMAR A', 'ABISHEK K', 'ISHWARYA MOOGAMBIGA B'
+    ],
+    'video-editing': [
+      'Kavitha M', 'Banupriya M', 'Sabarivasan M', 'D RAJA', 'SIVAPRAKASH B',
+      'Gayathri M N', 'Elanchezhiyan'
+    ]
+  };
+
+  const generateNewStudentsCertificates = async () => {
+    const courses = Object.keys(newStudentNamesByCourse) as string[];
+    for (const courseSlug of courses) {
+      try {
+        const res = await axios.get(`${API_URL}/api/course-students/course/${courseSlug}`);
+        if (!res.data.success || !res.data.students?.length) {
+          console.log(`No students found for ${courseSlug}`);
+          continue;
+        }
+        const allowedNames = new Set(
+          newStudentNamesByCourse[courseSlug].map(n => n.trim().toUpperCase())
+        );
+        const filtered = res.data.students.filter((s: any) =>
+          allowedNames.has(s.name.trim().toUpperCase())
+        );
+        if (filtered.length === 0) {
+          console.log(`No new students found for ${courseSlug}`);
+          continue;
+        }
+        await generateCertificatesForStudents(filtered, courseSlug);
+      } catch (err) {
+        console.error(`Failed to generate new certificates for ${courseSlug}:`, err);
+      }
+    }
+  };
+
+  // Export generated certificates for a course as a single PDF (one per page)
+  const exportCoursePDF = async (courseSlug: string) => {
+    const courseCerts = generatedCerts[courseSlug];
+    if (!courseCerts || courseCerts.length === 0) {
+      alert('No certificates generated yet. Generate certificates first.');
+      return;
+    }
+
+    try {
+      setIsGeneratingCerts(true);
+      const courseLabel = courseLabelMap[courseSlug] || 'Course';
+      const pdf = new jsPDF('l', 'mm', 'a4'); // A4 landscape
+      const pageWidth = 297;
+      const pageHeight = 210;
+
+      for (let i = 0; i < courseCerts.length; i++) {
+        const cert = courseCerts[i];
+        if (i > 0) pdf.addPage('a4', 'l');
+        pdf.addImage(cert.dataUrl, 'PNG', 0, 0, pageWidth, pageHeight);
+      }
+
+      pdf.save(`${courseLabel}_Certificates_${new Date().toISOString().slice(0, 10)}.pdf`);
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      alert('Failed to export PDF.');
+    } finally {
+      setIsGeneratingCerts(false);
+    }
   };
 
   useEffect(() => {
@@ -1852,171 +1947,116 @@ export default function AdminDashboard() {
                     {/* Step 2: Generate Certificates */}
                     {certTemplate && (
                       <div className="space-y-4">
-                         <label className="text-sm font-medium">2. Generate Certificates</label>
-                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                           <Button
-                             disabled={isGeneratingCerts}
-                             onClick={async () => {
-                                const veStudents = [
-                                  { name: 'R N Charan Raj', certificateId: 'BMAJUNVEMES/Q1401S001' },
-                                  { name: 'Anish Kumar J', certificateId: 'BMAJUNVEMES/Q1401S002' },
-                                  { name: 'MELWINREX SOLOMON', certificateId: 'BMAJUNVEMES/Q1401S003' },
-                                  { name: 'Indira', certificateId: 'BMAJUNVEMES/Q1401S004' },
-                                  { name: 'S Kumar', certificateId: 'BMAJUNVEMES/Q1401S005' },
-                                  { name: 'Satheesh kumar', certificateId: 'BMAJUNVEMES/Q1401S006' },
-                                  { name: 'RAJA MOHAMED B', certificateId: 'BMAJUNVEMES/Q1401S007' },
-                                  { name: 'Dhaneesh G', certificateId: 'BMAJUNVEMES/Q1401S008' },
-                                  { name: 'Anutha V', certificateId: 'BMAJUNVEMES/Q1401S009' },
-                                  { name: 'RAMYA MURUGAN M', certificateId: 'BMAJUNVEMES/Q1401S010' },
-                                  { name: 'Maari', certificateId: 'BMAJUNVEMES/Q1401S011' },
-                                  { name: 'M DINESH', certificateId: 'BMAJUNVEMES/Q1401S012' },
-                                  { name: 'Sangeethkumar S', certificateId: 'BMAJUNVEMES/Q1401S013' },
-                                  { name: 'MUNIRAJ T', certificateId: 'BMAJUNVEMES/Q1401S014' },
-                                  { name: 'Dineshkumar R', certificateId: 'BMAJUNVEMES/Q1401S015' },
-                                  { name: 'MOHAMMED AKHATHU', certificateId: 'BMAJUNVEMES/Q1401S016' },
-                                  { name: 'OmPrakash S', certificateId: 'BMAJUNVEMES/Q1401S017' },
-                                  { name: 'Jubinesh', certificateId: 'BMAJUNVEMES/Q1401S018' },
-                                  { name: 'Ganavel P', certificateId: 'BMAJUNVEMES/Q1401S019' },
-                                  { name: 'George G', certificateId: 'BMAJUNVEMES/Q1401S020' },
-                                  { name: 'MANIVANNAN M', certificateId: 'BMAJUNVEMES/Q1401S021' },
-                                  { name: 'Senthil Kumar', certificateId: 'BMAJUNVEMES/Q1401S022' },
-                                  { name: 'VASANTHAN K', certificateId: 'BMAJUNVEMES/Q1401S023' },
-                                  { name: 'ROHITH SABAPANI', certificateId: 'BMAJUNVEMES/Q1401S024' },
-                                  { name: 'Anitha Vignesh', certificateId: 'BMAJUNVEMES/Q1401S025' },
-                                  { name: 'Asmitha Vaishnavi S', certificateId: 'BMAJUNVEMES/Q1401S026' },
-                                  { name: 'Boobalan R', certificateId: 'BMAJUNVEMES/Q1401S027' },
-                                  { name: 'MOHAMMED SAZSA', certificateId: 'BMAJUNVEMES/Q1401S028' },
-                                  { name: 'VELMURUGAN S', certificateId: 'BMAJUNVEMES/Q1401S029' },
-                                  { name: 'SHARMILA R', certificateId: 'BMAJUNVEMES/Q1401S030' },
-                                  { name: 'Arun Prasath B', certificateId: 'BMAJUNVEMES/Q1401S031' },
-                                  { name: 'Vijay', certificateId: 'BMAJUNVEMES/Q1401S032' },
-                                  { name: 'Suresh', certificateId: 'BMAJUNVEMES/Q1401S033' },
-                                  { name: 'VELU JAYASEELAN', certificateId: 'BMAJUNVEMES/Q1401S034' },
-                                  { name: 'Tamil', certificateId: 'BMAJUNVEMES/Q1401S035' },
-                                  { name: 'Noorul Afiya H', certificateId: 'BMAJUNVEMES/Q1401S036' },
-                                  { name: 'Gowtham Nirmal', certificateId: 'BMAJUNVEMES/Q1401S037' },
-                                  { name: 'Arvind Kumar P', certificateId: 'BMAJUNVEMES/Q1401S038' },
-                                  { name: 'Jai', certificateId: 'BMAJUNVEMES/Q1401S039' },
-                                  { name: 'Supriya', certificateId: 'BMAJUNVEMES/Q1401S040' },
-                                  { name: 'Prasino', certificateId: 'BMAJUNVEMES/Q1401S041' },
-                                  { name: 'Satheesh', certificateId: 'BMAJUNVEMES/Q1401S042' },
-                                  { name: 'S Sakthipriya', certificateId: 'BMAJUNVEMES/Q1401S043' },
-                                  { name: 'Ragavi', certificateId: 'BMAJUNVEMES/Q1401S044' },
-                                  { name: 'Gomathy D', certificateId: 'BMAJUNVEMES/Q1401S045' },
-                                  { name: 'SANJAI K', certificateId: 'BMAJUNVEMES/Q1401S046' },
-                                  { name: 'Manoj', certificateId: 'BMAJUNVEMES/Q1401S047' },
-                                  { name: 'R KANCHANADEVI', certificateId: 'BMAJUNVEMES/Q1401S048' },
-                                  { name: 'Upendra C', certificateId: 'BMAJUNVEMES/Q1401S049' },
-                                  { name: 'Prem Kumar', certificateId: 'BMAJUNVEMES/Q1401S050' },
-                                  { name: 'Devendran', certificateId: 'BMAJUNVEMES/Q1401S051' },
-                                  { name: 'Rajesh P', certificateId: 'BMAJUNVEMES/Q1401S052' },
-                                  { name: 'Devadharsini', certificateId: 'BMAJUNVEMES/Q1401S053' },
-                                  { name: 'Gokul S', certificateId: 'BMAJUNVEMES/Q1401S054' },
-                                  { name: 'Surya K', certificateId: 'BMAJUNVEMES/Q1401S055' },
-                                  { name: 'Kaleeswari', certificateId: 'BMAJUNVEMES/Q1401S056' },
-                                  { name: 'Santhosh PM', certificateId: 'BMAJUNVEMES/Q1401S057' },
-                                  { name: 'Vijaya Ananth VS', certificateId: 'BMAJUNVEMES/Q1401S058' },
-                                  { name: 'R K Ramanan', certificateId: 'BMAJUNVEMES/Q1401S059' },
-                                  { name: 'Ramsingh', certificateId: 'BMAJUNVEMES/Q1401S060' },
-                                  { name: 'Parameswaran Selvakumar', certificateId: 'BMAJUNVEMES/Q1401S061' },
-                                  { name: 'Kiran Karthick', certificateId: 'BMAJUNVEMES/Q1401S062' },
-                                  { name: 'Farzis Fathima M', certificateId: 'BMAJUNVEMES/Q1401S063' },
-                                  { name: 'SHANGAVI T', certificateId: 'BMAJUNVEMES/Q1401S064' },
-                                  { name: 'Santhiya Raj', certificateId: 'BMAJUNVEMES/Q1401S065' },
-                                  { name: 'Nirmalraj Gunasekar', certificateId: 'BMAJUNVEMES/Q1401S066' },
-                                  { name: 'VEENA SELVAN', certificateId: 'BMAJUNVEMES/Q1401S067' },
-                                  { name: 'varalakshmi', certificateId: 'BMAJUNVEMES/Q1401S068' },
-                                  { name: 'RIYAZUNNISA JAINULABUDEEN', certificateId: 'BMAJUNVEMES/Q1401S069' },
-                                  { name: 'sameen Afrose M', certificateId: 'BMAJUNVEMES/Q1401S070' },
-                                  { name: 'Kavinraj', certificateId: 'BMAJUNVEMES/Q1401S071' },
-                                  { name: 'MOHAN DOSS', certificateId: 'BMAJUNVEMES/Q1401S072' },
-                                  { name: 'Kiran Kumar', certificateId: 'BMAJUNVEMES/Q1401S073' },
-                                  { name: 'MARIA M', certificateId: 'BMAJUNVEMES/Q1401S074' },
-                                  { name: 'Vighash', certificateId: 'BMAJUNVEMES/Q1401S075' },
-                                  { name: 'Nijanthan Raj N', certificateId: 'BMAJUNVEMES/Q1401S076' },
-                                  { name: 'manikandan', certificateId: 'BMAJUNVEMES/Q1401S077' },
-                                  { name: 'Kanniraj P', certificateId: 'BMAJUNVEMES/Q1401S078' },
-                                  { name: 'Kavitha', certificateId: 'BMAJUNVEMES/Q1401S079' },
-                                  { name: 'Saraswathi', certificateId: 'BMAJUNVEMES/Q1401S080' },
-                                  { name: 'Chandrasekhar E', certificateId: 'BMAJUNVEMES/Q1401S081' },
-                                  { name: 'CHODA SUSHMA', certificateId: 'BMAJUNVEMES/Q1401S082' },
-                                  { name: 'Santhosh S', certificateId: 'BMAJUNVEMES/Q1401S083' },
-                                  { name: 'Iswarya Ramadoss', certificateId: 'BMAJUNVEMES/Q1401S084' },
-                                  { name: 'Jayasree Sridhar', certificateId: 'BMAJUNVEMES/Q1401S085' },
-                                  { name: 'Serose', certificateId: 'BMAJUNVEMES/Q1401S086' },
-                                  { name: 'Abinaya B', certificateId: 'BMAJUNVEMES/Q1401S087' },
-                                  { name: 'Nandhini Vellaisamy', certificateId: 'BMAJUNVEMES/Q1401S088' },
-                                  { name: 'Bharath S', certificateId: 'BMAJUNVEMES/Q1401S089' },
-                                  { name: 'Prabhakaran K', certificateId: 'BMAJUNVEMES/Q1401S090' },
-                                  { name: 'AKSHAYA V', certificateId: 'BMAJUNVEMES/Q1401S091' },
-                                  { name: 'Ramachandran P', certificateId: 'BMAJUNVEMES/Q1401S092' },
-                                  { name: 'M PRAVEEN', certificateId: 'BMAJUNVEMES/Q1401S093' },
-                                  { name: 'Chevvanthi', certificateId: 'BMAJUNVEMES/Q1401S094' },
-                                  { name: 'Neela G', certificateId: 'BMAJUNVEMES/Q1401S095' },
-                                  { name: 'Kanchanadevi', certificateId: 'BMAJUNVEMES/Q1401S096' },
-                                  { name: 'Vignesh K', certificateId: 'BMAJUNVEMES/Q1401S097' },
-                                  { name: 'Nizad U', certificateId: 'BMAJUNVEMES/Q1401S098' },
-                                  { name: 'Sanjay Selvam', certificateId: 'BMAJUNVEMES/Q1401S099' },
-                                  { name: 'Vivekanand P', certificateId: 'BMAJUNVEMES/Q1401S100' },
-                                  { name: 'Ekramullah', certificateId: 'BMAJUNVEMES/Q1401S101' },
-                                  { name: 'Sakthivel N', certificateId: 'BMAJUNVEMES/Q1401S102' },
-                                  { name: 'James paulraj', certificateId: 'BMAJUNVEMES/Q1401S103' },
-                                  { name: 'Syed Aashik', certificateId: 'BMAJUNVEMES/Q1401S104' },
-                                  { name: 'PARTHIBAN S', certificateId: 'BMAJUNVEMES/Q1401S105' },
-                                  { name: 'Muthu Raman', certificateId: 'BMAJUNVEMES/Q1401S106' },
-                                  { name: 'sana', certificateId: 'BMAJUNVEMES/Q1401S107' },
-                                  { name: 'Euvaraj Subramani', certificateId: 'BMAJUNVEMES/Q1401S108' },
-                                  { name: 'Balakrishnan Appanasamy', certificateId: 'BMAJUNVEMES/Q1401S109' },
-                                  { name: 'Padmanabhan S', certificateId: 'BMAJUNVEMES/Q1401S110' },
-                                  { name: 'Arulprakash P', certificateId: 'BMAJUNVEMES/Q1401S111' },
-                                  { name: 'Srinivas D', certificateId: 'BMAJUNVEMES/Q1401S112' },
-                                  { name: 'A B Antony Gutenburg', certificateId: 'BMAJUNVEMES/Q1401S113' },
-                                  { name: 'PRIYADHARSHINI', certificateId: 'BMAJUNVEMES/Q1401S114' },
-                                  { name: 'Kamalakannan', certificateId: 'BMAJUNVEMES/Q1401S115' },
-                                  { name: 'Rajesh', certificateId: 'BMAJUNVEMES/Q1401S116' },
-                                  { name: 'Gowtham S', certificateId: 'BMAJUNVEMES/Q1401S117' },
-                                  { name: 'Vinnarasi S', certificateId: 'BMAJUNVEMES/Q1401S118' },
-                                  { name: 'Dineshkumar R', certificateId: 'BMAJUNVEMES/Q1401S119' },
-                                  { name: 'Dharshan Babu B', certificateId: 'BMAJUNVEMES/Q1401S120' },
-                                  { name: 'Komathi', certificateId: 'BMAJUNVEMES/Q1401S121' },
-                                  { name: 'Monish', certificateId: 'BMAJUNVEMES/Q1401S122' },
-                                  { name: 'Santhiya Sahayaraj', certificateId: 'BMAJUNVEMES/Q1401S123' },
-                                  { name: 'Azahagendiran S', certificateId: 'BMAJUNVEMES/Q1401S124' },
-                                  { name: 'Prabhu M', certificateId: 'BMAJUNVEMES/Q1401S125' },
-                                  { name: 'Santhosh', certificateId: 'BMAJUNVEMES/Q1401S126' },
-                                  { name: 'Vivek', certificateId: 'BMAJUNVEMES/Q1401S127' },
-                                  { name: 'R SUGANTHI', certificateId: 'BMAJUNVEMES/Q1401S128' },
-                                  { name: 'Balasubramanian E', certificateId: 'BMAJUNVEMES/Q1401S129' },
-                                  { name: 'Iswarya', certificateId: 'BMAJUNVEMES/Q1401S130' },
-                                  { name: 'KRISHNAVENI SELVAN', certificateId: 'BMAJUNVEMES/Q1401S131' },
-                                  { name: 'SANGEETHA V', certificateId: 'BMAJUNVEMES/Q1401S132' },
-                                  { name: 'Kaleeswari', certificateId: 'BMAJUNVEMES/Q1401S133' },
-                                ];
-                                await generateCertificatesForStudents(veStudents, 'video-editing');
-                             }}
-                             className="h-12 bg-purple-600 hover:bg-purple-700"
-                           >
-                             {isGeneratingCerts && selectedCertCourse === 'video-editing' ? (
-                                <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Generating...</>
-                             ) : (
-                                <><Sparkles className="w-5 h-5 mr-2" /> Generate VE Certificates (133)</>
-                             )}
-                           </Button>
-                           
-                           <Button
-                             disabled={isGeneratingCerts}
-                             onClick={async () => {
-                                await generateCertificatesForStudents(dmStudents, 'digital-marketing');
-                             }}
-                             className="h-12 bg-blue-600 hover:bg-blue-700"
-                           >
-                             {isGeneratingCerts && selectedCertCourse === 'digital-marketing' ? (
-                                <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Generating...</>
-                             ) : (
-                                <><Sparkles className="w-5 h-5 mr-2" /> Generate DM Certificates ({dmStudents.length})</>
-                             )}
-                           </Button>
-                           
+                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                           <label className="text-sm font-medium">2. Generate New Certificates</label>
+                           <div className="flex flex-wrap gap-2">
+                             <Button
+                               disabled={isGeneratingCerts}
+                               onClick={generateNewStudentsCertificates}
+                               className="bg-amber-600 hover:bg-amber-700 text-white"
+                             >
+                               {isGeneratingCerts ? (
+                                 <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Generating...</>
+                               ) : (
+                                 <><Sparkles className="w-4 h-4 mr-2" /> Generate New Students Certificates</>
+                               )}
+                             </Button>
+                             <Button
+                               disabled={isGeneratingCerts}
+                               onClick={generateAllCourses}
+                               className="bg-slate-900 hover:bg-slate-800 text-white"
+                             >
+                               {isGeneratingCerts ? (
+                                 <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Generating...</>
+                               ) : (
+                                 <><Sparkles className="w-4 h-4 mr-2" /> Generate All Certificates</>
+                               )}
+                             </Button>
+                           </div>
+                         </div>
+                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                           {[
+                             { slug: 'video-editing', label: 'VE', title: 'Video Editing', color: 'bg-purple-600 hover:bg-purple-700', icon: Video },
+                             { slug: 'digital-marketing', label: 'DM', title: 'Digital Marketing', color: 'bg-blue-600 hover:bg-blue-700', icon: Award },
+                             { slug: 'ui-ux', label: 'UI/UX', title: 'UI/UX', color: 'bg-amber-600 hover:bg-amber-700', icon: Palette },
+                             { slug: 'data-analytics', label: 'DA', title: 'Data Analytics', color: 'bg-emerald-600 hover:bg-emerald-700', icon: TrendingUp },
+                             { slug: 'artificial-intelligence', label: 'AI', title: 'Artificial Intelligence', color: 'bg-rose-600 hover:bg-rose-700', icon: Sparkles },
+                           ].map((course) => {
+                             const generated = generatedCerts[course.slug];
+                             const Icon = course.icon;
+                             return (
+                               <Card key={course.slug} className="border-slate-200 p-4 flex flex-col gap-3">
+                                 <div className="flex items-center gap-3">
+                                   <div className={`w-10 h-10 rounded-lg ${course.color.replace('hover:bg-', 'bg-').split(' ')[0]} flex items-center justify-center text-white`}>
+                                     <Icon className="w-5 h-5" />
+                                   </div>
+                                   <div>
+                                     <h4 className="font-semibold text-slate-900">{course.title}</h4>
+                                     <p className="text-xs text-slate-500">{generated ? `${generated.length} generated` : 'Not generated'}</p>
+                                   </div>
+                                 </div>
+                                 <Button
+                                   disabled={isGeneratingCerts}
+                                   onClick={async () => {
+                                     await generateCertificatesForCourseFromDB(course.slug);
+                                   }}
+                                   className={`h-10 w-full ${course.color} text-white`}
+                                 >
+                                   {isGeneratingCerts && selectedCertCourse === course.slug ? (
+                                     <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Generating...</>
+                                   ) : (
+                                     <><Sparkles className="w-4 h-4 mr-2" /> Generate {course.label} Certificates</>
+                                   )}
+                                 </Button>
+                                 {generated && generated.length > 0 && (
+                                   <div className="flex flex-col gap-2 pt-2 border-t border-slate-100">
+                                     <Button
+                                       onClick={async () => {
+                                         try {
+                                           const zip = new JSZip();
+                                           generated.forEach((cert) => {
+                                             const base64Data = cert.dataUrl.split(',')[1];
+                                             const fileName = `${cert.name.replace(/[^a-z0-9]/gi, '_')}_${cert.id.replace(/[^a-z0-9]/gi, '_')}_${course.label}_Certificate.png`;
+                                             zip.file(fileName, base64Data, { base64: true });
+                                           });
+                                           const content = await zip.generateAsync({ type: 'blob' });
+                                           const url = window.URL.createObjectURL(content);
+                                           const link = document.createElement('a');
+                                           link.href = url;
+                                           link.download = `${course.label}_Certificates_${new Date().toISOString().slice(0, 10)}.zip`;
+                                           document.body.appendChild(link);
+                                           link.click();
+                                           document.body.removeChild(link);
+                                           window.URL.revokeObjectURL(url);
+                                         } catch (error) {
+                                           console.error('Error creating zip:', error);
+                                           alert('Failed to create zip file.');
+                                         }
+                                       }}
+                                       className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                                     >
+                                       <Download className="w-4 h-4 mr-2" /> Download {course.label} ZIP
+                                     </Button>
+                                     <Button
+                                       onClick={() => exportCoursePDF(course.slug)}
+                                       disabled={isGeneratingCerts}
+                                       className="bg-rose-600 hover:bg-rose-700 text-white"
+                                     >
+                                       {isGeneratingCerts ? (
+                                         <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Exporting...</>
+                                       ) : (
+                                         <><Download className="w-4 h-4 mr-2" /> Export {course.label} PDF</>
+                                       )}
+                                     </Button>
+                                   </div>
+                                 )}
+                               </Card>
+                             );
+                           })}
+                         </div>
+
+                         {/* DM June190 batch (kept separate because it uses a filtered name list) */}
+                         <div className="mt-4">
                            <Button
                              disabled={isGeneratingCerts}
                              onClick={async () => {
@@ -2042,7 +2082,7 @@ export default function AdminDashboard() {
                                   alert('Failed to fetch DM students');
                                 }
                              }}
-                             className="h-12 bg-indigo-600 hover:bg-indigo-700"
+                             className="h-12 bg-indigo-600 hover:bg-indigo-700 w-full sm:w-auto"
                            >
                              {isGeneratingCerts && selectedCertCourse === 'digital-marketing-june-190' ? (
                                 <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Generating...</>
@@ -2050,88 +2090,48 @@ export default function AdminDashboard() {
                                 <><Sparkles className="w-5 h-5 mr-2" /> Generate DM June190 Certificates ({dmJune190Names.length})</>
                              )}
                            </Button>
-                           
-                           <Button
-                             disabled={isGeneratingCerts}
-                             onClick={async () => {
-                                const daStudents = [
-                                  { name: 'Siva Subramanian A', certificateId: 'BMAJUNDAMES/Q0906S001' },
-                                  { name: 'Arun P M', certificateId: 'BMAJUNDAMES/Q0906S002' },
-                                  { name: 'Eswar sudhan', certificateId: 'BMAJUNDAMES/Q0906S003' },
-                                  { name: 'Anish Alex A', certificateId: 'BMAJUNDAMES/Q0906S004' },
-                                  { name: 'Daniel S', certificateId: 'BMAJUNDAMES/Q0906S005' },
-                                  { name: 'Gowshik B', certificateId: 'BMAJUNDAMES/Q0906S006' },
-                                  { name: 'Hepsiba L', certificateId: 'BMAJUNDAMES/Q0906S007' },
-                                  { name: 'S Vinoth Kumar', certificateId: 'BMAJUNDAMES/Q0906S008' },
-                                  { name: 'Sanjay N', certificateId: 'BMAJUNDAMES/Q0906S009' },
-                                  { name: 'R Poornima', certificateId: 'BMAJUNDAMES/Q0906S010' },
-                                  { name: 'Senthamilselvi R', certificateId: 'BMAJUNDAMES/Q0906S011' },
-                                  { name: 'Thinega R S', certificateId: 'BMAJUNDAMES/Q0906S012' },
-                                  { name: 'Madhumathi M', certificateId: 'BMAJUNDAMES/Q0906S013' },
-                                  { name: 'Pranesh B', certificateId: 'BMAJUNDAMES/Q0906S014' },
-                                  { name: 'Arun G', certificateId: 'BMAJUNDAMES/Q0906S015' },
-                                  { name: 'Suriya', certificateId: 'BMAJUNDAMES/Q0906S016' },
-                                  { name: 'Naleef Ahamed', certificateId: 'BMAJUNDAMES/Q0906S017' },
-                                  { name: 'Mohammed ummar Shaifudeen', certificateId: 'BMAJUNDAMES/Q0906S018' },
-                                  { name: 'Yuvaraja K', certificateId: 'BMAJUNDAMES/Q0906S019' },
-                                  { name: 'Mohamed shajith', certificateId: 'BMAJUNDAMES/Q0906S020' },
-                                ];
-                                await generateCertificatesForStudents(daStudents, 'data-analytics');
-                             }}
-                             className="h-12 bg-emerald-600 hover:bg-emerald-700"
-                           >
-                             {isGeneratingCerts && selectedCertCourse === 'data-analytics' ? (
-                                <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Generating...</>
-                             ) : (
-                                <><Sparkles className="w-5 h-5 mr-2" /> Generate DA Certificates (20)</>
-                             )}
-                           </Button>
-                           
-                           <Button
-                             disabled={isGeneratingCerts}
-                             onClick={async () => {
-                                const aiStudents = [
-                                  { name: 'Jeba Singh P', certificateId: 'BMAJUNAIMES/Q0806S001' },
-                                  { name: 'Santhosh M', certificateId: 'BMAJUNAIMES/Q0806S002' },
-                                  { name: 'Ramesh Iyyappan', certificateId: 'BMAJUNAIMES/Q0806S003' },
-                                  { name: 'Manjula T', certificateId: 'BMAJUNAIMES/Q0806S004' },
-                                  { name: 'Ramakrishnan N', certificateId: 'BMAJUNAIMES/Q0806S005' },
-                                  { name: 'Mohamed Thowfeeq Basha', certificateId: 'BMAJUNAIMES/Q0806S006' },
-                                ];
-                                await generateCertificatesForStudents(aiStudents, 'artificial-intelligence');
-                             }}
-                             className="h-12 bg-rose-600 hover:bg-rose-700"
-                           >
-                             {isGeneratingCerts && selectedCertCourse === 'artificial-intelligence' ? (
-                                <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Generating...</>
-                             ) : (
-                                <><Sparkles className="w-5 h-5 mr-2" /> Generate AI Certificates (6)</>
-                             )}
-                           </Button>
-                           
-                           <Button
-                             disabled={isGeneratingCerts}
-                             onClick={async () => {
-                                try {
-                                  const res = await axios.get(`${API_URL}/api/course-students/course/ui-ux`);
-                                  if (res.data.success && res.data.students?.length > 0) {
-                                    await generateCertificatesForStudents(res.data.students, 'ui-ux');
-                                  } else {
-                                    alert('No UI/UX students found in database');
-                                  }
-                                } catch (err) {
-                                  console.error(err);
-                                  alert('Failed to fetch UI/UX students');
-                                }
-                             }}
-                             className="h-12 bg-amber-600 hover:bg-amber-700"
-                           >
-                             {isGeneratingCerts && selectedCertCourse === 'ui-ux' ? (
-                                <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Generating...</>
-                             ) : (
-                                <><Sparkles className="w-5 h-5 mr-2" /> Generate UI/UX Certificates</>
-                             )}
-                           </Button>
+                           {generatedCerts['digital-marketing-june-190'] && generatedCerts['digital-marketing-june-190'].length > 0 && (
+                             <div className="flex flex-wrap gap-2 mt-3">
+                               <Button
+                                 onClick={async () => {
+                                   try {
+                                     const zip = new JSZip();
+                                     generatedCerts['digital-marketing-june-190'].forEach((cert) => {
+                                       const base64Data = cert.dataUrl.split(',')[1];
+                                       const fileName = `${cert.name.replace(/[^a-z0-9]/gi, '_')}_${cert.id.replace(/[^a-z0-9]/gi, '_')}_DM_June190_Certificate.png`;
+                                       zip.file(fileName, base64Data, { base64: true });
+                                     });
+                                     const content = await zip.generateAsync({ type: 'blob' });
+                                     const url = window.URL.createObjectURL(content);
+                                     const link = document.createElement('a');
+                                     link.href = url;
+                                     link.download = `DM_June190_Certificates_${new Date().toISOString().slice(0, 10)}.zip`;
+                                     document.body.appendChild(link);
+                                     link.click();
+                                     document.body.removeChild(link);
+                                     window.URL.revokeObjectURL(url);
+                                   } catch (error) {
+                                     console.error('Error creating zip:', error);
+                                     alert('Failed to create zip file.');
+                                   }
+                                 }}
+                                 className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                               >
+                                 <Download className="w-4 h-4 mr-2" /> Download DM June190 ZIP
+                               </Button>
+                               <Button
+                                 onClick={() => exportCoursePDF('digital-marketing-june-190')}
+                                 disabled={isGeneratingCerts}
+                                 className="bg-rose-600 hover:bg-rose-700 text-white"
+                               >
+                                 {isGeneratingCerts ? (
+                                   <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Exporting...</>
+                                 ) : (
+                                   <><Download className="w-4 h-4 mr-2" /> Export DM June190 PDF</>
+                                 )}
+                               </Button>
+                             </div>
+                           )}
                          </div>
                       </div>
                     )}
@@ -2162,39 +2162,52 @@ export default function AdminDashboard() {
                           </div>
                         </div>
                         {selectedCertCourse && generatedCerts[selectedCertCourse] && (
-                          <Button
-                            onClick={async () => {
-                              const courseCerts = generatedCerts[selectedCertCourse];
-                              if (!courseCerts || courseCerts.length === 0) return;
-                              
-                              try {
-                                const zip = new JSZip();
-                                const courseLabel = courseLabelMap[selectedCertCourse] || 'Course';
+                          <div className="flex flex-wrap gap-2">
+                            <Button
+                              onClick={async () => {
+                                const courseCerts = generatedCerts[selectedCertCourse];
+                                if (!courseCerts || courseCerts.length === 0) return;
                                 
-                                courseCerts.forEach((cert) => {
-                                  const base64Data = cert.dataUrl.split(',')[1];
-                                  const fileName = `${cert.name.replace(/[^a-z0-9]/gi, '_')}_${cert.id.replace(/[^a-z0-9]/gi, '_')}_${courseLabel}_Certificate.png`;
-                                  zip.file(fileName, base64Data, {base64: true});
-                                });
-                                
-                                const content = await zip.generateAsync({type: "blob"});
-                                const url = window.URL.createObjectURL(content);
-                                const link = document.createElement('a');
-                                link.href = url;
-                                link.download = `${courseLabel}_Certificates_${new Date().toISOString().slice(0,10)}.zip`;
-                                document.body.appendChild(link);
-                                link.click();
-                                document.body.removeChild(link);
-                                window.URL.revokeObjectURL(url);
-                              } catch (error) {
-                                console.error("Error creating zip:", error);
-                                alert("Failed to create zip file.");
-                              }
-                            }}
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                          >
-                            <Download className="w-4 h-4 mr-2" /> Download {courseLabelMap[selectedCertCourse] || 'Course'} ZIP ({generatedCerts[selectedCertCourse]?.length || 0})
-                          </Button>
+                                try {
+                                  const zip = new JSZip();
+                                  const courseLabel = courseLabelMap[selectedCertCourse] || 'Course';
+                                  
+                                  courseCerts.forEach((cert) => {
+                                    const base64Data = cert.dataUrl.split(',')[1];
+                                    const fileName = `${cert.name.replace(/[^a-z0-9]/gi, '_')}_${cert.id.replace(/[^a-z0-9]/gi, '_')}_${courseLabel}_Certificate.png`;
+                                    zip.file(fileName, base64Data, {base64: true});
+                                  });
+                                  
+                                  const content = await zip.generateAsync({type: "blob"});
+                                  const url = window.URL.createObjectURL(content);
+                                  const link = document.createElement('a');
+                                  link.href = url;
+                                  link.download = `${courseLabel}_Certificates_${new Date().toISOString().slice(0,10)}.zip`;
+                                  document.body.appendChild(link);
+                                  link.click();
+                                  document.body.removeChild(link);
+                                  window.URL.revokeObjectURL(url);
+                                } catch (error) {
+                                  console.error("Error creating zip:", error);
+                                  alert("Failed to create zip file.");
+                                }
+                              }}
+                              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                            >
+                              <Download className="w-4 h-4 mr-2" /> Download {courseLabelMap[selectedCertCourse] || 'Course'} ZIP ({generatedCerts[selectedCertCourse]?.length || 0})
+                            </Button>
+                            <Button
+                              onClick={() => exportCoursePDF(selectedCertCourse)}
+                              disabled={isGeneratingCerts}
+                              className="bg-rose-600 hover:bg-rose-700 text-white"
+                            >
+                              {isGeneratingCerts ? (
+                                <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Exporting...</>
+                              ) : (
+                                <><Download className="w-4 h-4 mr-2" /> Export PDF ({generatedCerts[selectedCertCourse]?.length || 0})</>
+                              )}
+                            </Button>
+                          </div>
                         )}
                       </div>
                       {selectedCertCourse && generatedCerts[selectedCertCourse] && (
