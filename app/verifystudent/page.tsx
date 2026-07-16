@@ -17,6 +17,7 @@ export default function VerifyStudentPage() {
   const [mobile, setMobile] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     // Override body/html overflow to force single screen layout
@@ -52,12 +53,17 @@ export default function VerifyStudentPage() {
     try {
       const res = await axios.post(`${API_URL}/api/verify-student`, { name, email, mobile });
       if (res.data.success) {
-        const s = res.data.student;
-        router.push(
-          `/verified?name=${encodeURIComponent(s.name)}&email=${encodeURIComponent(s.email || '')}&mobile=${encodeURIComponent(s.mobile)}&courseName=${encodeURIComponent(s.courseName)}&certificateId=${encodeURIComponent(s.certificateId || '')}`
-        );
+        const studentData = res.data.student || {};
+        const queryParams = new URLSearchParams({
+          name: studentData.name || name,
+          email: studentData.email || email,
+          mobile: studentData.mobile || mobile,
+          courseName: studentData.courseName || '24th Graduation Function',
+          certificateId: studentData.certificateId || '',
+        });
+        router.push(`/verified?${queryParams.toString()}`);
       } else {
-        setError(res.data.message || 'Verification failed');
+        setError(res.data.message || 'Submission failed');
       }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Something went wrong. Please try again.');
@@ -658,139 +664,165 @@ export default function VerifyStudentPage() {
               </div>
 
               {/* CARD CONTENT */}
-              <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5">
-                {/* Name Field */}
-                <div>
-                  <label
-                    className="block text-[14px] md:text-[15px] font-black text-[#4D1010] mb-2 tracking-wide"
-                  >
-                    Full Name
-                  </label>
-
-                  <div
-                    className="input-container flex items-center rounded-[18px] overflow-hidden transition-all bg-white/90 backdrop-blur-sm h-[64px] border border-gray-200/80 focus-within:border-[#D4AF37] focus-within:ring-2 focus-within:ring-[#D4AF37]/20"
-                    style={{ boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.04)' }}
-                  >
-                    <div className="px-3 md:px-5 h-full flex items-center border-r border-gray-200/80">
-                      <User className="w-5 h-5 text-[#4D1010]" strokeWidth={2} />
-                    </div>
-
-                    <input
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Enter your full name"
-                      className="flex-1 px-3 md:px-5 h-full outline-none text-[#3D2B1F] placeholder-[#9C8B7A] bg-transparent text-sm md:text-base font-bold min-w-0 w-full"
-                      required
-                    />
+              {submitted ? (
+                <div className="text-center py-8 px-4">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-emerald-100 flex items-center justify-center">
+                    <CheckCircle className="w-9 h-9 text-emerald-600" />
                   </div>
-                </div>
-
-                {/* Email Field */}
-                <div>
-                  <label
-                    className="block text-[14px] md:text-[15px] font-black text-[#4D1010] mb-2 tracking-wide"
-                  >
-                    Email Address
-                  </label>
-
-                  <div
-                    className="input-container flex items-center rounded-[18px] overflow-hidden transition-all bg-white/90 backdrop-blur-sm h-[64px] border border-gray-200/80 focus-within:border-[#D4AF37] focus-within:ring-2 focus-within:ring-[#D4AF37]/20"
-                    style={{ boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.04)' }}
-                  >
-                    <div className="px-3 md:px-5 h-full flex items-center border-r border-gray-200/80">
-                      <Mail className="w-5 h-5 text-[#4D1010]" strokeWidth={2} />
-                    </div>
-
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Enter your email address"
-                      className="flex-1 px-3 md:px-5 h-full outline-none text-[#3D2B1F] placeholder-[#9C8B7A] bg-transparent text-sm md:text-base font-bold min-w-0 w-full"
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Phone Number Field */}
-                <div>
-                  <label
-                    className="block text-[14px] md:text-[15px] font-black text-[#4D1010] mb-2 tracking-wide"
-                  >
-                    Mobile Number
-                  </label>
-
-                  <div
-                    className="input-container flex items-center rounded-[18px] overflow-hidden transition-all bg-white/90 backdrop-blur-sm h-[64px] border border-gray-200/80 focus-within:border-[#D4AF37] focus-within:ring-2 focus-within:ring-[#D4AF37]/20"
-                    style={{ boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.04)' }}
-                  >
-                    {/* Country prefix */}
-                    <div className="flex items-center gap-1.5 px-3 md:px-5 h-full select-none border-r border-gray-200/80">
-                      <span className="text-[10px] font-black text-[#4D1010]/60 tracking-wider">IN</span>
-                      <span className="text-sm md:text-base font-extrabold text-[#4D1010]">+91</span>
-                      <ChevronDown className="w-3.5 h-3.5 text-[#4D1010]/45" />
-                    </div>
-
-                    {/* Input */}
-                    <input
-                      type="tel"
-                      value={mobile}
-                      onChange={(e) => setMobile(e.target.value)}
-                      placeholder="Enter 10-digit mobile number"
-                      maxLength={10}
-                      className="flex-1 px-3 md:px-5 h-full outline-none text-[#3D2B1F] placeholder-[#9C8B7A] bg-transparent text-sm md:text-base font-bold min-w-0 w-full"
-                      required
-                    />
-
-                    {/* Phone Icon */}
-                    <div className="pr-3 md:pr-5">
-                      <Phone className="w-5 h-5 text-[#4D1010]" strokeWidth={2} />
-                    </div>
-                  </div>
-
-                  <p className="text-[#6E5945]/70 text-[12px] mt-2.5 font-medium">
-                    Enter the mobile number you used during registration.
+                  <h3 className="text-xl font-bold text-[#4D1010] mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                    Thank You!
+                  </h3>
+                  <p className="text-sm text-[#6E5945] font-medium mb-6">
+                    Your details have been submitted successfully.
                   </p>
+                  <button
+                    onClick={() => {
+                      setSubmitted(false);
+                      setName('');
+                      setEmail('');
+                      setMobile('');
+                    }}
+                    className="inline-flex items-center gap-2 text-sm font-bold text-[#4D1010] bg-white border border-gray-200 px-6 py-2.5 rounded-full shadow-sm hover:shadow transition-all"
+                  >
+                    <ArrowLeft className="w-4 h-4" strokeWidth={2.5} />
+                    Submit Another Response
+                  </button>
                 </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5">
+                  {/* Name Field */}
+                  <div>
+                    <label
+                      className="block text-[14px] md:text-[15px] font-black text-[#4D1010] mb-2 tracking-wide"
+                    >
+                      Full Name
+                    </label>
 
-                {/* Premium gradient verify button with gold border, shadow, and golden glow */}
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="verify-button w-full relative overflow-hidden rounded-2xl font-bold text-white h-[60px] transition-all flex items-center justify-center gap-2 group disabled:opacity-75 cursor-pointer active:scale-[0.99]"
-                  style={{
-                    background: 'linear-gradient(135deg, #4D1010 0%, #6C1A1A 50%, #3F0A0A 100%)',
-                    border: '2.2px solid rgba(212, 175, 55, 0.85)',
-                    boxShadow: '0 0 25px rgba(212, 175, 55, 0.35), 0 14px 32px rgba(30, 3, 3, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-                  }}
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      <span className="text-base tracking-wide">Verifying...</span>
-                    </>
-                  ) : (
-                    <>
-                      <ShieldCheck className="w-5.5 h-5.5 text-[#D4AF37]" strokeWidth={2.2} />
-                      <span className="text-base tracking-wide">Verify Details</span>
-                    </>
-                  )}
-                </button>
+                    <div
+                      className="input-container flex items-center rounded-[18px] overflow-hidden transition-all bg-white/90 backdrop-blur-sm h-[64px] border border-gray-200/80 focus-within:border-[#D4AF37] focus-within:ring-2 focus-within:ring-[#D4AF37]/20"
+                      style={{ boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.04)' }}
+                    >
+                      <div className="px-3 md:px-5 h-full flex items-center border-r border-gray-200/80">
+                        <User className="w-5 h-5 text-[#4D1010]" strokeWidth={2} />
+                      </div>
 
-                {/* Error Notification */}
-                {error && (
-                  <div className="p-3.5 rounded-xl flex items-start gap-2.5" style={{
-                    background: 'rgba(220, 38, 38, 0.05)',
-                    border: '1px solid rgba(220, 38, 38, 0.12)',
-                  }}>
-                    <XCircle className="w-4.5 h-4.5 text-red-600 mt-0.5 flex-shrink-0" />
-                    <p className="text-red-700 text-xs font-semibold">{error}</p>
+                      <input
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Enter your full name"
+                        className="flex-1 px-3 md:px-5 h-full outline-none text-[#3D2B1F] placeholder-[#9C8B7A] bg-transparent text-sm md:text-base font-bold min-w-0 w-full"
+                        required
+                      />
+                    </div>
                   </div>
-                )}
+
+                  {/* Email Field */}
+                  <div>
+                    <label
+                      className="block text-[14px] md:text-[15px] font-black text-[#4D1010] mb-2 tracking-wide"
+                    >
+                      Email Address
+                    </label>
+
+                    <div
+                      className="input-container flex items-center rounded-[18px] overflow-hidden transition-all bg-white/90 backdrop-blur-sm h-[64px] border border-gray-200/80 focus-within:border-[#D4AF37] focus-within:ring-2 focus-within:ring-[#D4AF37]/20"
+                      style={{ boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.04)' }}
+                    >
+                      <div className="px-3 md:px-5 h-full flex items-center border-r border-gray-200/80">
+                        <Mail className="w-5 h-5 text-[#4D1010]" strokeWidth={2} />
+                      </div>
+
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Enter your email address"
+                        className="flex-1 px-3 md:px-5 h-full outline-none text-[#3D2B1F] placeholder-[#9C8B7A] bg-transparent text-sm md:text-base font-bold min-w-0 w-full"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Phone Number Field */}
+                  <div>
+                    <label
+                      className="block text-[14px] md:text-[15px] font-black text-[#4D1010] mb-2 tracking-wide"
+                    >
+                      Mobile Number
+                    </label>
+
+                    <div
+                      className="input-container flex items-center rounded-[18px] overflow-hidden transition-all bg-white/90 backdrop-blur-sm h-[64px] border border-gray-200/80 focus-within:border-[#D4AF37] focus-within:ring-2 focus-within:ring-[#D4AF37]/20"
+                      style={{ boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.04)' }}
+                    >
+                      {/* Country prefix */}
+                      <div className="flex items-center gap-1.5 px-3 md:px-5 h-full select-none border-r border-gray-200/80">
+                        <span className="text-[10px] font-black text-[#4D1010]/60 tracking-wider">IN</span>
+                        <span className="text-sm md:text-base font-extrabold text-[#4D1010]">+91</span>
+                        <ChevronDown className="w-3.5 h-3.5 text-[#4D1010]/45" />
+                      </div>
+
+                      {/* Input */}
+                      <input
+                        type="tel"
+                        value={mobile}
+                        onChange={(e) => setMobile(e.target.value)}
+                        placeholder="Enter 10-digit mobile number"
+                        maxLength={10}
+                        className="flex-1 px-3 md:px-5 h-full outline-none text-[#3D2B1F] placeholder-[#9C8B7A] bg-transparent text-sm md:text-base font-bold min-w-0 w-full"
+                        required
+                      />
+
+                      {/* Phone Icon */}
+                      <div className="pr-3 md:pr-5">
+                        <Phone className="w-5 h-5 text-[#4D1010]" strokeWidth={2} />
+                      </div>
+                    </div>
+
+                    <p className="text-[#6E5945]/70 text-[12px] mt-2.5 font-medium">
+                      Enter the mobile number you used during registration.
+                    </p>
+                  </div>
+
+                  {/* Premium gradient verify button with gold border, shadow, and golden glow */}
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="verify-button w-full relative overflow-hidden rounded-2xl font-bold text-white h-[60px] transition-all flex items-center justify-center gap-2 group disabled:opacity-75 cursor-pointer active:scale-[0.99]"
+                    style={{
+                      background: 'linear-gradient(135deg, #4D1010 0%, #6C1A1A 50%, #3F0A0A 100%)',
+                      border: '2.2px solid rgba(212, 175, 55, 0.85)',
+                      boxShadow: '0 0 25px rgba(212, 175, 55, 0.35), 0 14px 32px rgba(30, 3, 3, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+                    }}
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <span className="text-base tracking-wide">Submitting...</span>
+                      </>
+                    ) : (
+                      <>
+                        <ShieldCheck className="w-5.5 h-5.5 text-[#D4AF37]" strokeWidth={2.2} />
+                        <span className="text-base tracking-wide">Submit</span>
+                      </>
+                    )}
+                  </button>
+
+                  {/* Error Notification */}
+                  {error && (
+                    <div className="p-3.5 rounded-xl flex items-start gap-2.5" style={{
+                      background: 'rgba(220, 38, 38, 0.05)',
+                      border: '1px solid rgba(220, 38, 38, 0.12)',
+                    }}>
+                      <XCircle className="w-4.5 h-4.5 text-red-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-red-700 text-xs font-semibold">{error}</p>
+                    </div>
+                  )}
 
 
-              </form>
+                </form>
+              )}
             </div>
 
             {/* Bottom accent line */}

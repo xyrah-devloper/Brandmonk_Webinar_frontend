@@ -17,7 +17,7 @@ export default function VerifiedPage() {
     name: searchParams.get('name') || 'Student',
     email: searchParams.get('email') || '',
     mobile: searchParams.get('mobile') || '',
-    courseName: searchParams.get('courseName') || '',
+    courseName: searchParams.get('courseName') || '24th Graduation Function',
     certificateId: searchParams.get('certificateId') || '',
   }), [searchParams]);
 
@@ -32,11 +32,11 @@ export default function VerifiedPage() {
     const originalHtmlHeight = document.documentElement.style.height;
 
     document.body.style.setProperty('overflow-x', 'hidden', 'important');
-    document.body.style.setProperty('overflow-y', 'auto', 'important');
+    document.body.style.setProperty('overflow-y', 'hidden', 'important');
     document.documentElement.style.setProperty('overflow-x', 'hidden', 'important');
-    document.documentElement.style.setProperty('overflow-y', 'auto', 'important');
-    document.body.style.setProperty('height', 'auto', 'important');
-    document.documentElement.style.setProperty('height', 'auto', 'important');
+    document.documentElement.style.setProperty('overflow-y', 'hidden', 'important');
+    document.body.style.setProperty('height', '100vh', 'important');
+    document.documentElement.style.setProperty('height', '100vh', 'important');
 
     return () => {
       document.body.style.overflowX = originalBodyOverflowX;
@@ -57,7 +57,6 @@ export default function VerifiedPage() {
   const allColors = [...palette.gold, ...palette.burgundy, ...palette.accent];
 
   const confettiParticles = useMemo(() => {
-    // Seeded-like deterministic generation using index-based math for stable SSR/hydration
     const makeBurst = (count: number, burstDelay: number) =>
       Array.from({ length: count }).map((_, i) => {
         const seed = (i + count) * 17.17;
@@ -97,12 +96,173 @@ export default function VerifiedPage() {
 
   return (
     <div
-      className="min-h-screen w-full relative flex flex-col items-center justify-start pt-12 pb-10 px-4 overflow-x-hidden overflow-y-auto"
+      className="pass-wrapper h-screen w-full relative flex flex-col items-center justify-between py-6 px-4 overflow-hidden select-none"
       style={{
         background: 'radial-gradient(ellipse at 50% 30%, #FFFDF7 0%, #FAF6EC 35%, #F0E6D0 70%, #E8DAB8 100%)',
         fontFamily: "'Inter', sans-serif",
       }}
     >
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        html, body {
+          background-color: #FAF6EC !important;
+          overflow: hidden !important;
+          overflow-x: hidden !important;
+          overflow-y: hidden !important;
+          height: 100vh !important;
+          max-height: 100vh !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+
+        /* Screen-height based responsive adjustments to prevent overflow/scrolling */
+        @media (max-height: 850px) {
+          .pass-wrapper {
+            padding-top: 12px !important;
+            padding-bottom: 12px !important;
+          }
+          .badge-container {
+            width: 64px !important;
+            height: 64px !important;
+            margin-bottom: 8px !important;
+          }
+          .badge-container svg {
+            width: 32px !important;
+            height: 32px !important;
+          }
+          .main-heading {
+            font-size: 26px !important;
+            margin-bottom: 4px !important;
+          }
+          .sub-text {
+            font-size: 13px !important;
+            margin-bottom: 16px !important;
+          }
+          .ticket-card {
+            max-width: 390px !important;
+          }
+          .ticket-header {
+            padding: 14px 20px !important;
+          }
+          .ticket-header h2 {
+            font-size: 20px !important;
+          }
+          .ticket-body {
+            padding: 16px 20px !important;
+            gap: 10px !important;
+          }
+          .details-list {
+            gap: 8px !important;
+          }
+          .barcode-container {
+            height: 26px !important;
+          }
+          .return-btn {
+            height: 48px !important;
+            margin-top: 14px !important;
+            max-width: 390px !important;
+          }
+        }
+
+        @media (max-height: 740px) {
+          .pass-wrapper {
+            padding-top: 8px !important;
+            padding-bottom: 8px !important;
+          }
+          .badge-container {
+            width: 52px !important;
+            height: 52px !important;
+            margin-bottom: 6px !important;
+          }
+          .badge-container svg {
+            width: 26px !important;
+            height: 26px !important;
+          }
+          .main-heading {
+            font-size: 22px !important;
+            margin-bottom: 2px !important;
+          }
+          .sub-text {
+            font-size: 12px !important;
+            margin-bottom: 12px !important;
+          }
+          .ticket-card {
+            max-width: 330px !important;
+          }
+          .ticket-header {
+            padding: 10px 14px !important;
+          }
+          .ticket-header h2 {
+            font-size: 18px !important;
+          }
+          .ticket-body {
+            padding: 12px 16px !important;
+            gap: 6px !important;
+          }
+          .details-list {
+            gap: 6px !important;
+          }
+          .details-list svg {
+            width: 14px !important;
+            height: 14px !important;
+          }
+          .barcode-container {
+            height: 20px !important;
+          }
+          .return-btn {
+            height: 42px !important;
+            margin-top: 10px !important;
+            max-width: 330px !important;
+            font-size: 13px !important;
+            padding-top: 6px !important;
+            padding-bottom: 6px !important;
+          }
+        }
+
+        @media (max-height: 640px) {
+          .pass-wrapper {
+            padding-top: 4px !important;
+            padding-bottom: 4px !important;
+          }
+          .badge-container {
+            display: none !important;
+          }
+          .main-heading {
+            font-size: 18px !important;
+            margin-bottom: 2px !important;
+          }
+          .sub-text {
+            font-size: 10.5px !important;
+            margin-bottom: 8px !important;
+          }
+          .ticket-card {
+            max-width: 290px !important;
+          }
+          .ticket-header {
+            padding: 8px 12px !important;
+          }
+          .ticket-header h2 {
+            font-size: 15px !important;
+          }
+          .ticket-body {
+            padding: 8px 12px !important;
+            gap: 4px !important;
+          }
+          .details-list {
+            gap: 4px !important;
+          }
+          .barcode-container {
+            height: 16px !important;
+          }
+          .return-btn {
+            height: 36px !important;
+            margin-top: 8px !important;
+            max-width: 290px !important;
+            font-size: 12px !important;
+          }
+        }
+      `}} />
+
       {/* Background glow */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden z-0">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] bg-[#FFE066]/12 rounded-full blur-[160px]" />
@@ -113,7 +273,6 @@ export default function VerifiedPage() {
       {/* Confetti Blast */}
       {mounted && (
         <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
-          {/* Central flash */}
           <motion.div
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
             style={{ background: 'radial-gradient(circle, rgba(255,245,200,0.9) 0%, rgba(212,175,55,0.4) 40%, transparent 70%)' }}
@@ -195,153 +354,178 @@ export default function VerifiedPage() {
         </div>
       )}
 
-      {/* Success Card */}
+      {/* Main Container */}
       <motion.div
-        className="relative z-10 w-full max-w-[520px]"
-        initial={{ opacity: 0, scale: 0.82, y: 30 }}
+        className="relative z-10 w-full max-w-[520px] flex-1 flex flex-col items-center justify-center"
+        initial={{ opacity: 0, scale: 0.85, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.65, delay: 0.35, ease: [0.34, 1.56, 0.64, 1] }}>
-        <div
-          className="rounded-[32px] bg-white/95 backdrop-blur-sm relative overflow-hidden"
-          style={{
-            border: '2px solid rgba(212, 175, 55, 0.4)',
-            boxShadow: '0 40px 80px -20px rgba(30, 3, 3, 0.35), 0 0 50px 8px rgba(212, 175, 55, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
-          }}
-        >
-          <div className="h-[4px] bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent" />
-
-          <div className="px-6 py-8 md:px-10 md:py-10 text-center">
-            {/* Top badge */}
-            <div className="relative inline-flex items-center justify-center mb-5">
-              <div className="absolute inset-0 bg-[#D4AF37]/30 blur-xl rounded-full scale-150" />
-              <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-[#FFE066] via-[#D4AF37] to-[#B8942F] p-[3px] shadow-lg">
-                <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
-                  <Sparkles className="w-9 h-9 text-[#D4AF37]" />
-                </div>
-              </div>
-            </div>
-
-            <h1
-              className="text-[28px] md:text-[40px] leading-[1.1] font-bold text-[#4D1010] mb-2 tracking-tight"
-              style={{ fontFamily: "'Playfair Display', serif" }}
-            >
-              Verified!
-            </h1>
-
-            <p className="text-[#6E5945] text-sm md:text-base font-semibold mb-6">
-              Your registration has been confirmed successfully.
-            </p>
-
-            {/* Ticket */}
-            <div className="rounded-2xl overflow-hidden border border-[#D4AF37]/45 shadow-lg mb-6 text-left">
-              <div
-                className="px-5 py-4 flex items-center justify-between relative overflow-hidden"
-                style={{ background: 'linear-gradient(135deg, #4D1010 0%, #1E0303 100%)' }}
-              >
-                <div className="absolute top-0 right-0 w-20 h-20 bg-[#D4AF37]/12 rounded-full blur-xl" />
-                <div className="relative z-10">
-                  <div className="flex items-center gap-1.5 mb-0.5">
-                    <Award className="w-3.5 h-3.5 text-[#D4AF37]" />
-                    <p className="text-[#D4AF37] text-[9px] font-bold tracking-[0.2em] uppercase" style={{ fontFamily: "'Playfair Display', serif" }}>
-                      Entry Pass
-                    </p>
-                  </div>
-                  <h2 className="text-white font-bold text-base tracking-wide" style={{ fontFamily: "'Playfair Display', serif" }}>
-                    Graduation Ticket
-                  </h2>
-                </div>
-                <Ticket className="w-7 h-7 text-[#D4AF37] relative z-10" />
-              </div>
-
-              <div className="relative h-3 bg-white">
-                <div className="absolute top-1/2 left-0 right-0 border-t border-dashed border-[#4D1010]/25" />
-                <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-[#FAF5EA] border-r border-[#D4AF37]/25 rounded-full" />
-                <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-[#FAF5EA] border-l border-[#D4AF37]/25 rounded-full" />
-              </div>
-
-              <div className="px-5 py-5 bg-white space-y-3.5">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <div className="w-6 h-6 rounded-full bg-[#4D1010] flex items-center justify-center">
-                    <CheckCircle className="w-3.5 h-3.5 text-[#D4AF37]" />
-                  </div>
-                  <span className="text-[#4D1010] font-bold text-[11.5px] uppercase tracking-[0.12em]" style={{ fontFamily: "'Playfair Display', serif" }}>
-                    Verification Success
-                  </span>
-                </div>
-
-                <div className="space-y-3 text-xs md:text-sm">
-                  <div className="flex items-start gap-3">
-                    <User className="w-4 h-4 text-[#B8942F] mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="text-[#9C8B7A] font-semibold text-[10px] uppercase tracking-wider">Student Name</p>
-                      <p className="text-[#3D2B1F] font-bold">{student.name}</p>
-                    </div>
-                  </div>
-
-                  {student.email && (
-                    <div className="flex items-start gap-3">
-                      <Mail className="w-4 h-4 text-[#B8942F] mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="text-[#9C8B7A] font-semibold text-[10px] uppercase tracking-wider">Email</p>
-                        <p className="text-[#3D2B1F] font-bold">{student.email}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex items-start gap-3">
-                    <Phone className="w-4 h-4 text-[#B8942F] mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="text-[#9C8B7A] font-semibold text-[10px] uppercase tracking-wider">Mobile Number</p>
-                      <p className="text-[#3D2B1F] font-bold">{student.mobile}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <BookOpen className="w-4 h-4 text-[#B8942F] mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="text-[#9C8B7A] font-semibold text-[10px] uppercase tracking-wider">Course Name</p>
-                      <p className="text-[#4D1010] font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>{student.courseName}</p>
-                    </div>
-                  </div>
-
-                  {student.certificateId && (
-                    <div className="flex items-start gap-3">
-                      <FileCheck className="w-4 h-4 text-[#B8942F] mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="text-[#9C8B7A] font-semibold text-[10px] uppercase tracking-wider">Certificate ID</p>
-                        <p className="text-[#3D2B1F] font-bold font-mono">{student.certificateId}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div className="text-center pt-2 border-t border-[#4D1010]/5">
-                  <p className="text-[#4D1010] text-xs font-bold italic" style={{ fontFamily: "'Playfair Display', serif" }}>
-                    Congratulations on your achievement!
-                  </p>
-                  <p className="text-[#D4AF37] text-[9.5px] mt-0.5 tracking-[0.18em] uppercase font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>
-                    Brand Monk Academy
-                  </p>
-                </div>
-              </div>
-
-              <div className="px-5 py-3 border-t border-[#4D1010]/5 bg-[#4D1010]/3">
-                <div className="h-7 bg-[repeating-linear-gradient(90deg,_#4D1010_0px,_#4D1010_1.5px,_transparent_1.5px,_transparent_3px)] opacity-35 rounded" />
-              </div>
-            </div>
-
-            <Link
-              href="/verifystudent"
-              className="inline-flex items-center justify-center gap-2 text-sm font-extrabold text-[#4D1010] hover:text-[#7B2D2D] bg-white border border-gray-200/80 px-8 py-3 rounded-full shadow-sm hover:shadow hover:scale-[1.01] transition-all"
-            >
-              <ArrowLeft className="w-4 h-4" strokeWidth={2.5} />
-              Verify Another Mobile Number
-            </Link>
+        transition={{ duration: 0.6, ease: [0.34, 1.56, 0.64, 1] }}
+      >
+        {/* Top circular sparkles badge */}
+        <div className="badge-container relative inline-flex items-center justify-center mb-5 z-20 w-20 h-20">
+          <div className="absolute inset-0 bg-[#D4AF37]/25 blur-xl rounded-full scale-150" />
+          <div className="w-full h-full rounded-full bg-white flex items-center justify-center border-2 border-[#D4AF37]/50 shadow-lg animate-twinkle">
+            <Sparkles className="w-10 h-10 text-[#D4AF37]" />
           </div>
         </div>
+
+        {/* Header Text */}
+        <h1
+          className="main-heading text-[30px] md:text-[38px] leading-[1.1] font-bold text-[#4D1010] mb-2 tracking-tight text-center font-serif"
+          style={{ fontFamily: "'Playfair Display', serif" }}
+        >
+          Boarding Pass
+        </h1>
+
+        <p className="sub-text text-[#6E5945] text-sm md:text-base font-semibold text-center mb-6 max-w-[380px] leading-relaxed">
+          Your registration has been confirmed successfully.
+        </p>
+
+        {/* Ticket Container */}
+        <div
+          id="boarding-pass-card"
+          className="ticket-card w-full max-w-[460px] bg-white rounded-[28px] overflow-hidden border border-[#D4AF37]/35 shadow-2xl relative"
+        >
+          {/* Ticket Header */}
+          <div className="ticket-header bg-gradient-to-br from-[#4D1010] to-[#1E0303] px-6 py-4.5 text-left relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-[#D4AF37]/10 rounded-full blur-2xl" />
+
+            <div className="flex items-center justify-between relative z-10">
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <Award className="w-3.5 h-3.5 text-[#D4AF37]" />
+                <span className="text-[#D4AF37] text-[10px] font-extrabold tracking-[0.2em] uppercase">
+                  Boarding Pass
+                </span>
+              </div>
+              <Ticket className="w-6 h-6 text-[#D4AF37]" />
+            </div>
+
+            <h2
+              className="text-white font-bold text-xl tracking-wide font-serif"
+              style={{ fontFamily: "'Playfair Display', serif" }}
+            >
+              Boarding Pass
+            </h2>
+          </div>
+
+          {/* Perforated Separator with Side Cuts */}
+          <div className="relative h-5 bg-white flex items-center overflow-hidden">
+            {/* Left Cutout */}
+            <div
+              className="absolute -left-3 w-5 h-5 bg-[#FAF6EC] border border-[#D4AF37]/20 rounded-full z-10"
+              style={{ boxShadow: 'inset -3px 0 5px rgba(30,3,3,0.04)' }}
+            />
+            {/* Right Cutout */}
+            <div
+              className="absolute -right-3 w-5 h-5 bg-[#FAF6EC] border border-[#D4AF37]/20 rounded-full z-10"
+              style={{ boxShadow: 'inset 3px 0 5px rgba(30,3,3,0.04)' }}
+            />
+            {/* Dashed line */}
+            <div className="w-full border-t border-dashed border-[#4D1010]/20 mx-4" />
+          </div>
+
+          {/* Ticket Body */}
+          <div className="ticket-body bg-white px-7 pb-6 pt-1.5 text-left flex flex-col justify-center gap-4">
+            {/* Verification Success Badge */}
+            <div className="flex items-center gap-2 mb-0.5">
+              <div className="w-6 h-6 rounded-full bg-[#4D1010] flex items-center justify-center">
+                <CheckCircle className="w-3.5 h-3.5 text-[#D4AF37]" />
+              </div>
+              <span
+                className="text-[#4D1010] font-bold text-[11px] uppercase tracking-[0.12em] font-serif"
+                style={{ fontFamily: "'Playfair Display', serif" }}
+              >
+                Boarding Pass
+              </span>
+            </div>
+
+            {/* Details List */}
+            <div className="details-list flex flex-col gap-3 text-xs md:text-sm">
+              <div className="flex items-start gap-3">
+                <User className="w-4.5 h-4.5 text-[#B8942F] mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-[#9C8B7A] font-semibold text-[9px] uppercase tracking-wider">Student Name</p>
+                  <p className="text-[#3D2B1F] font-bold">{student.name}</p>
+                </div>
+              </div>
+
+              {student.email && (
+                <div className="flex items-start gap-3">
+                  <Mail className="w-4.5 h-4.5 text-[#B8942F] mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-[#9C8B7A] font-semibold text-[9px] uppercase tracking-wider">Email</p>
+                    <p className="text-[#3D2B1F] font-bold">{student.email}</p>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-start gap-3">
+                <Phone className="w-4.5 h-4.5 text-[#B8942F] mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-[#9C8B7A] font-semibold text-[9px] uppercase tracking-wider">Mobile Number</p>
+                  <p className="text-[#3D2B1F] font-bold">{student.mobile}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <BookOpen className="w-4.5 h-4.5 text-[#B8942F] mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-[#9C8B7A] font-semibold text-[9px] uppercase tracking-wider">Course Name</p>
+                  <p
+                    className="text-[#4D1010] font-bold font-serif"
+                    style={{ fontFamily: "'Playfair Display', serif" }}
+                  >
+                    {student.courseName}
+                  </p>
+                </div>
+              </div>
+
+              {student.certificateId && (
+                <div className="flex items-start gap-3">
+                  <FileCheck className="w-4.5 h-4.5 text-[#B8942F] mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-[#9C8B7A] font-semibold text-[9px] uppercase tracking-wider">Certificate ID</p>
+                    <p className="text-[#3D2B1F] font-bold font-mono">{student.certificateId}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Note */}
+            <div className="text-center pt-2 border-t border-[#4D1010]/5">
+              <p
+                className="text-[#4D1010] text-[12px] font-bold italic font-serif"
+                style={{ fontFamily: "'Playfair Display', serif" }}
+              >
+                Congratulations on your achievement!
+              </p>
+              <p
+                className="text-[#D4AF37] text-[9px] mt-0.5 tracking-[0.18em] uppercase font-bold font-serif"
+                style={{ fontFamily: "'Playfair Display', serif" }}
+              >
+                Brand Monk Academy
+              </p>
+            </div>
+
+            {/* Barcode Section */}
+            <div className="pt-2 border-t border-[#4D1010]/5 bg-[#4D1010]/3">
+              <div className="barcode-container h-8 bg-[repeating-linear-gradient(90deg,_#4D1010_0px,_#4D1010_1.5px,_transparent_1.5px,_transparent_3px)] opacity-35 rounded" />
+            </div>
+          </div>
+        </div>
+
+        {/* Back Button */}
+        <Link
+          href="/verifystudent"
+          className="return-btn w-full max-w-[460px] mt-6 inline-flex items-center justify-center gap-2 text-sm font-extrabold text-[#4D1010] hover:text-[#7B2D2D] bg-white border border-gray-200/80 px-8 py-3.5 rounded-full shadow-md hover:shadow hover:scale-[1.01] transition-all"
+        >
+          <ArrowLeft className="w-4 h-4" strokeWidth={2.5} />
+          Verify Another Mobile Number
+        </Link>
       </motion.div>
 
-      <div className="relative z-10 mt-10 md:mt-12 mb-4 px-5 py-2 rounded-full bg-white/70 backdrop-blur-sm border border-[#D4AF37]/30 shadow-sm">
+      {/* Footer copyright */}
+      <div className="relative z-10 mt-4 mb-2 px-5 py-1.5 rounded-full bg-white/70 backdrop-blur-sm border border-[#D4AF37]/35 shadow-sm text-center">
         <p className="text-[10px] md:text-[11px] font-semibold text-[#5B1A1A]/90 tracking-wide">
           © 2026 Brand Monk Academy. All Rights Reserved.
         </p>
