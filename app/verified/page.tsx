@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
   Award, CheckCircle, Ticket, ArrowLeft, Sparkles,
-  User, Phone, BookOpen, FileCheck
+  User, Mail, Phone, BookOpen, FileCheck
 } from 'lucide-react';
 
 export default function VerifiedPage() {
@@ -15,6 +15,7 @@ export default function VerifiedPage() {
 
   const student = useMemo(() => ({
     name: searchParams.get('name') || 'Student',
+    email: searchParams.get('email') || '',
     mobile: searchParams.get('mobile') || '',
     courseName: searchParams.get('courseName') || '',
     certificateId: searchParams.get('certificateId') || '',
@@ -96,7 +97,7 @@ export default function VerifiedPage() {
 
   return (
     <div
-      className="min-h-screen w-full relative flex flex-col items-center justify-center py-8 px-4 overflow-hidden"
+      className="min-h-screen w-full relative flex flex-col items-center justify-start pt-12 pb-10 px-4 overflow-x-hidden overflow-y-auto"
       style={{
         background: 'radial-gradient(ellipse at 50% 30%, #FFFDF7 0%, #FAF6EC 35%, #F0E6D0 70%, #E8DAB8 100%)',
         fontFamily: "'Inter', sans-serif",
@@ -277,6 +278,16 @@ export default function VerifiedPage() {
                     </div>
                   </div>
 
+                  {student.email && (
+                    <div className="flex items-start gap-3">
+                      <Mail className="w-4 h-4 text-[#B8942F] mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-[#9C8B7A] font-semibold text-[10px] uppercase tracking-wider">Email</p>
+                        <p className="text-[#3D2B1F] font-bold">{student.email}</p>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex items-start gap-3">
                     <Phone className="w-4 h-4 text-[#B8942F] mt-0.5 flex-shrink-0" />
                     <div>
@@ -330,9 +341,11 @@ export default function VerifiedPage() {
         </div>
       </motion.div>
 
-      <p className="relative z-10 text-[9px] text-[#9C8B7A]/60 mt-6">
-        © 2026 Brand Monk Academy. All Rights Reserved.
-      </p>
+      <div className="relative z-10 mt-10 md:mt-12 mb-4 px-5 py-2 rounded-full bg-white/70 backdrop-blur-sm border border-[#D4AF37]/30 shadow-sm">
+        <p className="text-[10px] md:text-[11px] font-semibold text-[#5B1A1A]/90 tracking-wide">
+          © 2026 Brand Monk Academy. All Rights Reserved.
+        </p>
+      </div>
     </div>
   );
 }

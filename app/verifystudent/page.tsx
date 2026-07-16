@@ -7,11 +7,13 @@ import { API_URL } from '@/utils/config';
 import {
   Loader2, CheckCircle, XCircle, Ticket, ShieldCheck, Lock,
   Phone, Clock, Zap, HelpCircle, GraduationCap,
-  ChevronDown, Star, ArrowLeft, Award
+  ChevronDown, Star, ArrowLeft, Award, User, Mail
 } from 'lucide-react';
 
 export default function VerifyStudentPage() {
   const router = useRouter();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [mobile, setMobile] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -48,11 +50,11 @@ export default function VerifyStudentPage() {
     setError('');
 
     try {
-      const res = await axios.post(`${API_URL}/api/verify-student`, { mobile });
+      const res = await axios.post(`${API_URL}/api/verify-student`, { name, email, mobile });
       if (res.data.success) {
         const s = res.data.student;
         router.push(
-          `/verified?name=${encodeURIComponent(s.name)}&mobile=${encodeURIComponent(s.mobile)}&courseName=${encodeURIComponent(s.courseName)}&certificateId=${encodeURIComponent(s.certificateId || '')}`
+          `/verified?name=${encodeURIComponent(s.name)}&email=${encodeURIComponent(s.email || '')}&mobile=${encodeURIComponent(s.mobile)}&courseName=${encodeURIComponent(s.courseName)}&certificateId=${encodeURIComponent(s.certificateId || '')}`
         );
       } else {
         setError(res.data.message || 'Verification failed');
@@ -657,6 +659,61 @@ export default function VerifyStudentPage() {
 
               {/* CARD CONTENT */}
               <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5">
+                {/* Name Field */}
+                <div>
+                  <label
+                    className="block text-[14px] md:text-[15px] font-black text-[#4D1010] mb-2 tracking-wide"
+                  >
+                    Full Name
+                  </label>
+
+                  <div
+                    className="input-container flex items-center rounded-[18px] overflow-hidden transition-all bg-white/90 backdrop-blur-sm h-[64px] border border-gray-200/80 focus-within:border-[#D4AF37] focus-within:ring-2 focus-within:ring-[#D4AF37]/20"
+                    style={{ boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.04)' }}
+                  >
+                    <div className="px-3 md:px-5 h-full flex items-center border-r border-gray-200/80">
+                      <User className="w-5 h-5 text-[#4D1010]" strokeWidth={2} />
+                    </div>
+
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Enter your full name"
+                      className="flex-1 px-3 md:px-5 h-full outline-none text-[#3D2B1F] placeholder-[#9C8B7A] bg-transparent text-sm md:text-base font-bold min-w-0 w-full"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Email Field */}
+                <div>
+                  <label
+                    className="block text-[14px] md:text-[15px] font-black text-[#4D1010] mb-2 tracking-wide"
+                  >
+                    Email Address
+                  </label>
+
+                  <div
+                    className="input-container flex items-center rounded-[18px] overflow-hidden transition-all bg-white/90 backdrop-blur-sm h-[64px] border border-gray-200/80 focus-within:border-[#D4AF37] focus-within:ring-2 focus-within:ring-[#D4AF37]/20"
+                    style={{ boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.04)' }}
+                  >
+                    <div className="px-3 md:px-5 h-full flex items-center border-r border-gray-200/80">
+                      <Mail className="w-5 h-5 text-[#4D1010]" strokeWidth={2} />
+                    </div>
+
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter your email address"
+                      className="flex-1 px-3 md:px-5 h-full outline-none text-[#3D2B1F] placeholder-[#9C8B7A] bg-transparent text-sm md:text-base font-bold min-w-0 w-full"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Phone Number Field */}
                 <div>
                   <label
                     className="block text-[14px] md:text-[15px] font-black text-[#4D1010] mb-2 tracking-wide"
@@ -716,7 +773,7 @@ export default function VerifyStudentPage() {
                   ) : (
                     <>
                       <ShieldCheck className="w-5.5 h-5.5 text-[#D4AF37]" strokeWidth={2.2} />
-                      <span className="text-base tracking-wide">Verify Mobile Number</span>
+                      <span className="text-base tracking-wide">Verify Details</span>
                     </>
                   )}
                 </button>
