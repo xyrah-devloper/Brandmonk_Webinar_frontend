@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { API_URL } from '@/utils/config';
 import {
@@ -10,9 +11,9 @@ import {
 } from 'lucide-react';
 
 export default function VerifyStudentPage() {
+  const router = useRouter();
   const [mobile, setMobile] = useState('');
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -44,13 +45,15 @@ export default function VerifyStudentPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setResult(null);
     setError('');
 
     try {
       const res = await axios.post(`${API_URL}/api/verify-student`, { mobile });
       if (res.data.success) {
-        setResult(res.data.student);
+        const s = res.data.student;
+        router.push(
+          `/verified?name=${encodeURIComponent(s.name)}&mobile=${encodeURIComponent(s.mobile)}&courseName=${encodeURIComponent(s.courseName)}&certificateId=${encodeURIComponent(s.certificateId || '')}`
+        );
       } else {
         setError(res.data.message || 'Verification failed');
       }
@@ -59,12 +62,6 @@ export default function VerifyStudentPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleReset = () => {
-    setResult(null);
-    setMobile('');
-    setError('');
   };
 
   // Denser gold confetti and streams scattered across the page
@@ -563,7 +560,7 @@ export default function VerifyStudentPage() {
 
         {/* ====== HEADER SECTION ====== */}
         <div className="flex w-full items-center justify-center flex-col relative px-4 md:px-0 mb-4 md:mb-0">
-          
+
           {/* Text branding centered */}
           <div className="text-center flex flex-col items-center w-full z-10">
             {/* Gold Laurel Badge */}
@@ -659,196 +656,116 @@ export default function VerifyStudentPage() {
               </div>
 
               {/* CARD CONTENT */}
-              {!result ? (
-                <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5">
-                  <div>
-                    <label
-                      className="block text-[14px] md:text-[15px] font-black text-[#4D1010] mb-2 tracking-wide"
-                    >
-                      Mobile Number
-                    </label>
-
-                    <div
-                      className="input-container flex items-center rounded-[18px] overflow-hidden transition-all bg-white/90 backdrop-blur-sm h-[64px] border border-gray-200/80 focus-within:border-[#D4AF37] focus-within:ring-2 focus-within:ring-[#D4AF37]/20"
-                      style={{ boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.04)' }}
-                    >
-                      {/* Country prefix */}
-                      <div className="flex items-center gap-1.5 px-3 md:px-5 h-full select-none border-r border-gray-200/80">
-                        <span className="text-[10px] font-black text-[#4D1010]/60 tracking-wider">IN</span>
-                        <span className="text-sm md:text-base font-extrabold text-[#4D1010]">+91</span>
-                        <ChevronDown className="w-3.5 h-3.5 text-[#4D1010]/45" />
-                      </div>
-
-                      {/* Input */}
-                      <input
-                        type="tel"
-                        value={mobile}
-                        onChange={(e) => setMobile(e.target.value)}
-                        placeholder="Enter 10-digit mobile number"
-                        maxLength={10}
-                        className="flex-1 px-3 md:px-5 h-full outline-none text-[#3D2B1F] placeholder-[#9C8B7A] bg-transparent text-sm md:text-base font-bold min-w-0 w-full"
-                        required
-                      />
-
-                      {/* Phone Icon */}
-                      <div className="pr-3 md:pr-5">
-                        <Phone className="w-5 h-5 text-[#4D1010]" strokeWidth={2} />
-                      </div>
-                    </div>
-
-                    <p className="text-[#6E5945]/70 text-[12px] mt-2.5 font-medium">
-                      Enter the mobile number you used during registration.
-                    </p>
-                  </div>
-
-                  {/* Premium gradient verify button with gold border, shadow, and golden glow */}
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="verify-button w-full relative overflow-hidden rounded-2xl font-bold text-white h-[60px] transition-all flex items-center justify-center gap-2 group disabled:opacity-75 cursor-pointer active:scale-[0.99]"
-                    style={{
-                      background: 'linear-gradient(135deg, #4D1010 0%, #6C1A1A 50%, #3F0A0A 100%)',
-                      border: '2.2px solid rgba(212, 175, 55, 0.85)',
-                      boxShadow: '0 0 25px rgba(212, 175, 55, 0.35), 0 14px 32px rgba(30, 3, 3, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-                    }}
+              <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5">
+                <div>
+                  <label
+                    className="block text-[14px] md:text-[15px] font-black text-[#4D1010] mb-2 tracking-wide"
                   >
-                    {loading ? (
-                      <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        <span className="text-base tracking-wide">Verifying...</span>
-                      </>
-                    ) : (
-                      <>
-                        <ShieldCheck className="w-5.5 h-5.5 text-[#D4AF37]" strokeWidth={2.2} />
-                        <span className="text-base tracking-wide">Verify Mobile Number</span>
-                      </>
-                    )}
-                  </button>
+                    Mobile Number
+                  </label>
 
-                  {/* Error Notification */}
-                  {error && (
-                    <div className="p-3.5 rounded-xl flex items-start gap-2.5" style={{
-                      background: 'rgba(220, 38, 38, 0.05)',
-                      border: '1px solid rgba(220, 38, 38, 0.12)',
-                    }}>
-                      <XCircle className="w-4.5 h-4.5 text-red-600 mt-0.5 flex-shrink-0" />
-                      <p className="text-red-700 text-xs font-semibold">{error}</p>
-                    </div>
-                  )}
-
-
-                </form>
-              ) : (
-                /* IN-CARD TICKET VIEW */
-                <div className="flex flex-col gap-3.5 animate-fadeIn">
-                  <div className="rounded-2xl overflow-hidden border border-[#D4AF37]/45 shadow-lg">
-                    {/* Ticket Header */}
-                    <div
-                      className="px-5 py-4 flex items-center justify-between relative overflow-hidden"
-                      style={{ background: 'linear-gradient(135deg, #4D1010 0%, #1E0303 100%)' }}
-                    >
-                      <div className="absolute top-0 right-0 w-20 h-20 bg-[#D4AF37]/12 rounded-full blur-xl" />
-                      <div className="relative z-10">
-                        <div className="flex items-center gap-1.5 mb-0.5">
-                          <Award className="w-3.5 h-3.5 text-[#D4AF37]" />
-                          <p className="text-[#D4AF37] text-[9px] font-bold tracking-[0.2em] uppercase" style={{ fontFamily: "'Playfair Display', serif" }}>
-                            Entry Pass
-                          </p>
-                        </div>
-                        <h2 className="text-white font-bold text-base tracking-wide" style={{ fontFamily: "'Playfair Display', serif" }}>
-                          Graduation Ticket
-                        </h2>
-                      </div>
-                      <Ticket className="w-7 h-7 text-[#D4AF37] relative z-10" />
+                  <div
+                    className="input-container flex items-center rounded-[18px] overflow-hidden transition-all bg-white/90 backdrop-blur-sm h-[64px] border border-gray-200/80 focus-within:border-[#D4AF37] focus-within:ring-2 focus-within:ring-[#D4AF37]/20"
+                    style={{ boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.04)' }}
+                  >
+                    {/* Country prefix */}
+                    <div className="flex items-center gap-1.5 px-3 md:px-5 h-full select-none border-r border-gray-200/80">
+                      <span className="text-[10px] font-black text-[#4D1010]/60 tracking-wider">IN</span>
+                      <span className="text-sm md:text-base font-extrabold text-[#4D1010]">+91</span>
+                      <ChevronDown className="w-3.5 h-3.5 text-[#4D1010]/45" />
                     </div>
 
-                    {/* Perforated Divider */}
-                    <div className="relative h-3 bg-white">
-                      <div className="absolute top-1/2 left-0 right-0 border-t border-dashed border-[#4D1010]/25" />
-                      <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-[#FAF5EA] border-r border-[#D4AF37]/25 rounded-full" />
-                      <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-[#FAF5EA] border-l border-[#D4AF37]/25 rounded-full" />
-                    </div>
+                    {/* Input */}
+                    <input
+                      type="tel"
+                      value={mobile}
+                      onChange={(e) => setMobile(e.target.value)}
+                      placeholder="Enter 10-digit mobile number"
+                      maxLength={10}
+                      className="flex-1 px-3 md:px-5 h-full outline-none text-[#3D2B1F] placeholder-[#9C8B7A] bg-transparent text-sm md:text-base font-bold min-w-0 w-full"
+                      required
+                    />
 
-                    {/* Ticket Details */}
-                    <div className="px-5 py-4.5 bg-white space-y-3">
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <div className="w-6 h-6 rounded-full bg-[#4D1010] flex items-center justify-center">
-                          <CheckCircle className="w-3.5 h-3.5 text-[#D4AF37]" />
-                        </div>
-                        <span className="text-[#4D1010] font-bold text-[11.5px] uppercase tracking-[0.12em]" style={{ fontFamily: "'Playfair Display', serif" }}>
-                          Verification Success
-                        </span>
-                      </div>
-
-                      <div className="grid grid-cols-[85px_1fr] gap-y-2 text-xs md:text-sm border-b border-[#4D1010]/5 pb-3">
-                        <span className="text-[#9C8B7A] font-semibold">Student Name</span>
-                        <span className="text-[#3D2B1F] font-bold text-right">{result.name}</span>
-
-                        <span className="text-[#9C8B7A] font-semibold">Mobile Number</span>
-                        <span className="text-[#3D2B1F] font-bold text-right">{result.mobile}</span>
-
-                        <span className="text-[#9C8B7A] font-semibold">Course Name</span>
-                        <span className="text-[#4D1010] font-bold text-right" style={{ fontFamily: "'Playfair Display', serif" }}>{result.courseName}</span>
-                      </div>
-
-                      <div className="text-center pt-1.5">
-                        <p className="text-[#4D1010] text-xs font-bold italic" style={{ fontFamily: "'Playfair Display', serif" }}>
-                          Congratulations on your achievement!
-                        </p>
-                        <p className="text-[#D4AF37] text-[9.5px] mt-0.5 tracking-[0.18em] uppercase font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>
-                          Brand Monk Academy
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Barcode strip */}
-                    <div className="px-5 py-3 border-t border-[#4D1010]/5 bg-[#4D1010]/3">
-                      <div className="h-7 bg-[repeating-linear-gradient(90deg,_#4D1010_0px,_#4D1010_1.5px,_transparent_1.5px,_transparent_3px)] opacity-35 rounded" />
+                    {/* Phone Icon */}
+                    <div className="pr-3 md:pr-5">
+                      <Phone className="w-5 h-5 text-[#4D1010]" strokeWidth={2} />
                     </div>
                   </div>
 
-                  {/* Go Back button */}
-                  <button
-                    onClick={handleReset}
-                    className="flex items-center justify-center gap-2 text-xs md:text-sm text-[#4D1010] font-extrabold hover:text-[#7B2D2D] bg-white border border-gray-200/80 px-6 py-2.5 rounded-full shadow-sm hover:shadow hover:scale-[1.01] transition-all cursor-pointer self-center mt-2"
-                  >
-                    <ArrowLeft className="w-4 h-4" strokeWidth={2.5} />
-                    Verify Another Mobile Number
-                  </button>
+                  <p className="text-[#6E5945]/70 text-[12px] mt-2.5 font-medium">
+                    Enter the mobile number you used during registration.
+                  </p>
                 </div>
-              )}
+
+                {/* Premium gradient verify button with gold border, shadow, and golden glow */}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="verify-button w-full relative overflow-hidden rounded-2xl font-bold text-white h-[60px] transition-all flex items-center justify-center gap-2 group disabled:opacity-75 cursor-pointer active:scale-[0.99]"
+                  style={{
+                    background: 'linear-gradient(135deg, #4D1010 0%, #6C1A1A 50%, #3F0A0A 100%)',
+                    border: '2.2px solid rgba(212, 175, 55, 0.85)',
+                    boxShadow: '0 0 25px rgba(212, 175, 55, 0.35), 0 14px 32px rgba(30, 3, 3, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+                  }}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span className="text-base tracking-wide">Verifying...</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShieldCheck className="w-5.5 h-5.5 text-[#D4AF37]" strokeWidth={2.2} />
+                      <span className="text-base tracking-wide">Verify Mobile Number</span>
+                    </>
+                  )}
+                </button>
+
+                {/* Error Notification */}
+                {error && (
+                  <div className="p-3.5 rounded-xl flex items-start gap-2.5" style={{
+                    background: 'rgba(220, 38, 38, 0.05)',
+                    border: '1px solid rgba(220, 38, 38, 0.12)',
+                  }}>
+                    <XCircle className="w-4.5 h-4.5 text-red-600 mt-0.5 flex-shrink-0" />
+                    <p className="text-red-700 text-xs font-semibold">{error}</p>
+                  </div>
+                )}
+
+
+              </form>
             </div>
 
             {/* Bottom accent line */}
             <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#D4AF37]/35 to-transparent" />
           </div>
 
-            {/* ====== FLOATING DIPLOMA SCROLL (USING TRANSPARENT PNG /component.png) ====== */}
-            <div className="absolute -bottom-10 -left-16 z-20 pointer-events-none hidden md:block w-[210px] h-[180px]" style={{ filter: 'drop-shadow(0 15px 30px rgba(30, 3, 3, 0.45))' }}>
-              <img
-                src="/component.png"
-                alt="Diploma Scroll"
-                className="w-full h-full object-contain -rotate-[18deg]"
-              />
-            </div>
-
-            {/* ====== FLOATING DIPLOMA SCROLL FOR MOBILE ====== */}
-            <div className="absolute -bottom-24 left-[20px] z-20 pointer-events-none md:hidden w-[180px] h-[150px]" style={{ filter: 'drop-shadow(0 15px 30px rgba(30, 3, 3, 0.45))' }}>
-              <img
-                src="/component.png"
-                alt="Diploma Scroll"
-                className="w-full h-full object-contain -rotate-[18deg]"
-              />
-            </div>
+          {/* ====== FLOATING DIPLOMA SCROLL (USING TRANSPARENT PNG /component.png) ====== */}
+          <div className="absolute -bottom-10 -left-16 z-20 pointer-events-none hidden md:block w-[210px] h-[180px]" style={{ filter: 'drop-shadow(0 15px 30px rgba(30, 3, 3, 0.45))' }}>
+            <img
+              src="/component.png"
+              alt="Diploma Scroll"
+              className="w-full h-full object-contain -rotate-[18deg]"
+            />
           </div>
 
-
-
-          {/* Footer text */}
-          <div className="relative z-10 text-[9px] text-[#FFEAA5]/50 select-none text-center mt-3 md:mt-5 hidden md:block">
-            © 2026 Brand Monk Academy. All Rights Reserved.
+          {/* ====== FLOATING DIPLOMA SCROLL FOR MOBILE ====== */}
+          <div className="absolute -bottom-24 left-[20px] z-20 pointer-events-none md:hidden w-[180px] h-[150px]" style={{ filter: 'drop-shadow(0 15px 30px rgba(30, 3, 3, 0.45))' }}>
+            <img
+              src="/component.png"
+              alt="Diploma Scroll"
+              className="w-full h-full object-contain -rotate-[18deg]"
+            />
           </div>
         </div>
+
+
+
+        {/* Footer text */}
+        <div className="relative z-10 text-[9px] text-[#FFEAA5]/50 select-none text-center mt-3 md:mt-5 hidden md:block">
+          © 2026 Brand Monk Academy. All Rights Reserved.
+        </div>
       </div>
-    );
+    </div>
+  );
 }
