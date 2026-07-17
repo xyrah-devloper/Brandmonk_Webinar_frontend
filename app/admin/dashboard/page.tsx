@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import {
@@ -207,6 +207,10 @@ export default function AdminDashboard() {
   // Verification form entries (from /verifystudent page)
   const [verificationEntries, setVerificationEntries] = useState<any[]>([]);
   const [verificationLoading, setVerificationLoading] = useState(false);
+  const [verificationSearch, setVerificationSearch] = useState('');
+  const [verificationCourseFilter, setVerificationCourseFilter] = useState<string>('All');
+  const [verificationStatusFilter, setVerificationStatusFilter] = useState<'All' | 'inDb' | 'notInDb'>('All');
+  const [verificationTimeFilter, setVerificationTimeFilter] = useState<'All' | 'today' | 'yesterday' | 'last7' | 'last30' | 'thisMonth'>('All');
 
   // Forms
   const [newStudent, setNewStudent] = useState({
@@ -521,6 +525,75 @@ export default function AdminDashboard() {
       setVerificationLoading(false);
     }
   };
+
+  const handleDeleteVerification = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this verification entry?')) return;
+    try {
+      await axios.delete(`${API_URL}/api/verify-student/entries/${id}`);
+      fetchVerificationEntries();
+    } catch (err) {
+      console.error('Failed to delete verification entry:', err);
+      alert('Failed to delete verification entry');
+    }
+  };
+
+  const filteredVerificationEntries = useMemo(() => {
+    return verificationEntries.filter(entry => {
+      const search = verificationSearch.trim().toLowerCase();
+      if (search) {
+        const name = (entry.name || '').toLowerCase();
+        const email = (entry.email || '').toLowerCase();
+        const mobile = (entry.mobile || '').toLowerCase();
+        if (!name.includes(search) && !email.includes(search) && !mobile.includes(search)) return false;
+      }
+
+      if (verificationCourseFilter !== 'All') {
+        const course = entry.courseName || 'N/A';
+        if (course !== verificationCourseFilter) return false;
+      }
+
+      if (verificationStatusFilter !== 'All') {
+        const inDb = Boolean(entry.certificateId && !String(entry.certificateId).startsWith('BMA-GRAD-'));
+        if (verificationStatusFilter === 'inDb' && !inDb) return false;
+        if (verificationStatusFilter === 'notInDb' && inDb) return false;
+      }
+
+      if (verificationTimeFilter !== 'All' && entry.createdAt) {
+        const date = new Date(entry.createdAt);
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
+        const last7 = new Date(today); last7.setDate(last7.getDate() - 6);
+        const last30 = new Date(today); last30.setDate(last30.getDate() - 29);
+        const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        switch (verificationTimeFilter) {
+          case 'today':
+            if (date < today) return false;
+            break;
+          case 'yesterday':
+            if (date < yesterday || date >= today) return false;
+            break;
+          case 'last7':
+            if (date < last7) return false;
+            break;
+          case 'last30':
+            if (date < last30) return false;
+            break;
+          case 'thisMonth':
+            if (date < thisMonth) return false;
+            break;
+        }
+      }
+      return true;
+    });
+  }, [verificationEntries, verificationSearch, verificationCourseFilter, verificationStatusFilter, verificationTimeFilter]);
+
+  const verificationCourseOptions = useMemo(() => {
+    const courses = new Set<string>();
+    verificationEntries.forEach(entry => courses.add(entry.courseName || 'N/A'));
+    return ['All', ...Array.from(courses).sort()];
+  }, [verificationEntries]);
 
   // --- Levenshtein Distance Helper for Fuzzy Matching ---
   const levenshteinDistance = (str1: string, str2: string): number => {
@@ -2287,36 +2360,111 @@ export default function AdminDashboard() {
                       <p className="text-sm mt-1">Submissions from the /verifystudent page will appear here.</p>
                     </div>
                   ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm text-left">
-                        <thead className="bg-slate-50 text-slate-600 font-semibold">
-                          <tr>
-                            <th className="px-4 py-3">#</th>
-                            <th className="px-4 py-3">Name</th>
-                            <th className="px-4 py-3">Email</th>
-                            <th className="px-4 py-3">Mobile Number</th>
-                            <th className="px-4 py-3">Course Name</th>
-                            <th className="px-4 py-3">Submitted At</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                          {verificationEntries.map((entry, index) => {
-                            const isAutoGenerated = entry.certificateId && String(entry.certificateId).startsWith('BMA-GRAD-');
-                            return (
-                              <tr key={entry._id || index} className="hover:bg-slate-50">
-                                <td className="px-4 py-3 text-slate-500">{index + 1}</td>
-                                <td className="px-4 py-3 font-medium text-slate-900">{entry.name}</td>
-                                <td className="px-4 py-3">{entry.email || 'N/A'}</td>
-                                <td className="px-4 py-3">{entry.mobile || 'N/A'}</td>
-                                <td className="px-4 py-3">{isAutoGenerated ? 'N/A' : (entry.courseName || 'N/A')}</td>
-                                <td className="px-4 py-3 text-slate-500">
-                                  {entry.createdAt ? new Date(entry.createdAt).toLocaleString('en-IN') : 'N/A'}
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
+                    <div className="space-y-4">
+                      <div className="flex flex-col lg:flex-row gap-3">
+                        <div className="relative flex-1">
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                          <input
+                            type="text"
+                            placeholder="Search name, email, mobile..."
+                            value={verificationSearch}
+                            onChange={(e) => setVerificationSearch(e.target.value)}
+                            className="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          />
+                        </div>
+                        <select
+                          value={verificationCourseFilter}
+                          onChange={(e) => setVerificationCourseFilter(e.target.value)}
+                          className="px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                        >
+                          {verificationCourseOptions.map((course) => (
+                            <option key={course} value={course}>{course === 'All' ? 'All Courses' : course}</option>
+                          ))}
+                        </select>
+                        <select
+                          value={verificationStatusFilter}
+                          onChange={(e) => setVerificationStatusFilter(e.target.value as any)}
+                          className="px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                        >
+                          <option value="All">All Status</option>
+                          <option value="inDb">In DB (Green)</option>
+                          <option value="notInDb">Not in DB (Red)</option>
+                        </select>
+                        <select
+                          value={verificationTimeFilter}
+                          onChange={(e) => setVerificationTimeFilter(e.target.value as any)}
+                          className="px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                        >
+                          <option value="All">All Time</option>
+                          <option value="today">Today</option>
+                          <option value="yesterday">Yesterday</option>
+                          <option value="last7">Last 7 Days</option>
+                          <option value="last30">Last 30 Days</option>
+                          <option value="thisMonth">This Month</option>
+                        </select>
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setVerificationSearch('');
+                            setVerificationCourseFilter('All');
+                            setVerificationStatusFilter('All');
+                            setVerificationTimeFilter('All');
+                          }}
+                        >
+                          Clear
+                        </Button>
+                      </div>
+
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm text-left">
+                          <thead className="bg-slate-50 text-slate-600 font-semibold">
+                            <tr>
+                              <th className="px-4 py-3">#</th>
+                              <th className="px-4 py-3">Name</th>
+                              <th className="px-4 py-3">Email</th>
+                              <th className="px-4 py-3">Mobile Number</th>
+                              <th className="px-4 py-3">Course Name</th>
+                              <th className="px-4 py-3">Submitted At</th>
+                              <th className="px-4 py-3 text-right">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100">
+                            {filteredVerificationEntries.map((entry, index) => {
+                              const isInDb = Boolean(entry.certificateId && !String(entry.certificateId).startsWith('BMA-GRAD-'));
+                              return (
+                                <tr
+                                  key={entry._id || index}
+                                  className={isInDb ? 'bg-emerald-50/40 hover:bg-emerald-100/60' : 'bg-rose-50/40 hover:bg-rose-100/60'}
+                                >
+                                  <td className="px-4 py-3 text-slate-500">{index + 1}</td>
+                                  <td className="px-4 py-3 font-medium text-slate-900">{entry.name}</td>
+                                  <td className="px-4 py-3">{entry.email || 'N/A'}</td>
+                                  <td className="px-4 py-3">{entry.mobile || 'N/A'}</td>
+                                  <td className="px-4 py-3">{isInDb ? (entry.courseName || 'N/A') : 'N/A'}</td>
+                                  <td className="px-4 py-3 text-slate-500">
+                                    {entry.createdAt ? new Date(entry.createdAt).toLocaleString('en-IN') : 'N/A'}
+                                  </td>
+                                  <td className="px-4 py-3 text-right">
+                                    <button
+                                      onClick={() => handleDeleteVerification(entry._id)}
+                                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-100 px-2 py-1 rounded-md transition-colors"
+                                      title="Delete"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                      Delete
+                                    </button>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                        {filteredVerificationEntries.length === 0 && (
+                          <div className="text-center py-8 text-slate-500">
+                            <p>No entries match the selected filters.</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </CardContent>
