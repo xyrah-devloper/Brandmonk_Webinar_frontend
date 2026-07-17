@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
   Award, CheckCircle, Ticket, ArrowLeft, Sparkles,
-  User, Mail, Phone, BookOpen
+  User, Mail, Phone, BookOpen, MailOpen, ExternalLink
 } from 'lucide-react';
 
 function VerifiedContent() {
@@ -31,11 +31,11 @@ function VerifiedContent() {
     const originalHtmlHeight = document.documentElement.style.height;
 
     document.body.style.setProperty('overflow-x', 'hidden', 'important');
-    document.body.style.setProperty('overflow-y', 'hidden', 'important');
+    document.body.style.setProperty('overflow-y', 'auto', 'important');
     document.documentElement.style.setProperty('overflow-x', 'hidden', 'important');
-    document.documentElement.style.setProperty('overflow-y', 'hidden', 'important');
-    document.body.style.setProperty('height', '100vh', 'important');
-    document.documentElement.style.setProperty('height', '100vh', 'important');
+    document.documentElement.style.setProperty('overflow-y', 'auto', 'important');
+    document.body.style.setProperty('height', 'auto', 'important');
+    document.documentElement.style.setProperty('height', 'auto', 'important');
 
     return () => {
       document.body.style.overflowX = originalBodyOverflowX;
@@ -95,7 +95,7 @@ function VerifiedContent() {
 
   return (
     <div
-      className="pass-wrapper h-screen w-full relative flex flex-col items-center justify-between py-6 px-4 overflow-hidden select-none"
+      className="pass-wrapper min-h-screen w-full relative flex flex-col items-center justify-start py-6 px-4 overflow-x-hidden overflow-y-auto select-none"
       style={{
         background: 'radial-gradient(ellipse at 50% 30%, #FFFDF7 0%, #FAF6EC 35%, #F0E6D0 70%, #E8DAB8 100%)',
         fontFamily: "'Inter', sans-serif",
@@ -105,11 +105,10 @@ function VerifiedContent() {
         __html: `
         html, body {
           background-color: #FAF6EC !important;
-          overflow: hidden !important;
           overflow-x: hidden !important;
-          overflow-y: hidden !important;
-          height: 100vh !important;
-          max-height: 100vh !important;
+          overflow-y: auto !important;
+          height: auto !important;
+          min-height: 100vh !important;
           margin: 0 !important;
           padding: 0 !important;
         }
@@ -503,6 +502,52 @@ function VerifiedContent() {
             </div>
           </div>
         </div>
+
+        {/* Kuthuvilakku Ceremony Section */}
+        <motion.div
+          className="w-full max-w-[460px] mt-5 bg-white rounded-2xl border border-[#D4AF37]/35 shadow-lg overflow-hidden"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          <div className="bg-gradient-to-r from-[#4D1010] to-[#6B1A1A] px-5 py-3 text-center">
+            <p className="text-[#D4AF37] font-bold text-sm tracking-wide">🪔 Kuthuvilakku Ceremony</p>
+          </div>
+          <div className="px-5 py-4">
+            <a
+              href="https://events.brandmonkacademy.com/light"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full bg-[#D4AF37] hover:bg-[#B8942F] text-white font-bold text-sm py-3 rounded-xl transition-all hover:scale-[1.01] shadow-md"
+            >
+              Join Kuthuvilakku Ceremony
+              <ExternalLink className="w-4 h-4" />
+            </a>
+
+            <div className="mt-4 pt-3 border-t border-[#4D1010]/10">
+              <div className="flex items-start gap-2.5">
+                <MailOpen className="w-4 h-4 text-[#D4AF37] mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-[#4D1010] font-bold text-xs">
+                    Check your email for the Kuthuvilakku Ceremony pass
+                  </p>
+                  <p className="text-[#6E5945] text-[11px] mt-1 leading-relaxed">
+                    We&apos;ve sent your boarding pass with the ceremony link to{' '}
+                    <span className="font-semibold text-[#4D1010]">{student.email || 'your email'}</span>.
+                    Please check your inbox (and spam folder).
+                  </p>
+                  <a
+                    href={student.email ? `mailto:${student.email}` : 'mailto:'}
+                    className="inline-flex items-center gap-1.5 mt-2.5 text-[#D4AF37] hover:text-[#B8942F] font-bold text-xs transition-colors"
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                    Open Email App
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
 
         {/* Back Button */}
         <Link
