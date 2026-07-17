@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -9,7 +9,7 @@ import {
   User, Mail, Phone, BookOpen
 } from 'lucide-react';
 
-export default function VerifiedPage() {
+function VerifiedContent() {
   const searchParams = useSearchParams();
   const [mounted, setMounted] = useState(false);
 
@@ -523,3 +523,21 @@ export default function VerifiedPage() {
     </div>
   );
 }
+
+function VerifiedPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-[#FAF6EC]">
+          <div className="text-[#4D1010] font-serif text-lg font-semibold animate-pulse">
+            Loading...
+          </div>
+        </div>
+      }
+    >
+      <VerifiedContent />
+    </Suspense>
+  );
+}
+
+export default VerifiedPage;
