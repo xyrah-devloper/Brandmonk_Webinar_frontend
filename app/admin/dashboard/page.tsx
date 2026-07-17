@@ -1091,7 +1091,7 @@ export default function AdminDashboard() {
         <div className="flex h-20 items-center px-8 border-b border-slate-100">
           <div className="flex items-center justify-center w-full">
             <img
-              src="https://brandmonkacademy.com/wp-content/uploads/2023/09/cropped-BMA-Logo-01-01-768x228-1.png"
+              src="/logo bm.png"
               alt="BrandMonk Academy"
               className="h-12 w-auto object-contain"
             />
