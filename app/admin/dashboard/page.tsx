@@ -204,6 +204,10 @@ export default function AdminDashboard() {
   const [isQROpen, setIsQROpen] = useState(false);
   const [qrStudent, setQrStudent] = useState<Student | null>(null);
 
+  // Verification form entries (from /verifystudent page)
+  const [verificationEntries, setVerificationEntries] = useState<any[]>([]);
+  const [verificationLoading, setVerificationLoading] = useState(false);
+
   // Forms
   const [newStudent, setNewStudent] = useState({
     name: '', email: '', phone: '', webinarName: '', location: '', profession: '', certificateType: 'Government'
@@ -423,7 +427,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (activeTab === 'verifications') {
-      fetchData();
+      fetchVerificationEntries();
     }
   }, [activeTab]);
 
@@ -498,6 +502,23 @@ export default function AdminDashboard() {
       console.error('Failed to fetch data:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchVerificationEntries = async () => {
+    setVerificationLoading(true);
+    try {
+      const res = await axios.get(`${API_URL}/api/verify-student/entries`);
+      if (res.data.success) {
+        setVerificationEntries(res.data.entries || []);
+      } else {
+        setVerificationEntries([]);
+      }
+    } catch (err) {
+      console.error('Failed to fetch verification entries:', err);
+      setVerificationEntries([]);
+    } finally {
+      setVerificationLoading(false);
     }
   };
 
@@ -2243,15 +2264,15 @@ export default function AdminDashboard() {
               <Card className="border-slate-200">
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
-                    <CardTitle>Student Database</CardTitle>
-                    <CardDescription>All registered students with course and contact details</CardDescription>
+                    <CardTitle>Verification Form Submissions</CardTitle>
+                    <CardDescription>Students who filled the verification form at /verifystudent</CardDescription>
                   </div>
                   <Button
-                    onClick={fetchData}
-                    disabled={loading}
+                    onClick={fetchVerificationEntries}
+                    disabled={verificationLoading}
                     className="bg-emerald-600 hover:bg-emerald-700 text-white"
                   >
-                    {loading ? (
+                    {verificationLoading ? (
                       <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Loading...</>
                     ) : (
                       <><ShieldCheck className="w-4 h-4 mr-2" /> Refresh</>
@@ -2259,11 +2280,11 @@ export default function AdminDashboard() {
                   </Button>
                 </CardHeader>
                 <CardContent>
-                  {students.length === 0 ? (
+                  {verificationEntries.length === 0 ? (
                     <div className="text-center py-12 text-slate-500">
                       <ShieldCheck className="w-12 h-12 mx-auto mb-3 text-slate-300" />
-                      <p>No student records found.</p>
-                      <p className="text-sm mt-1">Registered students will appear here.</p>
+                      <p>No verification form submissions yet.</p>
+                      <p className="text-sm mt-1">Submissions from the /verifystudent page will appear here.</p>
                     </div>
                   ) : (
                     <div className="overflow-x-auto">
@@ -2275,24 +2296,25 @@ export default function AdminDashboard() {
                             <th className="px-4 py-3">Email</th>
                             <th className="px-4 py-3">Mobile Number</th>
                             <th className="px-4 py-3">Course Name</th>
-                            <th className="px-4 py-3">Certificate ID</th>
                             <th className="px-4 py-3">Submitted At</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                          {students.map((student, index) => (
-                            <tr key={student._id || index} className="hover:bg-slate-50">
-                              <td className="px-4 py-3 text-slate-500">{index + 1}</td>
-                              <td className="px-4 py-3 font-medium text-slate-900">{student.name}</td>
-                              <td className="px-4 py-3">{student.email || 'N/A'}</td>
-                              <td className="px-4 py-3">{student.phone || 'N/A'}</td>
-                              <td className="px-4 py-3">{student.webinarName || 'N/A'}</td>
-                              <td className="px-4 py-3 font-mono text-xs">{student.certificateId || 'N/A'}</td>
-                              <td className="px-4 py-3 text-slate-500">
-                                {student.createdAt ? new Date(student.createdAt).toLocaleString('en-IN') : 'N/A'}
-                              </td>
-                            </tr>
-                          ))}
+                          {verificationEntries.map((entry, index) => {
+                            const isAutoGenerated = entry.certificateId && String(entry.certificateId).startsWith('BMA-GRAD-');
+                            return (
+                              <tr key={entry._id || index} className="hover:bg-slate-50">
+                                <td className="px-4 py-3 text-slate-500">{index + 1}</td>
+                                <td className="px-4 py-3 font-medium text-slate-900">{entry.name}</td>
+                                <td className="px-4 py-3">{entry.email || 'N/A'}</td>
+                                <td className="px-4 py-3">{entry.mobile || 'N/A'}</td>
+                                <td className="px-4 py-3">{isAutoGenerated ? 'N/A' : (entry.courseName || 'N/A')}</td>
+                                <td className="px-4 py-3 text-slate-500">
+                                  {entry.createdAt ? new Date(entry.createdAt).toLocaleString('en-IN') : 'N/A'}
+                                </td>
+                              </tr>
+                            );
+                          })}
                         </tbody>
                       </table>
                     </div>
