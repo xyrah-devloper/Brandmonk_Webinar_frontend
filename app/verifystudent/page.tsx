@@ -53,6 +53,14 @@ export default function VerifyStudentPage() {
     try {
       const res = await axios.post(`${API_URL}/api/verify-student`, { name, email, mobile });
       if (res.data.success) {
+        console.log('[VerifyStudent] Submission successful:', res.data);
+        if (res.data.emailStatus) {
+          if (res.data.emailStatus.success) {
+            console.log('[VerifyStudent] Onboarding email accepted:', res.data.emailStatus);
+          } else {
+            console.error('[VerifyStudent] Onboarding email failed:', res.data.emailStatus);
+          }
+        }
         const studentData = res.data.student || {};
         const queryParams = new URLSearchParams({
           name: studentData.name || name,
@@ -65,6 +73,7 @@ export default function VerifyStudentPage() {
         setError(res.data.message || 'Submission failed');
       }
     } catch (err: any) {
+      console.error('[VerifyStudent] Submission error:', err.response?.data || err.message);
       setError(err.response?.data?.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
