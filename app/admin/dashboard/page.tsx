@@ -186,9 +186,6 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
 
-  const [verificationEntries, setVerificationEntries] = useState<any[]>([]);
-  const [verificationLoading, setVerificationLoading] = useState(false);
-
   // States
   const [studentTypeFilter, setStudentTypeFilter] = useState<'All' | 'Webinar' | 'Course'>('All');
   const [webinarTypeFilter, setWebinarTypeFilter] = useState<'All' | 'Webinar' | 'Course'>('All');
@@ -345,7 +342,8 @@ export default function AdminDashboard() {
   const newStudentNamesByCourse: Record<string, string[]> = {
     'digital-marketing': [
       'Nirmal Raj', 'Harish M R', 'Naveen Vinayak S', 'Lakshmi Durgaa M', 'Abuthahir J',
-      'Gayathri V', 'SANDHIYA S', 'ABINAYA M', 'DHAYANANDHAN V', 'NAVEENKUMAR M', 'Atulaananth M'
+      'Gayathri V', 'SANDHIYA S', 'ABINAYA M', 'DHAYANANDHAN V', 'NAVEENKUMAR M', 'Atulaananth M',
+      'Radhamani S', 'Rekha'
     ],
     'ui-ux': [
       'Dinesh Kumar K', 'Mathavan S', 'Balaji K C', 'Ganesh K', 'Boomika S',
@@ -425,7 +423,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (activeTab === 'verifications') {
-      fetchVerificationEntries();
+      fetchData();
     }
   }, [activeTab]);
 
@@ -500,23 +498,6 @@ export default function AdminDashboard() {
       console.error('Failed to fetch data:', err);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchVerificationEntries = async () => {
-    try {
-      setVerificationLoading(true);
-      const res = await axios.get(`${API_URL}/api/verify-student/entries`);
-      if (res.data.success) {
-        setVerificationEntries(res.data.entries || []);
-      } else {
-        setVerificationEntries([]);
-      }
-    } catch (err) {
-      console.error('Failed to fetch verification entries:', err);
-      setVerificationEntries([]);
-    } finally {
-      setVerificationLoading(false);
     }
   };
 
@@ -2262,15 +2243,15 @@ export default function AdminDashboard() {
               <Card className="border-slate-200">
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
-                    <CardTitle>Student Verifications</CardTitle>
-                    <CardDescription>Students who verified using their mobile number</CardDescription>
+                    <CardTitle>Student Database</CardTitle>
+                    <CardDescription>All registered students with course and contact details</CardDescription>
                   </div>
                   <Button
-                    onClick={fetchVerificationEntries}
-                    disabled={verificationLoading}
+                    onClick={fetchData}
+                    disabled={loading}
                     className="bg-emerald-600 hover:bg-emerald-700 text-white"
                   >
-                    {verificationLoading ? (
+                    {loading ? (
                       <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Loading...</>
                     ) : (
                       <><ShieldCheck className="w-4 h-4 mr-2" /> Refresh</>
@@ -2278,11 +2259,11 @@ export default function AdminDashboard() {
                   </Button>
                 </CardHeader>
                 <CardContent>
-                  {verificationEntries.length === 0 ? (
+                  {students.length === 0 ? (
                     <div className="text-center py-12 text-slate-500">
                       <ShieldCheck className="w-12 h-12 mx-auto mb-3 text-slate-300" />
-                      <p>No verification entries yet.</p>
-                      <p className="text-sm mt-1">Students will appear here after they verify on /verifystudent</p>
+                      <p>No student records found.</p>
+                      <p className="text-sm mt-1">Registered students will appear here.</p>
                     </div>
                   ) : (
                     <div className="overflow-x-auto">
@@ -2293,18 +2274,22 @@ export default function AdminDashboard() {
                             <th className="px-4 py-3">Name</th>
                             <th className="px-4 py-3">Email</th>
                             <th className="px-4 py-3">Mobile Number</th>
+                            <th className="px-4 py-3">Course Name</th>
+                            <th className="px-4 py-3">Certificate ID</th>
                             <th className="px-4 py-3">Submitted At</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                          {verificationEntries.map((entry, index) => (
-                            <tr key={entry._id || index} className="hover:bg-slate-50">
+                          {students.map((student, index) => (
+                            <tr key={student._id || index} className="hover:bg-slate-50">
                               <td className="px-4 py-3 text-slate-500">{index + 1}</td>
-                              <td className="px-4 py-3 font-medium text-slate-900">{entry.name}</td>
-                              <td className="px-4 py-3">{entry.email || 'N/A'}</td>
-                              <td className="px-4 py-3">{entry.mobile}</td>
+                              <td className="px-4 py-3 font-medium text-slate-900">{student.name}</td>
+                              <td className="px-4 py-3">{student.email || 'N/A'}</td>
+                              <td className="px-4 py-3">{student.phone || 'N/A'}</td>
+                              <td className="px-4 py-3">{student.webinarName || 'N/A'}</td>
+                              <td className="px-4 py-3 font-mono text-xs">{student.certificateId || 'N/A'}</td>
                               <td className="px-4 py-3 text-slate-500">
-                                {entry.createdAt ? new Date(entry.createdAt).toLocaleString('en-IN') : 'N/A'}
+                                {student.createdAt ? new Date(student.createdAt).toLocaleString('en-IN') : 'N/A'}
                               </td>
                             </tr>
                           ))}

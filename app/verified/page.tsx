@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
   Award, CheckCircle, Ticket, ArrowLeft, Sparkles,
-  User, Mail, Phone, BookOpen, FileCheck
+  User, Mail, Phone, BookOpen
 } from 'lucide-react';
 
 export default function VerifiedPage() {
@@ -18,7 +18,6 @@ export default function VerifiedPage() {
     email: searchParams.get('email') || '',
     mobile: searchParams.get('mobile') || '',
     courseName: searchParams.get('courseName') || '24th Graduation Function',
-    certificateId: searchParams.get('certificateId') || '',
   }), [searchParams]);
 
   useEffect(() => {
@@ -480,15 +479,6 @@ export default function VerifiedPage() {
                 </div>
               </div>
 
-              {student.certificateId && (
-                <div className="flex items-start gap-3">
-                  <FileCheck className="w-4.5 h-4.5 text-[#B8942F] mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-[#9C8B7A] font-semibold text-[9px] uppercase tracking-wider">Certificate ID</p>
-                    <p className="text-[#3D2B1F] font-bold font-mono">{student.certificateId}</p>
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Note */}

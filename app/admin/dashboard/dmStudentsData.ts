@@ -301,5 +301,7 @@ export const dmStudents = [
   ].map((name, index) => ({
     name,
     certificateId: `BMAJUNDMMES/Q0506S${(101 + index).toString().padStart(3, '0')}`
-  }))
+  })),
+  { name: 'Radhamani S', certificateId: 'BMAJUNDMMES/Q0506S305' },
+  { name: 'Rekha', certificateId: 'BMAJUNDMMES/Q0506S306' }
 ];

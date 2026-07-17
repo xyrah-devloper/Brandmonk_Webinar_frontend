@@ -59,7 +59,6 @@ export default function VerifyStudentPage() {
           email: studentData.email || email,
           mobile: studentData.mobile || mobile,
           courseName: studentData.courseName || '24th Graduation Function',
-          certificateId: studentData.certificateId || '',
         });
         router.push(`/verified?${queryParams.toString()}`);
       } else {
