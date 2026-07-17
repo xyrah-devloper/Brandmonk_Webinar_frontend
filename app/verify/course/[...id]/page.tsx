@@ -25,11 +25,14 @@ export default function VerifyCourseId() {
   useEffect(() => {
     const fetchStudent = async () => {
       try {
-        const certificateId = Array.isArray(id)
+        const joinedId = Array.isArray(id)
           ? id.map(segment => decodeURIComponent(segment)).join('/')
           : decodeURIComponent(id || '');
 
-        if (!certificateId) return;
+        if (!joinedId) return;
+
+        // Some QR/filenames use underscores instead of slashes (e.g. BMAJUNDMMES_Q0506S306)
+        const certificateId = joinedId.replace(/_/g, '/');
 
         const res = await axios.get(
           `${API_URL}/api/course-students/${encodeURIComponent(certificateId)}`

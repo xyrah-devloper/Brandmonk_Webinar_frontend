@@ -286,7 +286,7 @@ export default function AdminDashboard() {
         ctx.fillText(student.certificateId, canvas.width * 0.775, canvas.height * 0.918);
 
         // QR code
-        const qrUrl = `${window.location.origin}/verify/course/${encodeURIComponent(student.certificateId)}`;
+        const qrUrl = `${window.location.origin}/verify/course/${student.certificateId}`;
         const qrDataUrl = await QRCode.toDataURL(qrUrl, { margin: 1, width: 260, color: { dark: '#000000', light: '#FFFFFF' } });
         const qrImg = new Image();
         qrImg.src = qrDataUrl;
@@ -2456,7 +2456,7 @@ export default function AdminDashboard() {
             <CardContent className="pt-8 pb-8 flex flex-col items-center gap-4">
               <div className="p-4 bg-white border-2 border-slate-900 rounded-lg">
                 <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`https://brand-monk.vercel.app/verify/${qrStudent._id}`)}`}
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${typeof window !== 'undefined' ? window.location.origin : ''}/verify/${qrStudent.certificateId || qrStudent._id}`)}`}
                   alt="Student Verification QR"
                   className="w-48 h-48"
                 />
@@ -2474,7 +2474,8 @@ export default function AdminDashboard() {
                   variant="outline"
                   onClick={async () => {
                     try {
-                      const response = await fetch(`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`https://brand-monk.vercel.app/verify/${qrStudent._id}`)}`);
+                      const qrUrl = `${window.location.origin}/verify/${qrStudent.certificateId || qrStudent._id}`;
+                      const response = await fetch(`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrUrl)}`);
                       const blob = await response.blob();
                       const url = window.URL.createObjectURL(blob);
                       const a = document.createElement('a');

@@ -31,18 +31,18 @@ export default function VerifyPage({ params }: PageProps) {
       try {
         const rawId = resolvedParams.id;
         // Handle catch-all params which come as an array
-        const certificateId = Array.isArray(rawId) 
-          ? rawId.map(segment => decodeURIComponent(segment)).join('/') 
+        const joinedId = Array.isArray(rawId)
+          ? rawId.map(segment => decodeURIComponent(segment)).join('/')
           : decodeURIComponent(rawId);
-          
+
+        // Some filenames/QRs use underscores instead of slashes (e.g. BMAJUNDMMES_Q0506S306)
+        const certificateId = joinedId.replace(/_/g, '/');
+
         console.log('Verifying ID:', certificateId);
-        
-        // Double encoding for the API call to ensure slashes are preserved in the path parameter
-        // The backend expects /api/students/:id. If we send A/B, it matches :id=A which is wrong.
-        // We should send encoded ID so it matches :id=A%2FB
+
         const encodedId = encodeURIComponent(certificateId);
 
-        const res = await axios.get(`${API_URL}/api/students/${encodedId}`);
+        const res = await axios.get(`${API_URL}/api/course-students/${encodedId}`);
         if (res.data.success) {
           setStudent(res.data.student);
         }
@@ -118,7 +118,7 @@ export default function VerifyPage({ params }: PageProps) {
                     </div>
                     <div>
                       <p className="text-gray-500 text-sm">Webinar/Course</p>
-                      <p className="text-white font-semibold">{student.webinarName}</p>
+                      <p className="text-white font-semibold">{student.webinarName || student.courseName}</p>
                     </div>
                   </div>
 
@@ -167,7 +167,7 @@ export default function VerifyPage({ params }: PageProps) {
                      <div>
                        <p className="text-gray-500 text-sm">Certificate Type</p>
                        <p className="text-white font-semibold flex items-center gap-2">
-                         {student.certificateType || 'Standard'}
+                         {student.certificateType || student.courseName || 'Standard'}
                          {student.certificateType === 'Government' && <span className="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full">Official</span>}
                        </p>
                      </div>

@@ -48,9 +48,11 @@ export default function CertificateVerificationPage({ params }: PageProps) {
 
     const fetchCertificate = async () => {
       try {
-        console.log('Verifying certificate:', resolvedParams.certificateId);
+        // Some filenames/QRs use underscores instead of slashes (e.g. BMAJUNDMMES_Q0506S306)
+        const certificateId = resolvedParams.certificateId.replace(/_/g, '/');
+        console.log('Verifying certificate:', certificateId);
         const res = await axios.get(
-          `${API_URL}/api/course-students/verify/${resolvedParams.certificateId}`
+          `${API_URL}/api/course-students/verify/${encodeURIComponent(certificateId)}`
         );
 
         if (res.data.success && res.data.certificate) {
