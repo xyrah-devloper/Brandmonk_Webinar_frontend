@@ -29,11 +29,11 @@ export default function VerifyStudentPage() {
     const originalHtmlHeight = document.documentElement.style.height;
 
     document.body.style.setProperty("overflow-x", "hidden", "important");
-    document.body.style.setProperty("overflow-y", "hidden", "important");
+    document.body.style.setProperty("overflow-y", "auto", "important");
     document.documentElement.style.setProperty("overflow-x", "hidden", "important");
-    document.documentElement.style.setProperty("overflow-y", "hidden", "important");
-    document.body.style.setProperty("height", "100vh", "important");
-    document.documentElement.style.setProperty("height", "100vh", "important");
+    document.documentElement.style.setProperty("overflow-y", "auto", "important");
+    document.body.style.setProperty("height", "auto", "important");
+    document.documentElement.style.setProperty("height", "auto", "important");
 
     return () => {
       document.body.style.overflowX = originalBodyOverflowX;
@@ -115,7 +115,7 @@ export default function VerifyStudentPage() {
 
   return (
     <div
-      className="main-wrapper h-screen w-full overflow-hidden relative flex flex-col justify-between items-center py-5 px-4 select-none"
+      className="main-wrapper min-h-screen h-auto w-full overflow-y-auto overflow-x-hidden relative flex flex-col justify-start items-center py-5 px-4 pb-12 select-none"
       style={{
         background: 'radial-gradient(ellipse at 50% 30%, #FFFDF7 0%, #FAF6EC 35%, #F0E6D0 70%, #E8DAB8 100%)',
         fontFamily: "'Inter', sans-serif",
@@ -126,11 +126,11 @@ export default function VerifyStudentPage() {
         __html: `
         html, body {
           background-color: #1E0303 !important;
-          overflow: hidden !important;
           overflow-x: hidden !important;
-          overflow-y: hidden !important;
-          height: 100vh !important;
-          max-height: 100vh !important;
+          overflow-y: auto !important;
+          height: auto !important;
+          min-height: 100vh !important;
+          max-height: none !important;
           margin: 0 !important;
           padding: 0 !important;
         }
@@ -563,7 +563,7 @@ export default function VerifyStudentPage() {
       </div>
 
       {/* ====== MAIN SCALED CONTENT COLUMN ====== */}
-      <div className="main-content-column w-full flex-1 flex flex-col justify-start md:justify-between gap-10 md:gap-0 items-center z-10 max-w-[760px] max-h-[85vh] md:max-h-[92vh] my-auto pt-[64px] md:pt-[40px]">
+      <div className="main-content-column w-full flex flex-col justify-start gap-10 md:gap-0 items-center z-10 max-w-[760px] my-auto pt-[64px] md:pt-[40px] pb-12">
 
         {/* ====== HEADER SECTION ====== */}
         <div className="flex w-full items-center justify-center flex-col relative px-4 md:px-0 mb-4 md:mb-0">
@@ -837,8 +837,8 @@ export default function VerifyStudentPage() {
             />
           </div>
 
-          {/* ====== FLOATING DIPLOMA SCROLL FOR MOBILE ====== */}
-          <div className="absolute -bottom-24 left-[20px] z-20 pointer-events-none md:hidden w-[180px] h-[150px]" style={{ filter: 'drop-shadow(0 15px 30px rgba(30, 3, 3, 0.45))' }}>
+          {/* ====== FLOATING DIPLOMA SCROLL FOR MOBILE (hidden to keep submit button visible) ====== */}
+          <div className="absolute -bottom-24 left-[20px] z-20 pointer-events-none hidden w-[180px] h-[150px]" style={{ filter: 'drop-shadow(0 15px 30px rgba(30, 3, 3, 0.45))' }}>
             <img
               src="/component.png"
               alt="Diploma Scroll"
