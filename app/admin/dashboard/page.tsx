@@ -20,6 +20,7 @@ import JSZip from 'jszip';
 import jsPDF from 'jspdf';
 import { API_URL } from '@/utils/config';
 import { dmJune190Names } from './dmJune190Names';
+import { latestLatestStudents } from './latestLatestStudentsData';
 
 // --- Types ---
 interface Student {
@@ -320,7 +321,9 @@ export default function AdminDashboard() {
     'digital-marketing-june-190': 'DM_June190',
     'data-analytics': 'DA',
     'artificial-intelligence': 'AI',
-    'ui-ux': 'UIUX'
+    'ui-ux': 'UIUX',
+    'digital-marketing-latest': 'DM_Latest',
+    'ui-ux-latest': 'UIUX_Latest'
   };
 
   // Fetch students from DB and generate certificates for any course
@@ -385,6 +388,23 @@ export default function AdminDashboard() {
         await generateCertificatesForStudents(filtered, courseSlug);
       } catch (err) {
         console.error(`Failed to generate new certificates for ${courseSlug}:`, err);
+      }
+    }
+  };
+
+  // Generate certificates for latest batch students
+  const generateLatestCertificates = async () => {
+    const courses = Object.keys(latestLatestStudents) as string[];
+    for (const courseSlug of courses) {
+      try {
+        const studentsToGenerate = latestLatestStudents[courseSlug];
+        if (!studentsToGenerate || studentsToGenerate.length === 0) {
+          console.log(`No latest students found for ${courseSlug}`);
+          continue;
+        }
+        await generateCertificatesForStudents(studentsToGenerate, courseSlug);
+      } catch (err) {
+        console.error(`Failed to generate latest certificates for ${courseSlug}:`, err);
       }
     }
   };
@@ -2022,6 +2042,17 @@ export default function AdminDashboard() {
                       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                         <label className="text-sm font-medium">2. Generate New Certificates</label>
                         <div className="flex flex-wrap gap-2">
+                          <Button
+                            disabled={isGeneratingCerts}
+                            onClick={generateLatestCertificates}
+                            className="bg-rose-600 hover:bg-rose-700 text-white"
+                          >
+                            {isGeneratingCerts ? (
+                              <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Generating...</>
+                            ) : (
+                              <><Sparkles className="w-4 h-4 mr-2" /> Generate Latest Certificates</>
+                            )}
+                          </Button>
                           <Button
                             disabled={isGeneratingCerts}
                             onClick={generateNewStudentsCertificates}
