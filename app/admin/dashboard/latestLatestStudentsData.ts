@@ -10,7 +10,8 @@ export const latestLatestStudents: Record<string, { name: string; certificateId:
     { name: 'Suriya', certificateId: 'BMAJUNDMMES/Q0506S314' },
     { name: 'Sri Anu Priyanka', certificateId: 'BMAJUNDMMES/Q0506S315' },
     { name: 'F. Aashefa', certificateId: 'BMAJUNDMMES/Q0506S316' },
-    { name: 'P.Saravanakumar', certificateId: 'BMAJUNDMMES/Q0506S317' }
+    { name: 'P.Saravanakumar', certificateId: 'BMAJUNDMMES/Q0506S317' },
+    { name: 'Kishore Marimuthu', certificateId: 'BMAJUNDMMES/Q0506S321' }
   ],
   'video-editing': [
     { name: 'Shangavi S M', certificateId: 'BMAJUNDMMES/Q0506S318' },
