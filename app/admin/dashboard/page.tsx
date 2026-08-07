@@ -285,7 +285,7 @@ export default function AdminDashboard() {
         ctx.fillStyle = '#6f3230';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(titleCaseName, canvas.width / 2, canvas.height * 0.56);
+        ctx.fillText(titleCaseName, canvas.width / 2, canvas.height * 0.58);
 
         // Certificate ID (Poppins) - smaller for longer IDs
         const certIdFontSize = isLongId ? canvas.width * 0.0175 : canvas.width * 0.019;
