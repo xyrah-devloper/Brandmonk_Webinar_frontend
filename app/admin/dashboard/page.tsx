@@ -276,7 +276,7 @@ export default function AdminDashboard() {
           .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
           .join(' ');
         const maxNameWidth = canvas.width * 0.78;
-        let nameFontSize = 130;
+        let nameFontSize = 140;
         ctx.font = `${nameFontSize}px "Niconne", cursive`;
         while (nameFontSize > 46 && ctx.measureText(titleCaseName).width > maxNameWidth) {
           nameFontSize -= 2;
@@ -285,7 +285,7 @@ export default function AdminDashboard() {
         ctx.fillStyle = '#6f3230';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(titleCaseName, canvas.width / 2, canvas.height * 0.54);
+        ctx.fillText(titleCaseName, canvas.width / 2, canvas.height * 0.56);
 
         // Certificate ID (Poppins) - smaller for longer IDs
         const certIdFontSize = isLongId ? canvas.width * 0.0175 : canvas.width * 0.019;
