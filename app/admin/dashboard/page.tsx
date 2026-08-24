@@ -2237,6 +2237,42 @@ export default function AdminDashboard() {
                         )}
                       </div>
                     </div>
+
+                    {/* Abinaya B - Video Editing single certificate */}
+                    <div className="mt-4">
+                      <Button
+                        disabled={isGeneratingCerts}
+                        onClick={async () => {
+                          try {
+                            const res = await axios.get(`${API_URL}/api/course-students/course/video-editing`);
+                            if (!res.data.success || !res.data.students?.length) {
+                              alert('No Video Editing students found in database');
+                              return;
+                            }
+                            const normalize = (name: string) =>
+                              name.trim().toUpperCase().replace(/\s+/g, ' ').replace(/\./g, '').replace(/,/g, '');
+                            const filtered = res.data.students.filter((s: any) =>
+                              normalize(s.name) === 'ABINAYA B'
+                            );
+                            if (filtered.length === 0) {
+                              alert('Abinaya B not found in Video Editing students');
+                              return;
+                            }
+                            await generateCertificatesForStudents(filtered, 'video-editing');
+                          } catch (err) {
+                            console.error(err);
+                            alert('Failed to fetch Video Editing students');
+                          }
+                        }}
+                        className="h-12 bg-fuchsia-600 hover:bg-fuchsia-700 w-full sm:w-auto"
+                      >
+                        {isGeneratingCerts && selectedCertCourse === 'video-editing' ? (
+                          <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Generating...</>
+                        ) : (
+                          <><Sparkles className="w-5 h-5 mr-2" /> Generate Abinaya B Certificate (Video Editing)</>
+                        )}
+                      </Button>
+                    </div>
                   )}
                 </CardContent>
               </Card>
