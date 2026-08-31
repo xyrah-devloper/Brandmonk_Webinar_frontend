@@ -21,6 +21,7 @@ import jsPDF from 'jspdf';
 import { API_URL } from '@/utils/config';
 import { dmJune190Names } from './dmJune190Names';
 import { latestLatestStudents } from './latestLatestStudentsData';
+import { newBatchStudents } from './newBatchStudents';
 
 // --- Types ---
 interface Student {
@@ -2036,244 +2037,71 @@ export default function AdminDashboard() {
                     </div>
                   </div>
 
-                  {/* Step 2: Generate Certificates */}
+                  {/* Step 2: Generate New Batch Certificates */}
                   {certTemplate && (
                     <div className="space-y-4">
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                        <label className="text-sm font-medium">2. Generate New Certificates</label>
-                        <div className="flex flex-wrap gap-2">
-                          <Button
-                            disabled={isGeneratingCerts}
-                            onClick={generateLatestCertificates}
-                            className="bg-rose-600 hover:bg-rose-700 text-white"
-                          >
-                            {isGeneratingCerts ? (
-                              <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Generating...</>
-                            ) : (
-                              <><Sparkles className="w-4 h-4 mr-2" /> Generate Latest Certificates</>
-                            )}
-                          </Button>
-                          <Button
-                            disabled={isGeneratingCerts}
-                            onClick={generateNewStudentsCertificates}
-                            className="bg-amber-600 hover:bg-amber-700 text-white"
-                          >
-                            {isGeneratingCerts ? (
-                              <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Generating...</>
-                            ) : (
-                              <><Sparkles className="w-4 h-4 mr-2" /> Generate New Students Certificates</>
-                            )}
-                          </Button>
-                          <Button
-                            disabled={isGeneratingCerts}
-                            onClick={generateAllCourses}
-                            className="bg-slate-900 hover:bg-slate-800 text-white"
-                          >
-                            {isGeneratingCerts ? (
-                              <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Generating...</>
-                            ) : (
-                              <><Sparkles className="w-4 h-4 mr-2" /> Generate All Certificates</>
-                            )}
-                          </Button>
-                        </div>
-                      </div>
+                      <label className="text-sm font-medium">2. Generate New Batch Certificates</label>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {[
-                          { slug: 'video-editing', label: 'VE', title: 'Video Editing', color: 'bg-purple-600 hover:bg-purple-700', icon: Video },
-                          { slug: 'digital-marketing', label: 'DM', title: 'Digital Marketing', color: 'bg-blue-600 hover:bg-blue-700', icon: Award },
-                          { slug: 'ui-ux', label: 'UI/UX', title: 'UI/UX', color: 'bg-amber-600 hover:bg-amber-700', icon: Palette },
-                          { slug: 'data-analytics', label: 'DA', title: 'Data Analytics', color: 'bg-emerald-600 hover:bg-emerald-700', icon: TrendingUp },
-                          { slug: 'artificial-intelligence', label: 'AI', title: 'Artificial Intelligence', color: 'bg-rose-600 hover:bg-rose-700', icon: Sparkles },
+                          { slug: 'artificial-intelligence', title: 'Artificial Intelligence', color: 'bg-rose-600 hover:bg-rose-700', icon: Sparkles },
+                          { slug: 'data-analytics', title: 'Data Analytics', color: 'bg-emerald-600 hover:bg-emerald-700', icon: TrendingUp },
+                          { slug: 'digital-marketing', title: 'Digital Marketing', color: 'bg-blue-600 hover:bg-blue-700', icon: Award },
+                          { slug: 'video-editing', title: 'Video Editing', color: 'bg-purple-600 hover:bg-purple-700', icon: Video },
+                          { slug: 'ui-ux', title: 'UI/UX', color: 'bg-amber-600 hover:bg-amber-700', icon: Palette },
                         ].map((course) => {
-                          const generated = generatedCerts[course.slug];
+                          const count = newBatchStudents[course.slug]?.length || 0;
                           const Icon = course.icon;
                           return (
                             <Card key={course.slug} className="border-slate-200 p-4 flex flex-col gap-3">
                               <div className="flex items-center gap-3">
-                                <div className={`w-10 h-10 rounded-lg ${course.color.replace('hover:bg-', 'bg-').split(' ')[0]} flex items-center justify-center text-white`}>
+                                <div className={`w-10 h-10 rounded-lg ${course.color.split(' ')[0]} flex items-center justify-center text-white`}>
                                   <Icon className="w-5 h-5" />
                                 </div>
                                 <div>
                                   <h4 className="font-semibold text-slate-900">{course.title}</h4>
-                                  <p className="text-xs text-slate-500">{generated ? `${generated.length} generated` : 'Not generated'}</p>
+                                  <p className="text-xs text-slate-500">{count} students</p>
                                 </div>
                               </div>
                               <Button
                                 disabled={isGeneratingCerts}
                                 onClick={async () => {
-                                  await generateCertificatesForCourseFromDB(course.slug);
+                                  try {
+                                    const res = await axios.get(`${API_URL}/api/course-students/course/${course.slug}`);
+                                    if (!res.data.success || !res.data.students?.length) {
+                                      alert(`No ${course.title} students found in database`);
+                                      return;
+                                    }
+                                    const normalize = (name: string) =>
+                                      name.trim().toUpperCase().replace(/\s+/g, ' ').replace(/\./g, '').replace(/,/g, '');
+                                    const allowedNames = new Set(newBatchStudents[course.slug].map(normalize));
+                                    const filtered = res.data.students.filter((s: any) =>
+                                      allowedNames.has(normalize(s.name))
+                                    );
+                                    if (filtered.length === 0) {
+                                      alert(`None of the ${count} ${course.title} students found in database`);
+                                      return;
+                                    }
+                                    await generateCertificatesForStudents(filtered, course.slug);
+                                  } catch (err) {
+                                    console.error(err);
+                                    alert(`Failed to fetch ${course.title} students`);
+                                  }
                                 }}
                                 className={`h-10 w-full ${course.color} text-white`}
                               >
                                 {isGeneratingCerts && selectedCertCourse === course.slug ? (
                                   <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Generating...</>
                                 ) : (
-                                  <><Sparkles className="w-4 h-4 mr-2" /> Generate {course.label} Certificates</>
+                                  <><Sparkles className="w-4 h-4 mr-2" /> Generate {course.title} Certificates</>
                                 )}
                               </Button>
-                              {generated && generated.length > 0 && (
-                                <div className="flex flex-col gap-2 pt-2 border-t border-slate-100">
-                                  <Button
-                                    onClick={async () => {
-                                      try {
-                                        const zip = new JSZip();
-                                        generated.forEach((cert) => {
-                                          const base64Data = cert.dataUrl.split(',')[1];
-                                          const fileName = `${cert.name.replace(/[^a-z0-9]/gi, '_')}_${cert.id.replace(/[^a-z0-9]/gi, '_')}_${course.label}_Certificate.png`;
-                                          zip.file(fileName, base64Data, { base64: true });
-                                        });
-                                        const content = await zip.generateAsync({ type: 'blob' });
-                                        const url = window.URL.createObjectURL(content);
-                                        const link = document.createElement('a');
-                                        link.href = url;
-                                        link.download = `${course.label}_Certificates_${new Date().toISOString().slice(0, 10)}.zip`;
-                                        document.body.appendChild(link);
-                                        link.click();
-                                        document.body.removeChild(link);
-                                        window.URL.revokeObjectURL(url);
-                                      } catch (error) {
-                                        console.error('Error creating zip:', error);
-                                        alert('Failed to create zip file.');
-                                      }
-                                    }}
-                                    className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                                  >
-                                    <Download className="w-4 h-4 mr-2" /> Download {course.label} ZIP
-                                  </Button>
-                                  <Button
-                                    onClick={() => exportCoursePDF(course.slug)}
-                                    disabled={isGeneratingCerts}
-                                    className="bg-rose-600 hover:bg-rose-700 text-white"
-                                  >
-                                    {isGeneratingCerts ? (
-                                      <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Exporting...</>
-                                    ) : (
-                                      <><Download className="w-4 h-4 mr-2" /> Export {course.label} PDF</>
-                                    )}
-                                  </Button>
-                                </div>
-                              )}
                             </Card>
                           );
                         })}
                       </div>
-
-                      {/* DM June190 batch (kept separate because it uses a filtered name list) */}
-                      <div className="mt-4">
-                        <Button
-                          disabled={isGeneratingCerts}
-                          onClick={async () => {
-                            try {
-                              const res = await axios.get(`${API_URL}/api/course-students/course/digital-marketing`);
-                              if (!res.data.success || !res.data.students?.length) {
-                                alert('No Digital Marketing students found in database');
-                                return;
-                              }
-                              const normalize = (name: string) =>
-                                name.trim().toUpperCase().replace(/\s+/g, ' ').replace(/\./g, '').replace(/,/g, '');
-                              const allowedNames = new Set(dmJune190Names.map(normalize));
-                              const filtered = res.data.students.filter((s: any) =>
-                                allowedNames.has(normalize(s.name))
-                              );
-                              if (filtered.length === 0) {
-                                alert('None of the 190 DM June students found in database');
-                                return;
-                              }
-                              await generateCertificatesForStudents(filtered, 'digital-marketing-june-190');
-                            } catch (err) {
-                              console.error(err);
-                              alert('Failed to fetch DM students');
-                            }
-                          }}
-                          className="h-12 bg-indigo-600 hover:bg-indigo-700 w-full sm:w-auto"
-                        >
-                          {isGeneratingCerts && selectedCertCourse === 'digital-marketing-june-190' ? (
-                            <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Generating...</>
-                          ) : (
-                            <><Sparkles className="w-5 h-5 mr-2" /> Generate DM June190 Certificates ({dmJune190Names.length})</>
-                          )}
-                        </Button>
-                        {generatedCerts['digital-marketing-june-190'] && generatedCerts['digital-marketing-june-190'].length > 0 && (
-                          <div className="flex flex-wrap gap-2 mt-3">
-                            <Button
-                              onClick={async () => {
-                                try {
-                                  const zip = new JSZip();
-                                  generatedCerts['digital-marketing-june-190'].forEach((cert) => {
-                                    const base64Data = cert.dataUrl.split(',')[1];
-                                    const fileName = `${cert.name.replace(/[^a-z0-9]/gi, '_')}_${cert.id.replace(/[^a-z0-9]/gi, '_')}_DM_June190_Certificate.png`;
-                                    zip.file(fileName, base64Data, { base64: true });
-                                  });
-                                  const content = await zip.generateAsync({ type: 'blob' });
-                                  const url = window.URL.createObjectURL(content);
-                                  const link = document.createElement('a');
-                                  link.href = url;
-                                  link.download = `DM_June190_Certificates_${new Date().toISOString().slice(0, 10)}.zip`;
-                                  document.body.appendChild(link);
-                                  link.click();
-                                  document.body.removeChild(link);
-                                  window.URL.revokeObjectURL(url);
-                                } catch (error) {
-                                  console.error('Error creating zip:', error);
-                                  alert('Failed to create zip file.');
-                                }
-                              }}
-                              className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                            >
-                              <Download className="w-4 h-4 mr-2" /> Download DM June190 ZIP
-                            </Button>
-                            <Button
-                              onClick={() => exportCoursePDF('digital-marketing-june-190')}
-                              disabled={isGeneratingCerts}
-                              className="bg-rose-600 hover:bg-rose-700 text-white"
-                            >
-                              {isGeneratingCerts ? (
-                                <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Exporting...</>
-                              ) : (
-                                <><Download className="w-4 h-4 mr-2" /> Export DM June190 PDF</>
-                              )}
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Abinaya B - Video Editing single certificate */}
-                      <div className="mt-4">
-                        <Button
-                          disabled={isGeneratingCerts}
-                          onClick={async () => {
-                            try {
-                              const res = await axios.get(`${API_URL}/api/course-students/course/video-editing`);
-                              if (!res.data.success || !res.data.students?.length) {
-                                alert('No Video Editing students found in database');
-                                return;
-                              }
-                              const normalize = (name: string) =>
-                                name.trim().toUpperCase().replace(/\s+/g, ' ').replace(/\./g, '').replace(/,/g, '');
-                              const filtered = res.data.students.filter((s: any) =>
-                                normalize(s.name) === 'ABINAYA B'
-                              );
-                              if (filtered.length === 0) {
-                                alert('Abinaya B not found in Video Editing students');
-                                return;
-                              }
-                              await generateCertificatesForStudents(filtered, 'video-editing');
-                            } catch (err) {
-                              console.error(err);
-                              alert('Failed to fetch Video Editing students');
-                            }
-                          }}
-                          className="h-12 bg-fuchsia-600 hover:bg-fuchsia-700 w-full sm:w-auto"
-                        >
-                          {isGeneratingCerts && selectedCertCourse === 'video-editing' ? (
-                            <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Generating...</>
-                          ) : (
-                            <><Sparkles className="w-5 h-5 mr-2" /> Generate Abinaya B Certificate (Video Editing)</>
-                          )}
-                        </Button>
-                      </div>
                     </div>
                   )}
+
                 </CardContent>
               </Card>
 
