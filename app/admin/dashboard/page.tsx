@@ -558,6 +558,16 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleToggleAttendance = async (id: string) => {
+    try {
+      await axios.patch(`${API_URL}/api/verify-student/entries/${id}/attendance`);
+      fetchVerificationEntries();
+    } catch (err) {
+      console.error('Failed to toggle attendance:', err);
+      alert('Failed to update attendance');
+    }
+  };
+
   const filteredVerificationEntries = useMemo(() => {
     return verificationEntries.filter(entry => {
       const search = verificationSearch.trim().toLowerCase();
@@ -2256,6 +2266,21 @@ export default function AdminDashboard() {
                     </div>
                   ) : (
                     <div className="space-y-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                          <p className="text-xs font-medium text-slate-500">Total Verified</p>
+                          <p className="text-2xl font-bold text-slate-900 mt-1">{verificationEntries.length}</p>
+                        </div>
+                        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                          <p className="text-xs font-medium text-emerald-600">Attended Event</p>
+                          <p className="text-2xl font-bold text-emerald-700 mt-1">{verificationEntries.filter(e => e.attended).length}</p>
+                        </div>
+                        <div className="rounded-xl border border-rose-200 bg-rose-50 p-4">
+                          <p className="text-xs font-medium text-rose-600">Not in DB</p>
+                          <p className="text-2xl font-bold text-rose-700 mt-1">{verificationEntries.filter(e => !(e.certificateId && !String(e.certificateId).startsWith('BMA-GRAD-'))).length}</p>
+                        </div>
+                      </div>
+
                       <div className="flex flex-col lg:flex-row gap-3">
                         <div className="relative flex-1">
                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -2320,6 +2345,7 @@ export default function AdminDashboard() {
                               <th className="px-4 py-3">Mobile Number</th>
                               <th className="px-4 py-3">Course Name</th>
                               <th className="px-4 py-3">Submitted At</th>
+                              <th className="px-4 py-3">Attended</th>
                               <th className="px-4 py-3 text-right">Actions</th>
                             </tr>
                           </thead>
@@ -2338,6 +2364,19 @@ export default function AdminDashboard() {
                                   <td className="px-4 py-3">{isInDb ? (entry.courseName || 'N/A') : 'N/A'}</td>
                                   <td className="px-4 py-3 text-slate-500">
                                     {entry.createdAt ? new Date(entry.createdAt).toLocaleString('en-IN') : 'N/A'}
+                                  </td>
+                                  <td className="px-4 py-3">
+                                    <button
+                                      onClick={() => handleToggleAttendance(entry._id)}
+                                      className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-md transition-colors ${entry.attended
+                                        ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                                        : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                                        }`}
+                                      title={entry.attended ? 'Mark as not attended' : 'Mark as attended'}
+                                    >
+                                      <CheckCircle className="w-3.5 h-3.5" />
+                                      {entry.attended ? 'Attended' : 'Not Attended'}
+                                    </button>
                                   </td>
                                   <td className="px-4 py-3 text-right">
                                     <button
