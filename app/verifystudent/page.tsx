@@ -819,12 +819,17 @@ export default function VerifyStudentPage() {
 
                   {/* Error Notification */}
                   {error && (
-                    <div className="p-3.5 rounded-xl flex items-start gap-2.5" style={{
-                      background: 'rgba(220, 38, 38, 0.05)',
-                      border: '1px solid rgba(220, 38, 38, 0.12)',
+                    <div className="p-4 rounded-xl flex items-start gap-3" style={{
+                      background: 'rgba(220, 38, 38, 0.07)',
+                      border: '1.5px solid rgba(220, 38, 38, 0.25)',
                     }}>
-                      <XCircle className="w-4.5 h-4.5 text-red-600 mt-0.5 flex-shrink-0" />
-                      <p className="text-red-700 text-xs font-semibold">{error}</p>
+                      <XCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-red-700 text-sm font-bold leading-snug">{error}</p>
+                        <p className="text-red-500/80 text-[11px] font-medium mt-1">
+                          Your boarding pass cannot be generated. Please contact the academy admin for assistance.
+                        </p>
+                      </div>
                     </div>
                   )}
 
