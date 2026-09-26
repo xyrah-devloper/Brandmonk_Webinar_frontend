@@ -244,6 +244,10 @@ export default function AdminDashboard() {
     setIsGeneratingCerts(true);
     setSelectedCertCourse(courseSlug);
 
+    const orderedStudents = [...studentsToGenerate].sort((a, b) =>
+      a.certificateId.localeCompare(b.certificateId, undefined, { numeric: true, sensitivity: 'base' })
+    );
+
     try {
       const newCerts: { id: string; name: string; dataUrl: string }[] = [];
       const templateImg = new Image();
@@ -261,7 +265,7 @@ export default function AdminDashboard() {
 
       const isLongId = courseSlug === 'digital-marketing' || courseSlug === 'digital-marketing-june-190' || courseSlug === 'data-analytics' || courseSlug === 'artificial-intelligence' || courseSlug === 'ui-ux';
 
-      for (const student of studentsToGenerate) {
+      for (const student of orderedStudents) {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         if (!ctx) continue;
