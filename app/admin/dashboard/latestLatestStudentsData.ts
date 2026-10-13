@@ -11,11 +11,16 @@ export const latestLatestStudents: Record<string, { name: string; certificateId:
     { name: 'Sri Anu Priyanka', certificateId: 'BMAJUNDMMES/Q0506S315' },
     { name: 'F. Aashefa', certificateId: 'BMAJUNDMMES/Q0506S316' },
     { name: 'P.Saravanakumar', certificateId: 'BMAJUNDMMES/Q0506S317' },
-    { name: 'Kishore Marimuthu', certificateId: 'BMAJUNDMMES/Q0506S321' }
+    { name: 'Kishore Marimuthu', certificateId: 'BMAJUNDMMES/Q0506S321' },
+    { name: 'S.Yuvasankari', certificateId: 'BMASEPDMMES/Q0506S053' },
+    { name: 'C.KAJAYROSAN', certificateId: 'BMASEPDMMES/Q0506S054' },
+    { name: 'Pitchu alias Preethi .G', certificateId: 'BMASEPDMMES/Q0506S055' }
   ],
   'video-editing': [
     { name: 'Shangavi S M', certificateId: 'BMAJUNDMMES/Q0506S318' },
     { name: 'Meghaa S', certificateId: 'BMAJUNDMMES/Q0506S319' },
-    { name: 'Sabari A', certificateId: 'BMAJUNDMMES/Q0506S320' }
+    { name: 'Sabari A', certificateId: 'BMAJUNDMMES/Q0506S320' },
+    { name: 'Anderson', certificateId: 'BMASEPVEMES/Q1401S043' },
+    { name: 'Dhavalashree', certificateId: 'BMASEPVEMES/Q1401S044' }
   ]
 };
