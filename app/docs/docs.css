@@ -1,0 +1,66 @@
+/* Scoped overrides for the /docs documentation surface.
+   The global stylesheet hides scrollbars and paints the body dark;
+   the docs page restores a light, readable surface. */
+
+.docs-root,
+.docs-root body {
+  background: #ffffff !important;
+}
+
+.docs-root {
+  color: #1a1a1a;
+}
+
+/* Restore a slim scrollbar inside the docs surface */
+.docs-scroll::-webkit-scrollbar {
+  display: block !important;
+  width: 8px !important;
+  height: 8px !important;
+}
+.docs-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.docs-scroll::-webkit-scrollbar-thumb {
+  background: #d4d4d4;
+  border-radius: 4px;
+}
+.docs-scroll::-webkit-scrollbar-thumb:hover {
+  background: #a3a3a3;
+}
+.docs-scroll {
+  scrollbar-width: thin !important;
+  scrollbar-color: #d4d4d4 transparent !important;
+}
+
+/* Dark scrollbar for the navy docs sidebar */
+.docs-scroll-dark::-webkit-scrollbar {
+  display: block !important;
+  width: 8px !important;
+}
+.docs-scroll-dark::-webkit-scrollbar-track {
+  background: transparent;
+}
+.docs-scroll-dark::-webkit-scrollbar-thumb {
+  background: #2c3a6b;
+  border-radius: 4px;
+}
+.docs-scroll-dark::-webkit-scrollbar-thumb:hover {
+  background: #3d4f8a;
+}
+.docs-scroll-dark {
+  scrollbar-width: thin !important;
+  scrollbar-color: #2c3a6b transparent !important;
+}
+
+/* Docs typography */
+.docs-root h1,
+.docs-root h2,
+.docs-root h3,
+.docs-root h4 {
+  color: #0d0d0d;
+}
+
+.docs-root ::selection {
+  background: #d9fbe8;
+  color: #0d0d0d;
+}
