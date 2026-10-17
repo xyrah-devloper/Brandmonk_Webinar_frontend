@@ -184,6 +184,41 @@ export default function AdminDashboard() {
   const [selectedCertCourse, setSelectedCertCourse] = useState<string>('');
   const [courseStudents, setCourseStudents] = useState<{ _id: string, name: string, courseName: string, courseSlug: string, certificateId: string }[]>([]);
   const [selectedCertStudent, setSelectedCertStudent] = useState<string>(''); // For single student selection
+  const [batchOptions, setBatchOptions] = useState<{ slug: string, courseName: string, prefixes: string[], manualCount: number }[]>([]);
+  const [isAddCertStudentOpen, setIsAddCertStudentOpen] = useState(false);
+  const [isAddingCertStudent, setIsAddingCertStudent] = useState(false);
+  const [certStudentForm, setCertStudentForm] = useState({ courseSlug: '', certificatePrefix: '', name: '', email: '' });
+
+  const loadBatchOptions = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/api/course-students/batch-options`);
+      if (res.data.success) setBatchOptions(res.data.courses);
+    } catch (err) {
+      console.error('Failed to load batch options:', err);
+    }
+  };
+
+  useEffect(() => {
+    loadBatchOptions();
+  }, []);
+
+  const handleAddCertStudent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsAddingCertStudent(true);
+    try {
+      const res = await axios.post(`${API_URL}/api/course-students`, certStudentForm);
+      if (res.data.success) {
+        alert(res.data.message);
+        setIsAddCertStudentOpen(false);
+        setCertStudentForm({ courseSlug: '', certificatePrefix: '', name: '', email: '' });
+        loadBatchOptions();
+      }
+    } catch (err: any) {
+      alert(err?.response?.data?.message || 'Failed to add student.');
+    } finally {
+      setIsAddingCertStudent(false);
+    }
+  };
 
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -2054,7 +2089,12 @@ export default function AdminDashboard() {
                   {/* Step 2: Generate New Batch Certificates */}
                   {certTemplate && (
                     <div className="space-y-4">
-                      <label className="text-sm font-medium">2. Generate New Batch Certificates</label>
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <label className="text-sm font-medium">2. Generate New Batch Certificates</label>
+                        <Button type="button" variant="outline" onClick={() => setIsAddCertStudentOpen(true)}>
+                          <Plus className="mr-2 h-4 w-4" /> Add Student
+                        </Button>
+                      </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {[
                           { slug: 'artificial-intelligence', title: 'Artificial Intelligence', color: 'bg-rose-600 hover:bg-rose-700', icon: Sparkles },
@@ -2063,7 +2103,7 @@ export default function AdminDashboard() {
                           { slug: 'video-editing', title: 'Video Editing', color: 'bg-purple-600 hover:bg-purple-700', icon: Video },
                           { slug: 'ui-ux', title: 'UI/UX', color: 'bg-amber-600 hover:bg-amber-700', icon: Palette },
                         ].map((course) => {
-                          const count = newBatchStudents[course.slug]?.length || 0;
+                          const count = (newBatchStudents[course.slug]?.length || 0) + (batchOptions.find(b => b.slug === course.slug)?.manualCount || 0);
                           const Icon = course.icon;
                           return (
                             <Card key={course.slug} className="border-slate-200 p-4 flex flex-col gap-3">
@@ -2089,7 +2129,7 @@ export default function AdminDashboard() {
                                       name.trim().toUpperCase().replace(/\s+/g, ' ').replace(/\./g, '').replace(/,/g, '');
                                     const allowedNames = new Set(newBatchStudents[course.slug].map(normalize));
                                     const filtered = res.data.students.filter((s: any) =>
-                                      allowedNames.has(normalize(s.name))
+                                      allowedNames.has(normalize(s.name)) || s.addedManually
                                     );
                                     if (filtered.length === 0) {
                                       alert(`None of the ${count} ${course.title} students found in database`);
@@ -2411,6 +2451,71 @@ export default function AdminDashboard() {
           )}
         </main>
       </div>
+
+      {/* Add Student to Certificate Batch Modal */}
+      {isAddCertStudentOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <Card className="w-full max-w-lg bg-white shadow-2xl">
+            <CardHeader className="flex flex-row items-center justify-between border-b pb-4">
+              <CardTitle>Add Student to Certificate Batch</CardTitle>
+              <button onClick={() => setIsAddCertStudentOpen(false)} className="rounded-full p-1 hover:bg-slate-100">
+                <X className="h-4 w-4" />
+              </button>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <form onSubmit={handleAddCertStudent} className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none">Course</label>
+                  <select
+                    required
+                    className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm"
+                    value={certStudentForm.courseSlug}
+                    onChange={(e) => {
+                      const course = batchOptions.find(c => c.slug === e.target.value);
+                      setCertStudentForm({ ...certStudentForm, courseSlug: e.target.value, certificatePrefix: course?.prefixes[0] || '' });
+                    }}
+                  >
+                    <option value="" disabled>Select course</option>
+                    {batchOptions.map(c => (
+                      <option key={c.slug} value={c.slug}>{c.courseName}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none">Batch (certificate ID prefix)</label>
+                  <select
+                    required
+                    disabled={!certStudentForm.courseSlug}
+                    className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm disabled:opacity-50"
+                    value={certStudentForm.certificatePrefix}
+                    onChange={(e) => setCertStudentForm({ ...certStudentForm, certificatePrefix: e.target.value })}
+                  >
+                    {(batchOptions.find(c => c.slug === certStudentForm.courseSlug)?.prefixes || []).map(p => (
+                      <option key={p} value={p}>{p}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <Input label="Full Name" placeholder="e.g. Priya S" value={certStudentForm.name} onChange={(e: any) => setCertStudentForm({ ...certStudentForm, name: e.target.value })} required />
+                <Input label="Email (optional)" type="email" placeholder="student@example.com" value={certStudentForm.email} onChange={(e: any) => setCertStudentForm({ ...certStudentForm, email: e.target.value })} />
+
+                <p className="text-xs text-slate-500">
+                  The certificate ID is assigned automatically as the next number in the selected batch.
+                </p>
+
+                <div className="flex justify-end gap-2 pt-4">
+                  <Button type="button" variant="outline" onClick={() => setIsAddCertStudentOpen(false)}>Cancel</Button>
+                  <Button type="submit" disabled={isAddingCertStudent}>
+                    {isAddingCertStudent && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Add Student
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Add Student Modal */}
       {isAddStudentOpen && (
