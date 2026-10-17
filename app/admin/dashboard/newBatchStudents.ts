@@ -173,7 +173,8 @@ export const newBatchStudents: Record<string, string[]> = {
     'Dhavalashree',
     'Meghaa S',
     'Krishnaveni. S',
-    'Praveen Kumar D'
+    'Praveen Kumar D',
+    'DEENADHAYALAN'
   ],
   'ui-ux': [
     'K VAISHALI',
