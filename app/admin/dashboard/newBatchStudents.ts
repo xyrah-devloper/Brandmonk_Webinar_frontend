@@ -92,7 +92,13 @@ export const newBatchStudents: Record<string, string[]> = {
     'Yogitha',
     'Srimathi M',
     'Srikanth.S',
-    'S.Ranjitha'
+    'S.Ranjitha',
+    'Dhanusigasree',
+    'S.Yuvasankari',
+    'C.KAJAYROSAN',
+    'Pitchu alias Preethi .G',
+    'Dhanush N',
+    'S.SOLOMON'
   ],
   'video-editing': [
     'A B Antony Gutenburg',
@@ -161,7 +167,12 @@ export const newBatchStudents: Record<string, string[]> = {
     'priyankasri S',
     'Jayaseelan V',
     'Abishan',
-    'Arul Periyanayagam'
+    'Arul Periyanayagam',
+    'Anderson W',
+    'Dhavalashree',
+    'Meghaa S',
+    'Krishnaveni. S',
+    'Praveen Kumar D'
   ],
   'ui-ux': [
     'K VAISHALI',
@@ -186,6 +197,10 @@ export const newBatchStudents: Record<string, string[]> = {
     'Veronika S',
     'Hanistan A',
     'Arun V',
-    'Dineshkumar K'
+    'Dineshkumar K',
+    'Sarumathi R',
+    'Sarulatha G',
+    'Sharmila T',
+    'Sri Kirubakaran R'
   ]
 };
