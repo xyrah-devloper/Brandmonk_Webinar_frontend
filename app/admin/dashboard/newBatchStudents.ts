@@ -98,7 +98,10 @@ export const newBatchStudents: Record<string, string[]> = {
     'C.KAJAYROSAN',
     'Pitchu alias Preethi .G',
     'Dhanush N',
-    'S.SOLOMON'
+    'S.SOLOMON',
+    'Divya Bharathi E',
+    'Velmurugan S',
+    'Tamilarasan.S'
   ],
   'video-editing': [
     'A B Antony Gutenburg',
