@@ -2488,11 +2488,10 @@ export default function AdminDashboard() {
                     required
                     type="text"
                     list="cert-prefix-suggestions"
-                    disabled={!certStudentForm.courseSlug}
                     placeholder="e.g. BMAJUNDMMES/Q0506S"
-                    className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm disabled:opacity-50"
+                    className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm"
                     value={certStudentForm.certificatePrefix}
-                    onChange={(e) => setCertStudentForm({ ...certStudentForm, certificatePrefix: e.target.value.toUpperCase() })}
+                    onChange={(e) => setCertStudentForm({ ...certStudentForm, certificatePrefix: e.target.value })}
                   />
                   <datalist id="cert-prefix-suggestions">
                     {(batchOptions.find(c => c.slug === certStudentForm.courseSlug)?.prefixes || []).map(p => (
