@@ -2484,17 +2484,20 @@ export default function AdminDashboard() {
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium leading-none">Batch (certificate ID prefix)</label>
-                  <select
+                  <input
                     required
-                    disabled={!certStudentForm.courseSlug}
-                    className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm disabled:opacity-50"
+                    type="text"
+                    list="cert-prefix-suggestions"
+                    placeholder="e.g. BMAJUNDMMES/Q0506S"
+                    className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm"
                     value={certStudentForm.certificatePrefix}
                     onChange={(e) => setCertStudentForm({ ...certStudentForm, certificatePrefix: e.target.value })}
-                  >
+                  />
+                  <datalist id="cert-prefix-suggestions">
                     {(batchOptions.find(c => c.slug === certStudentForm.courseSlug)?.prefixes || []).map(p => (
-                      <option key={p} value={p}>{p}</option>
+                      <option key={p} value={p} />
                     ))}
-                  </select>
+                  </datalist>
                 </div>
 
                 <Input label="Full Name" placeholder="e.g. Priya S" value={certStudentForm.name} onChange={(e: any) => setCertStudentForm({ ...certStudentForm, name: e.target.value })} required />
