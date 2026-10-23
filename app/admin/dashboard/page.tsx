@@ -2126,7 +2126,7 @@ export default function AdminDashboard() {
                                       return;
                                     }
                                     const normalize = (name: string) =>
-                                      name.trim().toUpperCase().replace(/\s+/g, ' ').replace(/\./g, '').replace(/,/g, '');
+                                      name.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
                                     const allowedNames = new Set(newBatchStudents[course.slug].map(normalize));
                                     const filtered = res.data.students.filter((s: any) =>
                                       allowedNames.has(normalize(s.name)) || s.addedManually
