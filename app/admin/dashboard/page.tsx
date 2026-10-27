@@ -274,7 +274,11 @@ export default function AdminDashboard() {
     studentsToGenerate: { name: string; certificateId: string }[],
     courseSlug: string
   ) => {
-    if (!certTemplate || studentsToGenerate.length === 0) return;
+    if (!certTemplate) {
+      alert('Upload the certificate template (step 1) before generating certificates.');
+      return;
+    }
+    if (studentsToGenerate.length === 0) return;
 
     setIsGeneratingCerts(true);
     setSelectedCertCourse(courseSlug);
