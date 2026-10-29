@@ -227,6 +227,9 @@ export default function AdminDashboard() {
   const [studentTypeFilter, setStudentTypeFilter] = useState<'All' | 'Webinar' | 'Course'>('All');
   const [webinarTypeFilter, setWebinarTypeFilter] = useState<'All' | 'Webinar' | 'Course'>('All');
   const [studentCourseFilter, setStudentCourseFilter] = useState<string>('All');
+  const [studentDateFrom, setStudentDateFrom] = useState('');
+  const [studentDateTo, setStudentDateTo] = useState('');
+  const [isStudentDateFilterOpen, setIsStudentDateFilterOpen] = useState(false);
   const [studentRegisterType, setStudentRegisterType] = useState<'Webinar' | 'Course'>('Course');
 
   // Search
@@ -997,8 +1000,13 @@ export default function AdminDashboard() {
 
   // Download students data as XLSX
   const downloadStudentsXLSX = () => {
+    if (studentDateFrom && studentDateTo && studentDateFrom > studentDateTo) {
+      alert('The start date must be before or equal to the end date.');
+      return;
+    }
+
     // Prepare data for export
-    const exportData = students.map((student, index) => ({
+    const exportData = filteredStudents.map((student, index) => ({
       'S.No': index + 1,
       'Name': student.name,
       'Email': student.email,
@@ -1047,7 +1055,10 @@ export default function AdminDashboard() {
 
     // Generate filename with date
     const today = new Date().toISOString().split('T')[0];
-    const filename = `BrandMonk_Students_${today}.xlsx`;
+    const rangeLabel = studentDateFrom || studentDateTo
+      ? `${studentDateFrom || 'start'}_to_${studentDateTo || 'end'}`
+      : today;
+    const filename = `BrandMonk_Students_${rangeLabel}.xlsx`;
 
     // Download file
     XLSX.writeFile(workbook, filename);
@@ -1138,7 +1149,17 @@ export default function AdminDashboard() {
     const matchesCourse = studentCourseFilter === 'All' || s.webinarName === studentCourseFilter;
     const type = getProgramType(s.webinarName);
     const matchesType = studentTypeFilter === 'All' || type === studentTypeFilter;
-    return matchesSearch && matchesCourse && matchesType;
+    const registrationDate = new Date(s.dateOfRegistration || s.createdAt);
+    const registrationDateKey = Number.isNaN(registrationDate.getTime())
+      ? ''
+      : [
+        registrationDate.getFullYear(),
+        String(registrationDate.getMonth() + 1).padStart(2, '0'),
+        String(registrationDate.getDate()).padStart(2, '0')
+      ].join('-');
+    const matchesDateFrom = !studentDateFrom || (registrationDateKey && registrationDateKey >= studentDateFrom);
+    const matchesDateTo = !studentDateTo || (registrationDateKey && registrationDateKey <= studentDateTo);
+    return matchesSearch && matchesCourse && matchesType && matchesDateFrom && matchesDateTo;
   });
 
   const filteredWebinars = webinarsWithCounts.filter(w => {
@@ -1875,13 +1896,32 @@ export default function AdminDashboard() {
                       <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
                     </div>
 
+                    <button
+                      type="button"
+                      onClick={() => setIsStudentDateFilterOpen((open) => !open)}
+                      className={`inline-flex h-10 items-center gap-2 rounded-lg border px-3 text-sm font-medium shadow-sm transition-colors ${
+                        isStudentDateFilterOpen || studentDateFrom || studentDateTo
+                          ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                          : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                      }`}
+                      aria-expanded={isStudentDateFilterOpen}
+                    >
+                      <Calendar className="h-4 w-4" />
+                      Calendar
+                      {(studentDateFrom || studentDateTo) && (
+                        <span className="rounded-full bg-emerald-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                          1
+                        </span>
+                      )}
+                    </button>
+
                     <div className="flex gap-2 ml-auto">
                       <Button
                         variant="outline"
                         onClick={downloadStudentsXLSX}
                         className="border-emerald-200 text-emerald-600 hover:bg-emerald-50 shadow-sm"
                       >
-                        <Download className="mr-2 h-4 w-4" /> Download
+                        <Download className="mr-2 h-4 w-4" /> Download ({filteredStudents.length})
                       </Button>
 
                       <div className="relative">
@@ -1911,6 +1951,54 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                   </div>
+
+                  {isStudentDateFilterOpen && (
+                    <div className="flex flex-wrap items-end gap-3 rounded-lg border border-emerald-100 bg-emerald-50/50 p-3">
+                      <div className="space-y-1.5">
+                        <label htmlFor="student-date-from" className="block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                          From date
+                        </label>
+                        <input
+                          id="student-date-from"
+                          type="date"
+                          value={studentDateFrom}
+                          max={studentDateTo || undefined}
+                          onChange={(e) => setStudentDateFrom(e.target.value)}
+                          className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label htmlFor="student-date-to" className="block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                          To date
+                        </label>
+                        <input
+                          id="student-date-to"
+                          type="date"
+                          value={studentDateTo}
+                          min={studentDateFrom || undefined}
+                          onChange={(e) => setStudentDateTo(e.target.value)}
+                          className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                        />
+                      </div>
+                      <div className="pb-0.5 text-xs text-slate-500">
+                        {studentDateFrom || studentDateTo
+                          ? `${filteredStudents.length} record${filteredStudents.length === 1 ? '' : 's'} in selected range`
+                          : 'Choose a start and end date to filter records'}
+                      </div>
+                      {(studentDateFrom || studentDateTo) && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setStudentDateFrom('');
+                            setStudentDateTo('');
+                          }}
+                          className="h-10 rounded-lg px-3 text-sm font-medium text-slate-500 hover:bg-white hover:text-slate-900"
+                        >
+                          Clear dates
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               </CardHeader>
               <div className="overflow-x-auto">
