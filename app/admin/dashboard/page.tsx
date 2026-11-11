@@ -168,6 +168,16 @@ const Input = ({ label, ...props }: any) => (
   </div>
 );
 
+// Built-in certificate courses — used when the backend's batch-options
+// endpoint is unavailable (e.g. an older backend deploy without course management).
+const FALLBACK_COURSE_OPTIONS = [
+  { slug: 'artificial-intelligence', courseName: 'Artificial Intelligence', prefixes: ['BMAJUNAIMES/Q0806S'], manualCount: 0 },
+  { slug: 'data-analytics', courseName: 'Data Analytics', prefixes: ['BMAJUNDAMES/Q0906S'], manualCount: 0 },
+  { slug: 'digital-marketing', courseName: 'Digital Marketing', prefixes: ['BMAJUNDMMES/Q0506S', 'BMASEPDMMES/Q0506S'], manualCount: 0 },
+  { slug: 'video-editing', courseName: 'Advanced Video Editing (AI-Integrated)', prefixes: ['BMAJUNVEMES/Q1401S', 'BMASEPVEMES/Q1401S'], manualCount: 0 },
+  { slug: 'ui-ux', courseName: 'UI/UX Design', prefixes: ['BMAJUNUIMES/Q0306S'], manualCount: 0 }
+];
+
 // --- Page Component ---
 
 export default function AdminDashboard() {
@@ -200,10 +210,15 @@ export default function AdminDashboard() {
   const loadBatchOptions = async () => {
     try {
       const res = await axios.get(`${API_URL}/api/course-students/batch-options`);
-      if (res.data.success) setBatchOptions(res.data.courses);
+      if (res.data.success && res.data.courses?.length) {
+        setBatchOptions(res.data.courses);
+        return;
+      }
     } catch (err) {
       console.error('Failed to load batch options:', err);
     }
+    // Older backend without the course API — still show the built-in courses
+    setBatchOptions(FALLBACK_COURSE_OPTIONS);
   };
 
   useEffect(() => {
