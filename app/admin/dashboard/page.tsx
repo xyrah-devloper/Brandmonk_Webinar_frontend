@@ -198,6 +198,7 @@ export default function AdminDashboard() {
   const [isAddCertStudentOpen, setIsAddCertStudentOpen] = useState(false);
   const [isAddingCertStudent, setIsAddingCertStudent] = useState(false);
   const [certStudentForm, setCertStudentForm] = useState({ courseSlug: '', certificatePrefix: '', name: '', email: '' });
+  const [certSearch, setCertSearch] = useState('');
 
   // Add Course (certificate courses) state
   const [isAddCourseOpen, setIsAddCourseOpen] = useState(false);
@@ -463,6 +464,13 @@ export default function AdminDashboard() {
     'digital-marketing': { color: 'bg-blue-600 hover:bg-blue-700', icon: Award },
     'video-editing': { color: 'bg-purple-600 hover:bg-purple-700', icon: Video },
     'ui-ux': { color: 'bg-amber-600 hover:bg-amber-700', icon: Palette }
+  };
+
+  // Filter generated certificates by name or certificate ID
+  const filterGeneratedCerts = (certs: { id: string; name: string; dataUrl: string }[] = []) => {
+    const q = certSearch.trim().toLowerCase();
+    if (!q) return certs;
+    return certs.filter(c => c.name.toLowerCase().includes(q) || c.id.toLowerCase().includes(q));
   };
 
   // Fetch students from DB and generate certificates for any course
@@ -2435,6 +2443,16 @@ export default function AdminDashboard() {
                           </button>
                         ))}
                       </div>
+                      <div className="relative max-w-sm mt-3">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <input
+                          type="text"
+                          placeholder="Search by name or certificate ID..."
+                          value={certSearch}
+                          onChange={(e) => setCertSearch(e.target.value)}
+                          className="w-full h-10 pl-9 pr-3 rounded-md border border-slate-200 bg-white text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950"
+                        />
+                      </div>
                     </div>
                     {selectedCertCourse && generatedCerts[selectedCertCourse] && (
                       <div className="flex flex-wrap gap-2">
@@ -2485,9 +2503,12 @@ export default function AdminDashboard() {
                       </div>
                     )}
                   </div>
+                  {selectedCertCourse && generatedCerts[selectedCertCourse] && filterGeneratedCerts(generatedCerts[selectedCertCourse]).length === 0 && (
+                    <p className="text-sm text-slate-500">No certificates match "{certSearch.trim()}".</p>
+                  )}
                   {selectedCertCourse && generatedCerts[selectedCertCourse] && (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {generatedCerts[selectedCertCourse].map((cert) => (
+                      {filterGeneratedCerts(generatedCerts[selectedCertCourse]).map((cert) => (
                         <Card key={cert.id} className="overflow-hidden">
                           <div className="relative aspect-[1.414] bg-slate-100 group">
                             <img src={cert.dataUrl} alt={cert.name} className="w-full h-full object-contain" />
