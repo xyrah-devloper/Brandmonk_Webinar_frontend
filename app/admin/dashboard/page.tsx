@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import {
@@ -184,10 +184,18 @@ export default function AdminDashboard() {
   const [selectedCertCourse, setSelectedCertCourse] = useState<string>('');
   const [courseStudents, setCourseStudents] = useState<{ _id: string, name: string, courseName: string, courseSlug: string, certificateId: string }[]>([]);
   const [selectedCertStudent, setSelectedCertStudent] = useState<string>(''); // For single student selection
-  const [batchOptions, setBatchOptions] = useState<{ slug: string, courseName: string, prefixes: string[], manualCount: number }[]>([]);
+  const [batchOptions, setBatchOptions] = useState<{ slug: string, courseName: string, prefixes: string[], manualCount: number, hasTemplate?: boolean, isCustom?: boolean }[]>([]);
   const [isAddCertStudentOpen, setIsAddCertStudentOpen] = useState(false);
   const [isAddingCertStudent, setIsAddingCertStudent] = useState(false);
   const [certStudentForm, setCertStudentForm] = useState({ courseSlug: '', certificatePrefix: '', name: '', email: '' });
+
+  // Add Course (certificate courses) state
+  const [isAddCourseOpen, setIsAddCourseOpen] = useState(false);
+  const [isAddingCourse, setIsAddingCourse] = useState(false);
+  const [courseForm, setCourseForm] = useState({ courseName: '', certificatePrefix: '', templateData: '' });
+  const [courseTemplateFileName, setCourseTemplateFileName] = useState('');
+  const [templateUploadSlug, setTemplateUploadSlug] = useState('');
+  const templateFileInputRef = useRef<HTMLInputElement | null>(null);
 
   const loadBatchOptions = async () => {
     try {
@@ -218,6 +226,68 @@ export default function AdminDashboard() {
     } finally {
       setIsAddingCertStudent(false);
     }
+  };
+
+  const handleAddCourse = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsAddingCourse(true);
+    try {
+      const res = await axios.post(`${API_URL}/api/courses`, {
+        courseName: courseForm.courseName,
+        certificatePrefix: courseForm.certificatePrefix || undefined,
+        templateData: courseForm.templateData || undefined
+      });
+      if (res.data.success) {
+        alert(res.data.message);
+        setIsAddCourseOpen(false);
+        setCourseForm({ courseName: '', certificatePrefix: '', templateData: '' });
+        setCourseTemplateFileName('');
+        loadBatchOptions();
+      }
+    } catch (err: any) {
+      alert(err?.response?.data?.message || 'Failed to add course.');
+    } finally {
+      setIsAddingCourse(false);
+    }
+  };
+
+  const handleCourseTemplateUpload = (slug: string, file: File) => {
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      try {
+        const res = await axios.put(`${API_URL}/api/courses/${slug}/template`, {
+          templateData: ev.target?.result
+        });
+        if (res.data.success) {
+          alert(res.data.message);
+          loadBatchOptions();
+        }
+      } catch (err: any) {
+        alert(err?.response?.data?.message || 'Failed to upload template.');
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDeleteCourse = async (slug: string, courseName: string) => {
+    if (!confirm(`Delete the course "${courseName}"? Students already added to it stay in the database.`)) return;
+    try {
+      const res = await axios.delete(`${API_URL}/api/courses/${slug}`);
+      if (res.data.success) loadBatchOptions();
+    } catch (err: any) {
+      alert(err?.response?.data?.message || 'Failed to delete course.');
+    }
+  };
+
+  // Use the course's own uploaded template if it has one, else the one uploaded in step 1
+  const getCourseTemplate = async (courseSlug: string): Promise<string | null> => {
+    try {
+      const res = await axios.get(`${API_URL}/api/courses/${courseSlug}/template`);
+      if (res.data.success && res.data.templateData) return res.data.templateData;
+    } catch (err) {
+      console.error('Failed to fetch course template:', err);
+    }
+    return certTemplate;
   };
 
   const [loading, setLoading] = useState(true);
@@ -272,9 +342,11 @@ export default function AdminDashboard() {
   // Certificate generation helper for any course
   const generateCertificatesForStudents = async (
     studentsToGenerate: { name: string; certificateId: string }[],
-    courseSlug: string
+    courseSlug: string,
+    templateOverride?: string
   ) => {
-    if (!certTemplate || studentsToGenerate.length === 0) return;
+    const template = templateOverride || certTemplate;
+    if (!template || studentsToGenerate.length === 0) return;
 
     setIsGeneratingCerts(true);
     setSelectedCertCourse(courseSlug);
@@ -286,7 +358,7 @@ export default function AdminDashboard() {
     try {
       const newCerts: { id: string; name: string; dataUrl: string }[] = [];
       const templateImg = new Image();
-      templateImg.src = certTemplate;
+      templateImg.src = template;
       await new Promise((resolve) => (templateImg.onload = resolve));
 
       // Ensure Niconne is loaded so every certificate uses the same font
@@ -298,7 +370,7 @@ export default function AdminDashboard() {
         }
       }
 
-      const isLongId = courseSlug === 'digital-marketing' || courseSlug === 'digital-marketing-june-190' || courseSlug === 'data-analytics' || courseSlug === 'artificial-intelligence' || courseSlug === 'ui-ux';
+      const isLongId = courseSlug === 'digital-marketing' || courseSlug === 'digital-marketing-june-190' || courseSlug === 'data-analytics' || courseSlug === 'artificial-intelligence' || courseSlug === 'ui-ux' || orderedStudents[0]?.certificateId.includes('/');
 
       for (const student of orderedStudents) {
         const canvas = document.createElement('canvas');
@@ -366,6 +438,15 @@ export default function AdminDashboard() {
     'ui-ux-latest': 'UIUX_Latest'
   };
 
+  // Card color/icon per course; new custom courses fall back to a default style
+  const courseStyleMap: Record<string, { color: string, icon: any }> = {
+    'artificial-intelligence': { color: 'bg-rose-600 hover:bg-rose-700', icon: Sparkles },
+    'data-analytics': { color: 'bg-emerald-600 hover:bg-emerald-700', icon: TrendingUp },
+    'digital-marketing': { color: 'bg-blue-600 hover:bg-blue-700', icon: Award },
+    'video-editing': { color: 'bg-purple-600 hover:bg-purple-700', icon: Video },
+    'ui-ux': { color: 'bg-amber-600 hover:bg-amber-700', icon: Palette }
+  };
+
   // Fetch students from DB and generate certificates for any course
   const generateCertificatesForCourseFromDB = async (courseSlug: string) => {
     try {
@@ -374,7 +455,12 @@ export default function AdminDashboard() {
         alert(`No students found for ${courseLabelMap[courseSlug] || courseSlug}`);
         return;
       }
-      await generateCertificatesForStudents(res.data.students, courseSlug);
+      const template = await getCourseTemplate(courseSlug);
+      if (!template) {
+        alert(`No certificate template for ${courseLabelMap[courseSlug] || courseSlug}. Upload one in the course list or in step 1.`);
+        return;
+      }
+      await generateCertificatesForStudents(res.data.students, courseSlug, template);
     } catch (err) {
       console.error(err);
       alert(`Failed to fetch ${courseLabelMap[courseSlug] || courseSlug} students`);
@@ -383,9 +469,8 @@ export default function AdminDashboard() {
 
   // Generate certificates for all courses at once
   const generateAllCourses = async () => {
-    const allCourses = ['video-editing', 'digital-marketing', 'ui-ux', 'data-analytics', 'artificial-intelligence'];
-    for (const courseSlug of allCourses) {
-      await generateCertificatesForCourseFromDB(courseSlug);
+    for (const course of batchOptions) {
+      await generateCertificatesForCourseFromDB(course.slug);
     }
   };
 
@@ -2048,6 +2133,7 @@ export default function AdminDashboard() {
                   {/* Step 1: Upload Template */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">1. Upload Certificate Template</label>
+                    <p className="text-xs text-slate-500">Used for courses that don't have their own template uploaded in the course list below.</p>
                     <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center hover:bg-slate-50 transition-colors relative">
                       <input
                         type="file"
@@ -2087,75 +2173,141 @@ export default function AdminDashboard() {
                   </div>
 
                   {/* Step 2: Generate New Batch Certificates */}
-                  {certTemplate && (
-                    <div className="space-y-4">
-                      <div className="flex flex-wrap items-center justify-between gap-3">
-                        <label className="text-sm font-medium">2. Generate New Batch Certificates</label>
+                  <div className="space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <label className="text-sm font-medium">2. Generate New Batch Certificates</label>
+                      <div className="flex gap-2">
+                        <Button type="button" variant="outline" onClick={() => setIsAddCourseOpen(true)}>
+                          <Plus className="mr-2 h-4 w-4" /> Add Course
+                        </Button>
                         <Button type="button" variant="outline" onClick={() => setIsAddCertStudentOpen(true)}>
                           <Plus className="mr-2 h-4 w-4" /> Add Student
                         </Button>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {[
-                          { slug: 'artificial-intelligence', title: 'Artificial Intelligence', color: 'bg-rose-600 hover:bg-rose-700', icon: Sparkles },
-                          { slug: 'data-analytics', title: 'Data Analytics', color: 'bg-emerald-600 hover:bg-emerald-700', icon: TrendingUp },
-                          { slug: 'digital-marketing', title: 'Digital Marketing', color: 'bg-blue-600 hover:bg-blue-700', icon: Award },
-                          { slug: 'video-editing', title: 'Video Editing', color: 'bg-purple-600 hover:bg-purple-700', icon: Video },
-                          { slug: 'ui-ux', title: 'UI/UX', color: 'bg-amber-600 hover:bg-amber-700', icon: Palette },
-                        ].map((course) => {
-                          const count = (newBatchStudents[course.slug]?.length || 0) + (batchOptions.find(b => b.slug === course.slug)?.manualCount || 0);
-                          const Icon = course.icon;
-                          return (
-                            <Card key={course.slug} className="border-slate-200 p-4 flex flex-col gap-3">
-                              <div className="flex items-center gap-3">
-                                <div className={`w-10 h-10 rounded-lg ${course.color.split(' ')[0]} flex items-center justify-center text-white`}>
-                                  <Icon className="w-5 h-5" />
-                                </div>
-                                <div>
-                                  <h4 className="font-semibold text-slate-900">{course.title}</h4>
-                                  <p className="text-xs text-slate-500">{count} students</p>
-                                </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {batchOptions.map((course) => {
+                        const style = courseStyleMap[course.slug] || { color: 'bg-slate-600 hover:bg-slate-700', icon: Award };
+                        const count = (newBatchStudents[course.slug]?.length || 0) + (course.manualCount || 0);
+                        const Icon = style.icon;
+                        return (
+                          <Card key={course.slug} className="border-slate-200 p-4 flex flex-col gap-3">
+                            <div className="flex items-center gap-3">
+                              <div className={`w-10 h-10 rounded-lg ${style.color.split(' ')[0]} flex items-center justify-center text-white`}>
+                                <Icon className="w-5 h-5" />
                               </div>
-                              <Button
-                                disabled={isGeneratingCerts}
-                                onClick={async () => {
-                                  try {
-                                    const res = await axios.get(`${API_URL}/api/course-students/course/${course.slug}`);
-                                    if (!res.data.success || !res.data.students?.length) {
-                                      alert(`No ${course.title} students found in database`);
-                                      return;
-                                    }
-                                    const normalize = (name: string) =>
-                                      name.trim().toUpperCase().replace(/\s+/g, ' ').replace(/\./g, '').replace(/,/g, '');
-                                    const allowedNames = new Set(newBatchStudents[course.slug].map(normalize));
-                                    const filtered = res.data.students.filter((s: any) =>
-                                      allowedNames.has(normalize(s.name)) || s.addedManually
-                                    );
-                                    if (filtered.length === 0) {
-                                      alert(`None of the ${count} ${course.title} students found in database`);
-                                      return;
-                                    }
-                                    await generateCertificatesForStudents(filtered, course.slug);
-                                  } catch (err) {
-                                    console.error(err);
-                                    alert(`Failed to fetch ${course.title} students`);
+                              <div>
+                                <h4 className="font-semibold text-slate-900">{course.courseName}</h4>
+                                <p className="text-xs text-slate-500">
+                                  {count} students{course.hasTemplate ? ' · template saved' : ''}
+                                </p>
+                              </div>
+                            </div>
+                            <Button
+                              disabled={isGeneratingCerts}
+                              onClick={async () => {
+                                try {
+                                  const res = await axios.get(`${API_URL}/api/course-students/course/${course.slug}`);
+                                  if (!res.data.success || !res.data.students?.length) {
+                                    alert(`No ${course.courseName} students found in database`);
+                                    return;
                                   }
-                                }}
-                                className={`h-10 w-full ${course.color} text-white`}
-                              >
-                                {isGeneratingCerts && selectedCertCourse === course.slug ? (
-                                  <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Generating...</>
-                                ) : (
-                                  <><Sparkles className="w-4 h-4 mr-2" /> Generate {course.title} Certificates</>
-                                )}
-                              </Button>
-                            </Card>
-                          );
-                        })}
+                                  const normalize = (name: string) =>
+                                    name.trim().toUpperCase().replace(/\s+/g, ' ').replace(/\./g, '').replace(/,/g, '');
+                                  const allowedNames = new Set((newBatchStudents[course.slug] || []).map(normalize));
+                                  const filtered = course.isCustom
+                                    ? res.data.students
+                                    : res.data.students.filter((s: any) =>
+                                        allowedNames.has(normalize(s.name)) || s.addedManually
+                                      );
+                                  if (filtered.length === 0) {
+                                    alert(`None of the ${count} ${course.courseName} students found in database`);
+                                    return;
+                                  }
+                                  const template = await getCourseTemplate(course.slug);
+                                  if (!template) {
+                                    alert(`No certificate template for ${course.courseName}. Upload one in the course list below or in step 1.`);
+                                    return;
+                                  }
+                                  await generateCertificatesForStudents(filtered, course.slug, template);
+                                } catch (err) {
+                                  console.error(err);
+                                  alert(`Failed to fetch ${course.courseName} students`);
+                                }
+                              }}
+                              className={`h-10 w-full ${style.color} text-white`}
+                            >
+                              {isGeneratingCerts && selectedCertCourse === course.slug ? (
+                                <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Generating...</>
+                              ) : (
+                                <><Sparkles className="w-4 h-4 mr-2" /> Generate {course.courseName} Certificates</>
+                              )}
+                            </Button>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                </CardContent>
+              </Card>
+
+              {/* Certificate Courses — add a course or upload its template image */}
+              <Card className="border-slate-200">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle>Courses</CardTitle>
+                    <p className="text-sm text-slate-500">All certificate courses. Add a new course or upload its certificate template image.</p>
+                  </div>
+                  <Button type="button" variant="outline" onClick={() => setIsAddCourseOpen(true)}>
+                    <Plus className="mr-2 h-4 w-4" /> Add Course
+                  </Button>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {batchOptions.length === 0 && (
+                    <p className="text-sm text-slate-500">No courses found.</p>
+                  )}
+                  {batchOptions.map((c) => (
+                    <div key={c.slug} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 p-3">
+                      <div>
+                        <p className="font-medium text-slate-900">{c.courseName}</p>
+                        <p className="text-xs text-slate-500">
+                          {c.slug}
+                          {c.isCustom ? ' · custom' : ''}
+                          {c.hasTemplate ? ' · template saved' : ' · no template'}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => {
+                            setTemplateUploadSlug(c.slug);
+                            templateFileInputRef.current?.click();
+                          }}
+                        >
+                          <Upload className="mr-2 h-4 w-4" />
+                          {c.hasTemplate ? 'Replace Template' : 'Upload Template'}
+                        </Button>
+                        {c.isCustom && (
+                          <Button type="button" variant="outline" onClick={() => handleDeleteCourse(c.slug, c.courseName)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
                     </div>
-                  )}
-
+                  ))}
+                  <input
+                    ref={templateFileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file && templateUploadSlug) handleCourseTemplateUpload(templateUploadSlug, file);
+                      e.target.value = '';
+                    }}
+                  />
                 </CardContent>
               </Card>
 
@@ -2512,6 +2664,61 @@ export default function AdminDashboard() {
                   <Button type="submit" disabled={isAddingCertStudent}>
                     {isAddingCertStudent && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Add Student
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Add Course Modal */}
+      {isAddCourseOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <Card className="w-full max-w-lg bg-white shadow-2xl">
+            <CardHeader className="flex flex-row items-center justify-between border-b pb-4">
+              <CardTitle>Add Certificate Course</CardTitle>
+              <button onClick={() => setIsAddCourseOpen(false)} className="rounded-full p-1 hover:bg-slate-100">
+                <X className="h-4 w-4" />
+              </button>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <form onSubmit={handleAddCourse} className="space-y-4">
+                <Input label="Course Name" placeholder="e.g. AI Generalist" value={courseForm.courseName} onChange={(e: any) => setCourseForm({ ...courseForm, courseName: e.target.value })} required />
+                <Input label="Certificate ID Prefix (optional)" placeholder="e.g. BMAAPRAIMES/Q0806S" value={courseForm.certificatePrefix} onChange={(e: any) => setCourseForm({ ...courseForm, certificatePrefix: e.target.value })} />
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none">Certificate Template (optional)</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="flex w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                          setCourseForm((prev) => ({ ...prev, templateData: ev.target?.result as string }));
+                          setCourseTemplateFileName(file.name);
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                  />
+                  {courseTemplateFileName && (
+                    <p className="text-xs text-emerald-600">Selected: {courseTemplateFileName}</p>
+                  )}
+                </div>
+
+                <p className="text-xs text-slate-500">
+                  The new course appears in the course list and in the "Add Student" dropdown. Students added to it get the next certificate number in the prefix.
+                </p>
+
+                <div className="flex justify-end gap-2 pt-4">
+                  <Button type="button" variant="outline" onClick={() => setIsAddCourseOpen(false)}>Cancel</Button>
+                  <Button type="submit" disabled={isAddingCourse}>
+                    {isAddingCourse && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Add Course
                   </Button>
                 </div>
               </form>
